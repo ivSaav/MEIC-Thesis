@@ -1,0 +1,89 @@
+\chapter{Background}\label{chap:background}
+In this chapter, a basic introduction to solar weather and the main events associated with it will be presented. Additionally, a brief explanation of the Machine Learning (ML) terms that are needed in the context of this dissertation will be provided.
+
+\section{Space Weather}
+"Space weather refers to the dynamic, highly variable conditions in the geospace environment, including those on the Sun, in the interplanetary medium, and in the magnetosphere-ionosphere-thermosphere system. Adverse changes in the near-Earth space environment can diminish the performance and reliability of both spacecraft and ground-based systems." (\cite{BAKER19987})
+
+\subsection{Solar Phenomena}\label{sec:solar_events}
+The increasing dependence on technologies vulnerable to solar weather conditions has made it increasingly important to detect incidents, like the Carrington event \cite{schwenn_SpaceWeatherSolar_2006}, that would significantly damage assets on Earth beforehand. In this section, a brief introduction to these phenomena will be provided.\\
+
+\noindent\textbf{Sunspots.} These structures consist of dark central regions (umbra), which are colder than the rest of the Sun's surface, and more luminous external regions (penumbra). Sunspots are known to be regions with strong magnetic fields (1000 times stronger than in the surrounding normal surface). It is theorized that these magnetic fields interfere with the convection of the Sun, effectively cooling the regions where they appear. Sunspots often originate as groups concentrated in specific areas of the Sun, and their frequency and size vary with the 11-year solar cycle \cite{moldwin_2008}. \\
+
+
+\noindent\textbf{Coronal Mass Ejections (CME).} These events are best described as mass ejections of plasma into space after solar eruptions. It is posited that their formation occurs mainly from magnetic reconnection, which occurs when magnetic field lines collide and realign into a new configuration (releasing large amounts of energy). After their formation, CMEs can expand through space to great distances and collide with planetary atmospheres. The effects on Earth include geomagnetic storms, damage to electronics on orbiting satellites, endangerment of astronauts or planes, damage to electrical grids and disruption of radio communication. Due to their length (at least 0.25AU), CMEs can take over a day to pass Earth. While slower CMEs can take days before reaching Earth, the fastest ones arrive in approximately 15-18 hours. \cite{priest_2014, moldwin_2008}.\\
+
+\noindent\textbf{Solar Flares.} These events are often characterized as intense and temporary releases of energy that blast large amounts of charged particles into space. Flares are known to last only a few minutes and reach temperatures of 100 million K, much higher than the ones at the core of the Sun. Like CMEs, flare formations are associated with energy releases from magnetic reconnection and are primarily concentrated in the Sun's active regions. Flares are almost always associated with CMEs, but can also occur separately from them. Flares can be classified as A, B, C, M or X based on the X-ray flux measurements on Earth by the GOES spacecraft\footnote{GOES overview and history \url{https://www.nasa.gov/content/goes-overview/index.html}} \cite{moldwin_2008, priest_2014}.\\
+
+\noindent\textbf{Solar Wind.} This phenomenon results from plasma's constant expulsion and expansion into interplanetary space. More concretely, the solar wind consists of mostly protons, helium nuclei and electrons that move away from the Sun at supersonic speeds and carry the Sun's magnetic field with it. It streams away from the Sun at different velocities, which allows for it to be classified as fast (700 to 750 $km s^{-1}$) or slow (300 to 400 $km s^{-1}$). The latter usually occurs on the Sun's equatorial line, and the former is concentrated in open magnetic field regions of the Sun. The exact originating factors for the slow solar wind are still unknown; however, for fast solar wind, it is known that its origin is coronal holes. The solar wind has as properties (at 1 AU) a velocity of 400 $km s^{-1}$, a temperature of 1 million K, and a density of 5 particles $cm^{-3}$ \cite{moldwin_2008, priest_2014}.
+
+\subsection{Magnetohydrodynamic Simulation Models}\label{sec:back_mhd_sim}
+The reasons for the acceleration of solar wind are mainly attributed to thermal heating; however, this does not explain the high speeds it reaches. The additional acceleration is often attributed to the magnetic field, but no physical model can currently explain the correlation. Similarly, the origins of the solar wind are mostly unknown, especially for slow solar wind compared to fast solar wind \cite{priest_2014}.
+
+These difficulties are mostly attributed to the absence of sensitive, high-resolution coronal magnetic field measurements that do not allow for a full explanation of coronal physics. The limitations in this field make it more challenging to comprehend solar events like CMEs and the acceleration of the solar wind \cite{solanki.etal_SolarMagneticField_2006}.
+
+To try and fill these gaps in Space Weather Science, several magnetohydrodynamic (MHD) models have been developed to try and give an answer to these questions. These models compute numerically intensive problems based on MHD equations. For this, they require the definition of appropriate boundaries and initial state definitions. Due to their complexity, MHD models often focus on single events and introduce assumptions and simplifications for the surrounding phenomena. For this reason, the research community has developed relatively simple MHD models to describe complex processes in the past decades.
+%\section{Machine Learning}\label{sec:ml}
+%Machine learning (ML) is a branch of artificial intelligence (AI) and computer science which focuses on the use of data and algorithms to imitate the way that humans learn, gradually improving its accuracy\footnote{What is machine learning? \url{https://www.ibm.com/cloud/learn/machine-learning}}.
+
+\section{Neural Networks}\label{sec:nn}
+Neural Networks (NN) or Artificial Neural Networks (ANNs) are one of the main ML models. Biological neural networks from animal brain structures inspire their design. NNs consist of a set of node layers, the input layer, one or more hidden layers and the output layer. Each node is loosely connected to other nodes, each with its associated weights and threshold values. The connections between the nodes are called edges, allowing for communication between nodes and also having their associated weights. Signals travel from the input layer through the hidden layers to the output layer. If a given node's output is higher than its associated threshold value, it is activated and sends data to the next layer.
+
+\subsection{Deep Neural Networks}\label{sec:deep_learning}
+Deep Neural Networks (DNNs) derive from the  deep learning subfield of ML and are based on NNs. Their distinguishing factor from previous methods is representation learning (also known as feature learning) with multiple levels of abstraction. This technique allows models to discover the underlying data structures needed for feature detection and classification. These methods have been successfully applied in speech recognition, visual object recognition and detection, among others (\cite{lecun.etal_DeepLearning_2015}). The term "deep" comes from a large number of stacked layers that the model has compared to normal NNs. The most basic features are learned in the starting layers and the most complex at the bottom layers. DNNs usually have a feed-forward architecture where the data flows from the top layers to the output layer. In the end, the errors are back-propagated through the network to adjust the weights of the nodes in each layer.
+
+\subsection{Autoencoders}
+Autoencoders (AE) are a subtype of neural networks, and their main purpose is to compress existing data into meaningful representations, which are then decompressed back to the original input. Examples of applications include classification, clustering, anomaly detection (oftentimes adversarially trained), dimensionality reduction, and others. Its objective is to minimize the distance between the reconstructed and original samples. Therefore, the training goal is to minimize the loss function  
+\begin{equation}
+    L(\theta, \phi) = \mathbb{E}_{x\sim\mu_{ref}}[d(x, D_{\theta}(E_{\phi}(x))]
+    \label{eq:ae_objective_func}
+\end{equation} where $\theta$, $\phi$ are the parameters of the encoder, $E_\theta$ and the decoder $D_\phi$, respectively; $x$ is the original sample, $\mu_{ref}$ is the reference probability distribution and $d$ is the distance function that measures the reconstruction quality by comparing $x$ with its reconstructed examples, $D_{\theta}(E_{\phi}(x)$.
+
+Regularizations are often applied to objective functions in line with the application of the autoencoder or to avoid overfitting. Some methods purposely reduce the reconstruction ability of the autoencoder to produce more meaningful compressions and vice versa. Possible variations of AEs include \textit{Sparse AEs}, which aims to reduce the dimensionality of the input data, \textit{Denoising AEs}, mainly used to reduce noise in images and \textit{Contracting AEs}, which aims to reduce the number of features that need to be learned by removing the unnecessary ones. %TODO cite
+
+%A significant improvement over traditional AEs, known as Variational Autoencoders (VAE) was created by \cite{}. Its main goal is to defined with a greated degree of precision the distribution of the encoded examples (also known as the latent space, $z$).
+
+
+\section{Generative Adversarial Networks}\label{sec:gan_background}
+GANs were first introduced by \cite{goodfellow.etal_GenerativeAdversarialNets_} in their paper "Generative Adversarial Nets". Since then, many variations of GANs have surfaced and been applied to different areas like human face generation, image-to-image and text-to-image translation, and semantic generation, among others. The original GAN consisted of two models, a generator $G$ and a discriminator $D$. The task of the first model was to capture the distribution of the data and generate new examples from that distribution. The function of the discriminator $D$ is to distinguish actual samples from the fake data generated by $G$. The two components play an adversarial game in which $G$ tries to fool $D$ with increasingly realistic examples, and in turn, $G$ tries to detect the fake samples from $G$. The authors proposed an analogy that would help the problem's dynamics:
+
+\noindent\textit{The generative model can be thought of as analogous to a team of counterfeiters trying to produce fake currency and use it without detection, while the discriminative model is analogous to the police trying to detect the counterfeit currency. Competition in this game drives both teams to improve their methods until the counterfeits are indistinguishable from the genuine articles.} (\cite{goodfellow.etal_GenerativeAdversarialNets_})
+
+The problem is formulated as follows:
+\begin{equation}
+    \underset{G}{min}\ \underset{D}{max}\ V(D,G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z))]
+    \label{eq:gan_min_max}
+ \end{equation}
+
+ \noindent where $x$ represents the data, $z$ the latent space,  $p_{data}(x)$ is the distribution of the data and $p_z(z)$ is the distribution of the latent points (usually Gaussian) that $G$ uses to generate new samples. GANs can then be defined as a minimax game where $D$ tries to maximise $V$, as it tries to recognise generated and real images better; and, on the other hand, $G$ wants to minimise the function $V$ because its goal is to fool $G$ as many times as possible. 
+
+
+\subsection{Challenges in the training phase}
+Earlier GAN architectures were very unstable and hard to train. Despite some proposed solutions to these issues (\cite{radford.etal_UnsupervisedRepresentationLearning_2016,arjovsky.etal_WassersteinGenerativeAdversarial_}), GANs are still remarkably difficult to train. Following are some of the main problems experienced during this phase.\\
+
+\noindent\textbf{Mode collapse.} Occurs when the GAN is incapable of reaching Nash equilibrium \footnote{Two players, Alice and Bob, chose strategies A and B; Alice has no other strategy to maximise her goal better, and Bob has no different strategy other than B to maximise his goal in response to Alice's choice (\url{https://en.wikipedia.org/wiki/Nash_equilibrium})} and is a consequence of poor generalisation. It can occur when the generator $G$ only creates samples from a subset of the data distribution or only learns part of the distribution. The leading causes for this issue can be attributed to a poor choice of the objective function (\cite{saxena.cao_GenerativeAdversarialNetworks_2022}). In other words, $G$ focuses on a small subset of samples that consistently fool the discriminator $D$.\\
+
+\noindent\textbf{Vanishing gradients.} The discriminator $D$ does not provide enough information for $G$ to update its gradients \cite{little.etal_GenerativeAdversarialNetworks_2021}. $D$ can distinguish real samples from fake ones with high confidence, which in turn causes the loss function of $G$ to decrease towards 0. As $D$ gets better, the gradient of $G$ progressively decreases until virtually none of the layers are updated, and $G$ can't generate samples with new distributions. Some solutions for this problem include batch normalisation and clipping.\\
+
+\noindent\textbf{Evaluation metrics.} Due to their wide range of applications, no global evaluation function can be applied to every GAN. The evaluation function varies greatly from the context of the problem in which the GAN was used. In some instances, like image generation, the principal evaluation criteria are still done qualitatively (the outputs are analysed by humans, who determine their quality). Evaluation functions are an essential part of machine learning and allow for the correct conclusions to be made \cite{saxena.cao_GenerativeAdversarialNetworks_2022}.
+
+%\subsection{Established GAN architectures}\label{sec:other_gans}
+% TODO Wasserstein, Conditional, Bidirectional
+
+\section{Outliers}
+Outliers can be classified as data points significantly different from the rest of the data \cite{aggarwal_OutlierAnalysis_2013}. They can also be referred to as anomalies, out-of-distribution data, novelties, and deviations \cite{aggarwal_OutlierAnalysis_2013, xia.etal_GANbasedAnomalyDetection_2022}.
+
+Datasets often contain unusual characteristics that, in some cases, can be informative in determining the origins of outliers. They can be intentional when they result from nefarious actions(e.g., credit card fraud); and unintentional when they occur naturally (e.g., sensor anomalies, input errors). Following are some examples of outlier detection: 
+
+\begin{itemize}
+    \item \textbf{Credit-card fraud:} theft of credit card credentials can be detected by analysing the transaction history of the target.
+    \item \textbf{Medical diagnosis:} anomalies in scans can indicate possible diseases.
+    \item \textbf{Fault diagnosis:} detection of faults in critical components (e.g., space shuttles).
+    \item  \textbf{Intrusion detection:} detecting unauthorized access to computer networks.
+\end{itemize}
+
+\subsection{Outlier Detection Approaches}
+There are three main approaches for outlier detection based on unsupervised, supervised and semi-supervised methods. The objective of the first is to detect anomalies in the dataset with no prior knowledge of the data. This approach follows the same logic as clustering, in the sense that it defines one or clusters and then identifies every point outside the clusters as an outlier.
+
+Supervised outlier detection aims at modelling the normality and abnormality of the data, and as any supervised learning problem, requires labelled data. The classification algorithms used for this purpose require balanced distributions of normal and anomalous data to be able to generalize better. However, this is not always possible in these types of problems, as outliers are almost always a minority class.
+
+Semi-supervised detection is a compromise between the previous two approaches. The objective is to model only the normal distribution of the dataset and then use the model on the whole dataset. The new samples (outliers) that weren't observed during the training phase will detect by the model as anomalies. This approach requires a preprocessing of the dataset in order to create a dataset with only normal samples that can later be used in the training phase \cite{hodge.austin_SurveyOutlierDetection_2004}.

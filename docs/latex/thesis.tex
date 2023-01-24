@@ -1,0 +1,161 @@
+%% FEUP THESIS STYLE for LaTeX2e
+%% how to use feupteses (English version)
+%%
+%% FEUP, JCL & JCF, 31 July 2012
+%%
+%% PLEASE send improvements to jlopes at fe.up.pt and to jcf at fe.up.pt
+%%
+
+%%========================================
+%% Commands: pdflatex tese
+%%           bibtex tese
+%%           makeindex tese (only if creating an index)
+%%           pdflatex tese
+%% Alternative:
+%%          latexmk -pdf tese.tex
+%%========================================
+
+%% 2021-07-20: One-sided output by default
+\documentclass[11pt,a4paper,numericrefs]{report}
+%% For two-sided printing (for dead-tree output) comment previous line
+%% and uncomment the next line
+%% \documentclass[11pt,a4paper,twoside,openright]{report}
+
+%% For iso-8859-1 (latin1), comment next line and uncomment the second line
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{tabularx}
+%\usepackage[latin1]{inputenc}
+
+%% English version
+
+%% MEIC options
+%\usepackage[meic]{feupteses}
+%\usepackage[meic,juri]{feupteses}
+%\usepackage[meic,final]{feupteses}
+%\usepackage[meic,final,onpaper]{feupteses}
+
+%% MEEC options
+%\usepackage[meec]{feupteses}
+%\usepackage[meec,juri]{feupteses}
+%\usepackage[meec,final]{feupteses}
+
+%% For other degrees
+\usepackage{feupteses} % you must define the degree bellow
+\usepackage{changepage}
+\usepackage{subcaption}
+
+%% Additional options for feupteses.sty: 
+%% - onpaper: links are not shown (for paper versions)
+%% - backrefs: include back references from bibliography to citation place
+
+%% Uncomment to create an index (at the end of the document)
+%\makeindex
+
+%% Path to the figures directory
+%% TIP: use folder ``figures'' to keep all your figures
+\graphicspath{{figures/}}
+
+
+
+%%========================================
+%% Start of document
+%%========================================
+\begin{document}
+%%----------------------------------------
+%% TIP: if you want to define more macros, use an external file to keep them
+\include{mymacros}
+%%----------------------------------------
+
+%%----------------------------------------
+%% Information about the work
+%%----------------------------------------
+\title{GAN-based Outlier Detection in Solar Wind Profiles}
+\author{Ivo Saavedra}
+
+%% Comment next line if not necessary for degree
+\degree{Mestrado em Engenharia Informática e Computação}
+
+%% Uncomment next line for date of submission
+%\thesisdate{July 31, 2008}
+
+%% Comment next line copyright text if not used
+\copyrightnotice{Ivo Saavedra, 2023}
+
+\supervisor{Supervisor}{André Restivo}
+
+%% Uncomment next line if necessary
+\supervisor{Second Supervisor}{Filipa Barros}
+
+%% Uncomment committee stuff in the final version if used
+%\committeetext{Approved by \ldots:}
+%\committeemember{President}{Name of the President}
+%\committeemember{Referee}{Name of the Referee}
+%\committeemember{Referee}{Name of the Referee}
+
+%% Uncomment signature line in the final on paper version if used
+%\signature
+
+%% Specify cover logo (in folder ``figures'')
+\logo{uporto-feup.pdf}
+
+%% Uncomment next line for additional text below the author's name (front page)
+%\additionalfronttext{Preparação da Dissertação}
+
+%%----------------------------------------
+%% Preliminary materials
+%%----------------------------------------
+
+% remove unnecessary \include{} commands
+\begin{Prolog}
+  \include{abstract} % the abstract
+  \include{acknows}  % the acknowledgments
+  \include{quote}    % initial quotation if desired
+  \cleardoublepage
+  \pdfbookmark[0]{Table of Contents}{contents}
+  \tableofcontents
+  \cleardoublepage
+  \pdfbookmark[0]{List of Figures}{figures}
+  \listoffigures
+  \cleardoublepage
+  \pdfbookmark[0]{List of Tables}{tables}
+  \listoftables
+  \include{abbrevs}  % the list of abbreviations used
+\end{Prolog}
+
+%%----------------------------------------
+%% Body
+%%----------------------------------------
+\StartBody
+
+%% TIP: use a separate file for each chapter
+\include{chapter1} 
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{conclusion.tex}
+
+%%----------------------------------------
+%% Final materials
+%%----------------------------------------
+
+%% Bibliography
+%% Comment the next command if BibTeX file not used
+%% bibliography is in ``myrefs.bib''
+\PrintBib{myrefs}
+
+%% 2021-07-20: change
+%% comment next 2 commands if numbered appendices are not used
+\appendix
+\include{appendix1}
+
+%% Index
+%% Uncomment next command if index is required
+%% don't forget to run ``makeindex thesis'' command
+%\PrintIndex
+
+\end{document}

@@ -1,0 +1,47 @@
+\chapter{Introduction} \label{chap:intro}
+
+The Sun releases a constant stream of particles and magnetic ﬁelds called \textit{solar wind}. This stream consisting of high-velocity charged particles (e.g. protons and electrons) can reach planetary surfaces unless thwarted by an atmosphere, magnetic ﬁeld, or both. In Earth's case, the magnetosphere and the atmosphere, to a smaller extent, block out most of the radiation emitted by the Sun. However, other more extreme events like solar flares and CMEs (Coronal Mass Ejections) can provoke negative effects on the Earth's surface and upper atmosphere. 
+
+The three main ways these events can affect the Earth are \textit{radio blackouts} which mostly affect satellites and consequently geolocation systems and communication systems; \textit{solar radiation storms} that can endanger astronauts and spacecraft orbiting the Earth; and probably the worst of all, \textit{geomagnetic storms} which are known to have caused major disturbances in the past. The first significant example of this is the Carrington Event (1859) and, more recently, a geomagnetic storm that affected Quebec's power grid (1989)\footnote{List of solar storms: \url{https://en.wikipedia.org/wiki/List_of_solar_storms}}.
+
+Space Weather Science is a field that aims to prevent the consequences of such events; however, the factors that result in their formation are still not fully understood. Some simulation models have been designed to try and fill this gap \cite{pinto.rouillard_MultipleFluxtubeSolar_2017, odstrcil.pizzo_ThreedimensionalPropagationCoronal_1999}, but they require initial expert guesses. Recently, an ML (Machine Learning) model has been developed \cite{barros_InitialConditionEstimation_} to make those initial predictions based on the input data. Like other ML problems, the quality of the predictions is very dependent on the quality of the training data.
+
+%The field of \textit{Space Weather Science} emerged with the aim of understanding the formation of the phenomena that could affect Earth, in order to implement early warning systems. Despite this being a well-developed field of science, the correlations between the Sun's structures and these phenomena are not yet fully formulated and their prediction is mostly speculative. Several simulations have been developed to try and fill this gap (e.g. MULTI-VP \cite{pinto.rouillard_MultipleFluxtubeSolar_2017}). These models require initial estimations before starting the simulation and their performance is affected by the quality of these initial values.
+
+%Several simulation models have been developed recently to try and estimate these conditions with data collected from satellites, probes and observatories. 
+
+\section{Motivation} \label{sec:motivation}
+In 1859, Carrington recorded the first and largest solar flare in history, which is now commonly referred to as the Carrington event. This phenomenon was so extreme that it caused geomagnetic storms in unexpected latitudes and provoked fires on telegraph wires.  He was also able to correlate the event with a geomagnetic storm that occurred several hours later. His work is considered to be the beginning of the science field of Space Weather \cite{schwenn_SpaceWeatherSolar_2006}.
+
+The field of \textit{Space Weather Science} emerged with the aim of understanding the formation of the phenomena that could affect Earth, in order to evaluate their effects and to create early warning systems. Despite this being a well-developed field of science, the correlations between the Sun's structures and these phenomena are not yet fully formulated and are mostly speculative.  For instance, it is still unknown why the atmosphere of the Sun is considerately hotter than its surface. The main leading theory is that the magnetic field transports energy deep from the convection zone through the surface and up to the atmosphere. It is also posited that the magnetic fields on the surface sometimes collide with each other, provoking large explosions and therefore causing the atmosphere to heat even further. Another enigma is the acceleration of the solar wind (up to millions of miles) out of the corona. Some correlation between the magnetic field and solar wind acceleration has been found, however, the effect still remains a mystery.
+
+The answer to questions like these can contribute to a greater understanding of the underlying processes of the Sun that influence solar weather. Consequently, it would become easier to predict future events that could impact the Earth, satellites, and space stations orbiting it. Thus far, these answers have been delayed by the technological limitations on measuring solar events. In 2018, NASA's Parker Solar \footnote{Parker Solar Probe: Humanity’s First Visit to a Star \url{https://www.nasa.gov/content/goddard/parker-solar-probe-humanity-s-first-visit-to-a-star}} probe was launched on a mission to orbit the Sun's, in order to understand the acceleration of solar wind at the corona. More recently, the PUNCH\footnote{NASA Selects Missions to Study Our Sun, Its Effects on Space Weather \url{https://www.nasa.gov/press-release/nasa-selects-missions-to-study-our-sun-its-effects-on-space-weather}} mission was launched to try and shed some light on the formation of the solar wind on the Sun's surface.
+
+MHD (magnetohydrodynamic) simulators like MULTI-VP \cite{pinto.rouillard_MultipleFluxtubeSolar_2017} and ENLIL \cite{odstrcil.pizzo_ThreedimensionalPropagationCoronal_1999}, were developed in order to try and extrapolate coronal conditions from limited observations of solar events from probes and observatories. The execution of these simulations relies on initial estimations, usually performed by hand after an analysis of the data (a very time-consuming task). Additionally, it has been posited that good initial estimations have the potential to reduce the simulation's execution time significantly. The process of making the initial predictions as well as the extensive execution time of the simulations make it difficult to create early warning systems that can prevent the effects of solar events on Earth.
+
+\section{Problem Definition} \label{sec:prob_definition}
+The large volume of newly acquired data has made it increasingly difficult for a speedy analysis of all the available data. The sheer amount of data is becoming increasingly hard for researchers to process, especially on data that is connected to near-real-time utilization \cite{anirudh2022ReviewDataDriven2022}. Machine learning has become one of the principal methods of evaluating the data efficiently for problems associated with space weather prediction. However, most deep learning models are very susceptible to large variations in the data that can severely decrease the performance of these models. The anomalies can originate from the instrument and detector noise, statistical noise from the small flux of photons, and external noise may include instrumentation jitter, stray starlight, and cosmic ray background \cite{anirudh2022ReviewDataDriven2022}.
+
+Recently, a NN \cite{barros_InitialConditionEstimation_} was developed to perform initial estimations for solar wind profiles that would later be fed to MULTI-VP \cite{pinto.rouillard_MultipleFluxtubeSolar_2017}. This reduced the time needed to generate the initial estimations required by the simulation, which were previously done by hand. However, the model suffered from a common problem in ML which is the existence of anomalous/outlier training data that hinders its prediction quality.
+
+The problem that is addressed in this thesis is to try and improve the quality of the training data, which is then to be used for predicting initial conditions for solar wind formation.
+
+\section{Goals}\label{sec:goals}
+The objective of this thesis is to take advantage of GANs' generative and discriminative abilities to detect anomalous input data in solar wind profiles. The anomalous input data will then be excluded  before being passed to a NN model \cite{barros_InitialConditionEstimation_} used to generate initial predictions for solar wind formation. With this, we intend to improve the prediction of the NN model and, as a consequence, reduce the computation time that MULTI-VP \cite{pinto.rouillard_MultipleFluxtubeSolar_2017} takes to generate feasible solutions.
+
+The developed architecture should be able to generate new solar wind profiles similar to the real distribution and to correctly detect samples that fall out of that distribution.
+
+\section{Document Structure}\label{sec:doc_struct}
+This first chapter served to contextualize the problem that is being solved in this dissertation. The rest of the document is organized in the following manner:
+
+\begin{itemize}
+    \item Chapter \ref{chap:background}, explains the background needed to understand the current problems in the area of space weather science. Some concepts related to neural networks and GANs are also introduced to provide a basis for methods discussed in the remainder of the document.
+
+    \item Chapter \ref{chap:sota}, provides an analysis o fthe current state-of-the-art methods for anomaly detection in tabular datasets.
+
+    \item Chapter \ref{chap:research_proposal}, goes into more depth on the problem this thesis is trying to solve and the approach that will be taken.
+
+    \item Chapter \ref{chap:conclusion} briefly describes the goals achieved during this dissertation.
+\end{itemize}
+
+% hipotese - retirar outliers para o processo de aprendizagem ser melhor
