@@ -128,14 +128,14 @@ A similar process was carried out on the output data (refer to Table \ref{tab:mu
 
 
 \section{Hypothesis}\label{sec:hypothesis}
-Taking these problems into consideration, this thesis aims to evaluate the following hypothesis:
+Having these problems into consideration, this thesis aims to evaluate the following hypothesis:
 \begin{adjustwidth}{2cm}{}
     GAN-based anomaly detection architectures can accurately and automatically detect outliers in the solar wind profiles data used to train the NN model for initial condition estimation and improve the model's predictions.
 \end{adjustwidth}
 
 We will try to validate this hypothesis by (1) verifying that the dataset after outlier removal significantly improves the prediction quality of the RNN and (2) if the predictions with a normalized dataset reduce the time that MULTI-VP takes to reach a solution.
 
-To validate the proposed hypothesis, the following research questions were defined:
+To validate the above hypothesis, the following research questions were defined:
 
 \begin{description}
     \item[RQ1] \textit{Can GAN-based architectures accurately detect outliers in solar wind profiles?} Considering outlier samples as the positive class, we are mostly trying to reduce the False Negative Rate (FN), which causes the worst effects in the predictive model training. As a secondary priority, we will focus on reducing the amount of False Positives (FP) to ensure that almost no relevant samples are excluded from the training process.
@@ -169,15 +169,15 @@ The developed GAN will be incorporated into the existing ML methodology expresse
 The results will be evaluated in an initial step by comparing the distance between the predicted initial estimation of the ML model and the real ones. Similar to the work carried out in \cite{barros_InitialConditionEstimation_}, we will measure the Mean Squared Error (MSE) between the two. Subsequently, the filtered inputs from the outlier detection step will be fed to MULTI-VP along with the initial flow estimations from the ML model. Then the simulation execution times when using the proposed methodology will be compared with the previous implementations to assert if there was a significant reduction.
 
 \section{Work Plan}\label{sec:work_plan}
-In Figure \ref{fig:work_plan}, an illustration of the proposed work plan is given. In the initial part of development, several clustering methods will be applied to the dataset to verify if any cluster composition significantly improves the ML model's performance. These methods will be evaluated on the existing model, and then the MSE scores will be compared with the ones obtained with the previous method.
+In Figure \ref{fig:work_plan}, an illustration of the proposed work plan is given. In the initial part of development, a more in-depth analysis of the input data will be performed. In addition, we will try to apply some clustering methods to determine if any subgroups in the dataset would facilitate the anomaly detection method.
 
-In the next stage, a GAN architecture will be designed to detect outliers in magnetogram data. Pytorch \cite{NEURIPS2019_9015} will be the tool used for this goal. Some time was also allocated to implementing GANs with this framework. After developing a suitable method for outlier detection on the given dataset, an extensive analysis of the performance of the ML model with the data without outliers will be done. This part validates the hypothesis defined in Section \ref{sec:hypothesis}. During this time, some adjustments might have to be made to the initial solution to overcome any shortcomings on these tests. As was already stated, we will use the MSE between the actual estimations and those predicted with the new method. 
+In the next stage, a GAN architecture will be designed to detect outliers in magnetogram data. Pytorch \cite{NEURIPS2019_9015} will be the tool used for this goal. Some time was also allocated to implementing GANs with this framework. After developing a suitable method for outlier detection on the given dataset, an extensive analysis of the performance of the ML model with the data without outliers will be done. This part will be used to validate the hypothesis defined in Section \ref{sec:hypothesis}. During this time, some adjustments might have to be made to the initial solution to overcome any shortcomings on these tests. As was already stated, we will use the MSE between the actual estimations and those predicted with the new method. 
 
 After finetuning, the newly improved estimations from the previous step will be used on MULTI-VP to evaluate if the chosen implementation resulted in a shorter execution time. The final stage will be dedicated to writing the dissertation and accommodating any delays from the previous steps.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\textwidth]{figures/work_plan.png}
+\includegraphics[width=\textwidth]{figures/work_plan.pdf}
 \caption{Proposed development plan.}
 \label{fig:work_plan}
 \end{figure}

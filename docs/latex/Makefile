@@ -6,7 +6,7 @@
 #
 
 ## Basename for result
-TARGET=meic_thesis
+TARGET=thesis
 
 ## programs
 LATEX=latex
