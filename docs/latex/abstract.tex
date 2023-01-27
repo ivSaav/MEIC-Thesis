@@ -1,77 +1,34 @@
 \chapter*{Resumo}
 %\addcontentsline{toc}{chapter}{Resumo}
 
-Este documento ilustra o formato a usar em dissertações na \Feup.
-São dados exemplos de margens, cabeçalhos, títulos, paginação, estilos
-de índices, etc. 
-São ainda dados exemplos de formatação de citações, figuras e tabelas,
-equações, referências cruzadas, lista de referências e índices.
-Este documento não pretende exemplificar conteúdos a usar. 
-É usado o \emph{Loren Ipsum} para preencher a dissertação.
+A Ciência do Clima Espacial é um campo de pesquisa vital que visa compreender as condições na superfície do Sol, que podem afetar negativamente a vida na Terra. Apesar de ser um campo bem desenvolvido, as condições que levam a essas fenómenos nefastos ainda não são totalmente compreendidas. Esta limitação é principalmente atribuída à dificuldade em obter dados de alta qualidade da superfície do Sol.
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam vitae
-quam sed mauris auctor porttitor. Mauris porta sem vitae arcu sagittis
-facilisis. Proin sodales risus sit amet arcu. Quisque eu pede eu elit
-pulvinar porttitor. Maecenas dignissim tincidunt dui. Pellentesque
-habitant morbi tristique senectus et netus et malesuada fames ac
-turpis egestas. Donec non augue sit amet nulla gravida
-rutrum. Vestibulum ante ipsum primis in faucibus orci luctus et
-ultrices posuere cubilia Curae; Nunc at nunc. Etiam egestas. 
+De forma a contornar este problema, alguns modelos de simulação tentam extrapolar as condições no Sol analisando dados de outras medições. Um exemplo disso é o MULTI-VP que usa magnetogramas de várias fontes (por exemplo, Wilcox Solar Observatory) e determina a estrutura do campo magnético de fundo. No entanto, essas simulações demoram muito tempo a convergir e requerem estimativas iniciais de especialistas, feitas manualmente. Recentemente, uma abordagem baseada em Machine Learning foi projetada para atenuar esses problemas. Esta removeu a necessidade de estimativas iniciais, prevendo automaticamente as condições iniciais da simulação. Além disso, provou que pode haver uma redução significativa no tempo de execução do simulador. Apesar disso, os modelos de previsão ainda não são robustos o suficiente para serem usados em aplicações do mundo real. Como em muitos outros problemas de Machine Learning, acreditamos que a presença de outliers no conjunto de dados de treinamento tenha prejudicado a sua performance.
 
-Donec malesuada pede eget nunc. Fusce porttitor felis eget mi mattis
-vestibulum. Pellentesque faucibus. Cras adipiscing dolor quis
-mi. Quisque sagittis, justo sed dapibus pharetra, lectus velit
-tincidunt eros, ac fermentum nulla velit vel sapien. Vestibulum sem
-mauris, hendrerit non, feugiat ac, varius ornare, lectus. Praesent
-urna tellus, euismod in, hendrerit sit amet, pretium vitae,
-nisi. Proin nisl sem, ultrices eget, faucibus a, feugiat non,
-purus. Etiam mi tortor, convallis quis, pharetra ut, consectetuer eu,
-orci. Vivamus aliquet. Aenean mollis fringilla erat. Vivamus mollis,
-purus at pellentesque faucibus, sapien lorem eleifend quam, mollis
-luctus mi purus in dui. Maecenas volutpat mauris eu lectus. Morbi vel
-risus et dolor bibendum malesuada. Donec feugiat tristique erat. Nam
-porta auctor mi. Nulla purus. Nam aliquam. 
+Podemos classificar os outliers como dados fora da distribuição, anomalias, novidades e desvios. Estes podem ser causados por falhas de sistema, ruído de sensor, erros humanos e operações maliciosas. Mais recentemente, GANs têm provado ser métodos eficazes de deteção de anomalias de maneiras não supervisionadas.
+
+Com isto, esta dissertação propõe uma abordagem baseada em GANs para deteção de outliers em perfis de vento solar que depois serão usados para treinar um modelo de previsão. O impacto do novo método será avaliado em relação aos resultados obtidos através de um modelo de previsão treinado com dados não normalizados.
+
+Vários métodos de deteção de anomalias baseados em GANs foram estudados para determinar qual se adequava melhor ao problema. Com as lições aprendidas neste passo, propusemos uma metodologia que incorpora GANs para deteção de amostras de perfis de vento solar anómalos nos dados usados para treinar modelos para estimativa de condições iniciais. Um método de treino foi projectado, juntamente com um mecanismo de detecção de anomalias. Os critérios de avaliação da metodologia proposta também foram definidos.
 
 
 \chapter*{Abstract}
 %\addcontentsline{toc}{chapter}{Abstract}
+Space Weather Science is a vital field of research that aims to understand the conditions on the Sun's surface, which can negatively impact life on Earth. Despite being a well-developed field, the conditions that lead to these nefarious phenomena are still not fully understood. This limitation is mainly attributed to the difficulty in acquiring high-quality data from the Sun's surface.
 
-Here goes the abstract written in English.
+To circumvent this issue, some simulation models try to extrapolate the conditions on the
+Sun by analyzing data from other measurements. An example of this is MULTI-VP which
+uses magnetograms from various sources (e.g., Wilcox Solar Observatory) and determines the
+structure of the background magnetic field. However, these simulations take a long time to converge and require initial expert estimations, which are done by hand. Recently, a machine learning approach has been designed to attenuate these issues. It removed the need for initial estimates by automatically predicting the starting conditions of the simulation. In addition, it has proved that there can be a significant reduction in the execution time of the simulator. Despite this, the prediction models are still not robust enough to be used in real-world applications. Like many other machine learning problems, we believe the presence of outliers in the training dataset hampers its predictive performance.
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed vehicula
-lorem commodo dui. Fusce mollis feugiat elit. Cum sociis natoque
-penatibus et magnis dis parturient montes, nascetur ridiculus
-mus. Donec eu quam. Aenean consectetuer odio quis nisi. Fusce molestie
-metus sed neque. Praesent nulla. Donec quis urna. Pellentesque
-hendrerit vulputate nunc. Donec id eros et leo ullamcorper
-placerat. Curabitur aliquam tellus et diam. 
+We can classify outliers as out-of-distribution data, anomalies, novelties, and deviations. These can be caused by system failures, sensor noise, human errors, and malicious operations. More recently, GANs have proved to be effective unsupervised anomaly detection methods.
 
-Ut tortor. Morbi eget elit. Maecenas nec risus. Sed ultricies. Sed
-scelerisque libero faucibus sem. Nullam molestie leo quis
-tellus. Donec ipsum. Nulla lobortis purus pharetra turpis. Nulla
-laoreet, arcu nec hendrerit vulputate, tortor elit eleifend turpis, et
-aliquam leo metus in dolor. Praesent sed nulla. Mauris ac augue. Cras
-ac orci. Etiam sed urna eget nulla sodales venenatis. Donec faucibus
-ante eget dui. Nam magna. Suspendisse sollicitudin est et mi. 
+Thus, this dissertation aims to apply GANs to detect anomalies in solar wind profiles to measure
+their influence on the already developed prediction models. This will be done by taking
+advantage of the discriminative and generative abilities of GANs. In addition, we will also evaluate the impacts of the improved prediction models, trained with normalized datasets, on the performance of the simulation.
 
-Fusce sed ipsum vel velit imperdiet dictum. Sed nisi purus, dapibus
-ut, iaculis ac, placerat id, purus. Integer aliquet elementum
-libero. Phasellus facilisis leo eget elit. Nullam nisi magna, ornare
-at, aliquet et, porta id, odio. Sed volutpat tellus consectetuer
-ligula. Phasellus turpis augue, malesuada et, placerat fringilla,
-ornare nec, eros. Class aptent taciti sociosqu ad litora torquent per
-conubia nostra, per inceptos himenaeos. Vivamus ornare quam nec sem
-mattis vulputate. Nullam porta, diam nec porta mollis, orci leo
-condimentum sapien, quis venenatis mi dolor a metus. Nullam
-mollis. Aenean metus massa, pellentesque sit amet, sagittis eget,
-tincidunt in, arcu. Vestibulum porta laoreet tortor. Nullam mollis
-elit nec justo. In nulla ligula, pellentesque sit amet, consequat sed,
-faucibus id, velit. Fusce purus. Quisque sagittis urna at quam. Ut eu
-lacus. Maecenas tortor nibh, ultricies nec, vestibulum varius, egestas
-id, sapien. 
+Several GAN-based anomaly detection methods were studied to determine which suited the problem. With the insights from this step, we proposed a methodology incorporating GANs for detecting anomalous solar wind profile samples in the data used to train models for initial condition estimation. A training method was presented along with an anomaly detection mechanism. Additionally, the evaluation criteria for the proposed methodology were also defined.
 
-Donec hendrerit. Vivamus suscipit egestas nibh. In ornare leo ut
-massa. Donec nisi nisl, dignissim quis, faucibus a, bibendum ac,
-diam. Nam adipiscing hendrerit mi. Morbi ac nulla. Nullam id est ac
-nisi consectetuer commodo. Pellentesque aliquam massa sit amet
-tellus. Vivamus sodales aliquam leo. 
+% TODO conclusion
+\vspace{1cm}
+\noindent\textbf{Keywords:} Space Weather, Machine Learning, Anomaly Detection, Generative Adversarial Networks, Solar Wind
