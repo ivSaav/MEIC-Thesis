@@ -280,9 +280,9 @@ In Table \ref{tab:slr_results}, a brief analysis of the SLR results will be carr
 \begin{itemize}
     \item \textbf{Training Objective:} this category aims to describe the training approach for a given model. With this, the goal is to compare models that fit the normal data distribution during the training phase and other alternatives. This allows for a straightforward summary of the training approaches that can be adopted to solve the proposed problem.
 
-    \item \textbf{Anomaly Detection:} in this group, the goal is to identify several of the approaches that can be used to detect anomalies. These methods can be relative to calculating an anomaly score or, in some cases, using classifiers to achieve this goal. The possible values for this category include Reconstruction errors, Discriminator Loss (D loss) and Classifiers.
+    \item \textbf{Anomaly Detection:} in this group, the goal is to identify several of the approaches that can be used to detect anomalies. These methods can be relative to calculating an anomaly score or, in some cases, using classifiers to achieve this goal. The possible values for this category include Reconstruction errors, Discriminator Loss (D loss), and Classifiers.
 
-    \item \textbf{Architecture:} this class aims to analyse the different types of architectures defined in each of the papers. These can be "Normal" in the case they use the vanilla composition of GANs;  "Mixed" when other components like encoders, $E$, classifiers, $C$, feature extractors (FE) and Self-attention devices (SA)\footnote{Module used during the training phase to make the discriminator and generator learn the data features more thoroughly.} are used; and autoencoders (AE).
+    \item \textbf{Architecture:} this class aims to analyze the different types of architectures defined in each of the papers. These can be "Normal" in the case they use the vanilla architecture of GANs;  "Mixed" when other components like encoders, $E$, classifiers, $C$, feature extractors (FE) and Self-attention devices (SA)\footnote{Module used during the training phase to make the discriminator and generator learn the data features more thoroughly.} are used; and autoencoders (AE).
 
     \item \textbf{Application:} this last category describes the specific problem that each of the designed models tries to solve (i.e. the scenario to which they are applied). Some models have no direct application and can be used in many types of problems, and because of this, they have no assigned application (N/A)
 \end{itemize}
@@ -299,7 +299,7 @@ In Table \ref{tab:slr_results}, a brief analysis of the SLR results will be carr
 \centering
 \begin{tabular}{cccccc} 
 \toprule
-Paper         & Year & Training Objective                                                             & Anomaly Detection         & Architecture   & Application                                                        \\ 
+\textbf{Paper}         & \textbf{Year} & \textbf{Training Objective}                                                             & \textbf{Anomaly Detection}         & \textbf{Architecture}   & \textbf{Application}                                                        \\ 
 \hline
 MAD-GAN  \cite{li.etal_MADGANMultivariateAnomaly_2019}     & 2019 & Normal                                                                         & Reconstruction + D loss           & Normal         & Time Series                                                        \\ 
 \hline
@@ -337,7 +337,7 @@ AMBi-GAN \cite{kong.etal_IntegratedGenerativeModel_2023}      & 2021 & Normal   
 \hline
 TAnoGAN \cite{bashar.nayak_TAnoGANTimeSeries_2020}      & 2020 & Normal                                                                         & Reconstruction            & Normal         & Time Series                                                        \\ 
 \hline
-MinLGAN \cite{wang.etal_AnomalyDetectionMinimum_2018}      & 2018 & All Data                                                                       & D                         & Normal         & N/A                                                                \\ 
+MinLGAN \cite{wang.etal_AnomalyDetectionMinimum_2018}      & 2018 & All Data                                                                       & D loss                    & Normal         & N/A                                                                \\ 
 \hline
 ATTAIN \cite{xu.etal_DigitalTwinbasedAnomaly_2021}       & 2021 & Normal                                                                         & D Loss                      & Normal         & Cyber-physical Systems                                             \\
 \bottomrule
