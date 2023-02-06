@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
 # Custom
-/out
+*/out
 /data
 .vscode
 
