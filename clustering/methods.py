@@ -25,7 +25,6 @@ def time_series_kmeans(scaled_files : np.ndarray, filenames : dict, max_clusters
         km = TimeSeriesKMeans(n_clusters=i, metric="euclidean", max_iter=500, random_state=0)
         labels = km.fit_predict(scaled_files)
         cluster_runs.append(map_filename_to_cluster(labels, filenames))
-    
     return cluster_runs   
     
     
