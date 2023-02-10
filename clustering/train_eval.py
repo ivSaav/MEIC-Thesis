@@ -38,16 +38,20 @@ def load_original_data(data_path: Path) -> Dict[str, pd.DataFrame]:
 
 def join_files_in_cluster(cluster_files: List[Path], original_data : Dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Join all files in a cluster into a single dataframe."""
-    cluster_df = pd.DataFrame(columns=input_cols+output_cols)
+    cluster_inputs, cluster_outputs = pd.DataFrame(), pd.DataFrame()
     
-    for f in cluster_files:
-        cluster_df = pd.concat([cluster_df, original_data[f]], axis=0, ignore_index=True)
-        
-    print(cluster_df)
-    print(cluster_df.shape)
-    print(cluster_df.columns)
+    print("cluster size", len(cluster_files))
+    for idx, f in enumerate(cluster_files):
+        cluster_inputs = pd.concat([cluster_inputs, original_data[f].iloc[:, 0:3]], axis=1, ignore_index=True)
+        cluster_outputs = pd.concat([cluster_outputs, original_data[f].iloc[:, 3:]], axis=1, ignore_index=True)        
+    
+    print(cluster_inputs.head())
+    print(cluster_inputs.shape)
+    # print(cluster_df)
+    # print(cluster_df.shape)
+    # print(cluster_df.columns)
 
-    return cluster_df.iloc[:, 0:3].copy(), cluster_df.iloc[:, 3:].copy()
+    return cluster_inputs, cluster_outputs
 
 if __name__ == '__main__':
     parser = ArgumentParser()
@@ -115,6 +119,7 @@ if __name__ == '__main__':
                     best_model_r.save(out_dir / f'{f.stem}_{cluster_id}.h5')
                 except Exception as e:
                     logging.error(f'Error in {f.stem}_run{run_id}_c{cluster_id}', exc_info=True)
+                    exit(1)
 
                 
             
