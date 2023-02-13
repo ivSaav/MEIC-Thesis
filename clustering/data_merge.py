@@ -3,13 +3,12 @@ import numpy as np
 
 from pathlib import Path
 
-output_path = Path("../data/original/compiled/")
+output_path = Path("../data/compiled/")
 if not output_path.exists():
   output_path.mkdir(parents=True)
 
 #files = glob.glob("./MULTI_VP_profiles/profiles_wso_CR1992"+"\\*.csv") 
-files = sorted([f for f in Path("../data/original/processed/").iterdir()])
-broken_files = set()
+files = sorted([f for f in Path("../data/processed/").iterdir()])
 # random.shuffle(files)
 # n_files = (len(files))
 # n_files_validation = int(math.ceil(n_files*0.1))
@@ -17,60 +16,72 @@ broken_files = set()
 
 data_inputs = pd.DataFrame()
 data_outputs = pd.DataFrame()
-data_ns = pd.DataFrame().astype(float)
-data_vs = pd.DataFrame().astype(float)
-data_ts = pd.DataFrame().astype(float)
 
+
+inputs, outputs = [], []
 for idx, filename in enumerate(files):
-  
   df = pd.read_csv(filename,skiprows=2)
   df = df.astype(float)
   
-  print("File: ", idx, filename)
-  bad_data = 0
-  if not(df.isnull().values.any()):
-    for j in df.columns:
-        if(df[j].dtype != np.int64 and df[j].dtype != np.float64 ): #verifying if there's no weird data. if there is, skip
-          bad_data = 1
-          broken_files.add(filename)
-          break
-  else: 
-    bad_data = 1
-    broken_files.add(filename)
+  tmp_out = df.iloc[:,[4,5,6]].values.flatten() # get all outputs as an array
+  tmp_in = df.iloc[:,[0,7,9]].values.flatten() # get all inputs as an array
+  inputs.append(pd.Series(tmp_in).astype(float))
+  outputs.append(pd.Series(tmp_out).astype(float))
   
-  if (bad_data): 
-    continue
+data_inputs = pd.concat(inputs, axis=1, ignore_index=True)
+data_outputs = pd.concat(outputs, axis=1, ignore_index=True)
+  
+
+# for idx, filename in enumerate(files):
+  
+#   df = pd.read_csv(filename,skiprows=2)
+#   df = df.astype(float)
+  
+#   print("File: ", idx, filename)
+#   bad_data = 0
+#   if not(df.isnull().values.any()):
+#     for j in df.columns:
+#         if(df[j].dtype != np.int64 and df[j].dtype != np.float64 ): #verifying if there's no weird data. if there is, skip
+#           bad_data = 1
+#           broken_files.add(filename)
+#           break
+#   else: 
+#     bad_data = 1
+#     broken_files.add(filename)
+  
+#   if (bad_data): 
+#     continue
   
   # select input and output columns
   # n = df.iloc[:,4].values.flatten()
   # v = df.iloc[:,5].values.flatten()
   # t = df.iloc[:,6].values.flatten()
-  ouputs = df.iloc[:,[4,5,6]].values.flatten() # get all outputs as an array
-  inputs = df.iloc[:,[0,7,9]].values.flatten() # get all inputs as an array
+  # ouputs = df.iloc[:,[4,5,6]].values.flatten() # get all outputs as an array
+  # inputs = df.iloc[:,[0,7,9]].values.flatten() # get all inputs as an array
   
-  # df_n = pd.Series(n).astype(float)
-  # df_v = pd.Series(v).astype(float)
-  # df_t = pd.Series(t).astype(float)
-  df_outputs = pd.Series(ouputs).astype(float) #
-  df_inputs = pd.Series(inputs).astype(float) # 
+  # # df_n = pd.Series(n).astype(float)
+  # # df_v = pd.Series(v).astype(float)
+  # # df_t = pd.Series(t).astype(float)
+  # df_outputs = pd.Series(ouputs).astype(float) #
+  # df_inputs = pd.Series(inputs).astype(float) # 
   
-  # print(df_inputs)
-  # exit(0)
+  # # print(df_inputs)
+  # # exit(0)
 
-  # data_ns = pd.concat([data_ns, df_n], ignore_index = True, axis = 1)
-  # data_vs = pd.concat([data_vs, df_v], ignore_index = True, axis = 1)
-  # data_ts = pd.concat([data_ts, df_t], ignore_index = True, axis = 1)
-  data_outputs = pd.concat([data_outputs, df_outputs], ignore_index = True, axis = 1)
-  data_inputs = pd.concat([data_inputs, df_inputs], ignore_index = True, axis = 1)
+  # # data_ns = pd.concat([data_ns, df_n], ignore_index = True, axis = 1)
+  # # data_vs = pd.concat([data_vs, df_v], ignore_index = True, axis = 1)
+  # # data_ts = pd.concat([data_ts, df_t], ignore_index = True, axis = 1)
+  # data_outputs = pd.concat([data_outputs, df_outputs], ignore_index = True, axis = 1)
+  # data_inputs = pd.concat([data_inputs, df_inputs], ignore_index = True, axis = 1)
   
 
 # Transpose dataframes
-data_inputs.columns = [f.stem for f in files if f not in broken_files]
+data_inputs.columns = [f.stem for f in files]
 data_inputs = data_inputs.T
 print(data_inputs.head())
 print(data_inputs.shape)
 
-data_outputs.columns = [f.stem for f in files if f not in broken_files]
+data_outputs.columns = [f.stem for f in files]
 data_outputs = data_outputs.T
 print(data_outputs.head())
 print(data_outputs.shape)

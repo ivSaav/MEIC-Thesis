@@ -6,15 +6,15 @@ import pickle as pkl
 from typing import List, Dict, Tuple
 
 # preprocessing
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler, RobustScaler, QuantileTransformer
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, QuantileTransformer
 from sklearn.decomposition import PCA
 
 from methods import *
     
-def save_normalized_clusters(run_clusters, min_cluster_size, save_path=None, outliers=False):
+def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_path=None, outliers=False):
     """Remove or  with less than min_cluster_size members."""
     final = []
-    for run in run_clusters:
+    for run_id, run in enumerate(run_clusters):
         # remove outliers from dbscan
         if outliers:
             run.pop(-1)
@@ -24,10 +24,15 @@ def save_normalized_clusters(run_clusters, min_cluster_size, save_path=None, out
         
         # exclude any that do not have necessary min_clusters or only one cluster
         if len(lengths) > 1 and min(lengths) >= min_cluster_size:
-             final.append(run)   
+            run_dict = {
+                'run_id': run_id,
+                'method': method_name,
+                'clusters': run,
+            }
+            final.append(run_dict)   
     
     print(f'Number of runs: {len(final)}')      
-    if (len(final) > 0 and save_path is not None):
+    if (len(final) > 0):
         pkl.dump(final, open(save_path, 'wb'))
 
 if __name__ == '__main__':
@@ -37,9 +42,9 @@ if __name__ == '__main__':
     parser.add_argument('--methods', '-m', type=str, nargs='+', 
                         default=['minisom', 'ts_kmeans', 
                                  'pca_kmeans', 'pca_agg', 'pca_dbscan', 
-                                 'pca_joint_kmeans', 'pca_joint_agg', 'pca_joint_dbscan'])
+                                 'pca_joint_kmeans', 'pca_joint_agg'])
     parser.add_argument('--max-clusters', type=int, default=6)
-    parser.add_argument('--min-cluster-size', type=int, default=100)
+    parser.add_argument('--min-cluster-size', type=int, default=2000)
     
     args = parser.parse_args()
     opts = vars(args)
@@ -51,7 +56,6 @@ if __name__ == '__main__':
     scalers = {
         'standard': StandardScaler(),
         'minmax': MinMaxScaler((-1,1)),
-        'maxabs': MaxAbsScaler(),
         'robust': RobustScaler(),
         'quantile': QuantileTransformer()
     }
@@ -71,11 +75,13 @@ if __name__ == '__main__':
     print('Loading data...')
     filenames = [f for f in opts['data'].iterdir()]
     flows_dict = OrderedDict()
-    compiled_df = pd.DataFrame(columns=['R [Rsun]', 'B [G]', 'alpha [deg]'])
     for f in filenames:
         flows_dict[f.stem] = pd.read_csv(f, skiprows=2, usecols=['R [Rsun]', 'B [G]', 'alpha [deg]'])
-        compiled_df = pd.concat([compiled_df, flows_dict[f.stem]], axis=0)
+    
+    compiled_df = list(flows_dict.values())   
+    compiled_df = pd.concat(compiled_df, axis=0)
     compiled_df.reset_index(drop=True, inplace=True)
+    compiled_df.columns = ['R [Rsun]', 'B [G]', 'alpha [deg]']
     
     filenames = list(flows_dict.keys())
 
@@ -95,31 +101,29 @@ if __name__ == '__main__':
     for name, method in ts_methods.items():
         print(f'Running {name}...')
         mag_runs = method(quant_scaled_mag, filenames, opts['max_clusters'])
-        save_normalized_clusters(mag_runs, opts['min_cluster_size'], opts['output'] / f'{name}_mag.pkl')
+        save_normalized_clusters(mag_runs, opts['min_cluster_size'], f'{name}_mag', opts['output'] / f'{name}_mag.pkl')
         
         alpha_runs = method(quant_scaled_alpha, filenames, opts['max_clusters'])
-        save_normalized_clusters(alpha_runs, opts['min_cluster_size'], opts['output'] / f'{name}_alpha.pkl')
+        save_normalized_clusters(alpha_runs, opts['min_cluster_size'], f'{name}_alpha', opts['output'] / f'{name}_alpha.pkl')
             
     # ==== PCA CLUSTERING ====
     for name, method in pca_methods.items():
         print(f'Running {name}...')
         mag_runs = method(quant_scaled_mag, filenames, opts['max_clusters'])
-        save_normalized_clusters(mag_runs, opts['min_cluster_size'], 
+        save_normalized_clusters(mag_runs, opts['min_cluster_size'], f'{name}_mag', 
                                  opts['output'] / f'{name}_mag.pkl', outliers=name=='pca_dbscan')
         
         alpha_runs = method(quant_scaled_alpha, filenames, opts['max_clusters'])
-        save_normalized_clusters(alpha_runs, opts['min_cluster_size'], 
+        save_normalized_clusters(alpha_runs, opts['min_cluster_size'], f'{name}_alpha',
                                  opts['output'] / f'{name}_alpha.pkl', outliers=name=='pca_dbscan')
         
         
     # ==== JOINT PCA CLUSTERING ====
     for scaler_name, scaler in scalers.items():
-        scaled_flows = pd.DataFrame()
         # concat flows
-        for series in flows_dict.values():
-            scaled_flows = pd.concat([scaled_flows, series], axis=0)
+        scaled_flows = list(flows_dict.values())
+        scaled_flows = pd.concat(scaled_flows, axis=0)
 
-        scaler = RobustScaler()
         scaler.fit(scaled_flows)
         scaled_flows = scaler.transform(scaled_flows)
         scaled_flows = pd.DataFrame(scaled_flows, columns=flow_columns)
@@ -136,7 +140,7 @@ if __name__ == '__main__':
         for name, method in pca_methods.items():
             print(f'Running {name} with {scaler_name}...')
             runs = method(transformed, filenames, opts['max_clusters'])     
-            save_normalized_clusters(runs, opts['min_cluster_size'], 
+            save_normalized_clusters(runs, opts['min_cluster_size'], f'{scaler_name}_{name}',
                                      opts['output'] / f'{scaler_name}_{name}.pkl', outliers=name=='pca_dbscan')
         
         
