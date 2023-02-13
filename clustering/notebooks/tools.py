@@ -34,7 +34,7 @@ def plot_km_results(cluster_count, labels, series, save_path=None):
     
  
     
-def plot_unscaled_clusters(labels, nclusters, flows_dict, columns, save_path=None):
+def plot_unscaled_clusters(labels, nclusters, flows_dict, columns, yscale={}, save_path=None):
     """Plot cluster of the original data (not scaled)"""  
     
     if (nclusters < 2):
@@ -45,8 +45,8 @@ def plot_unscaled_clusters(labels, nclusters, flows_dict, columns, save_path=Non
     for idx, flow in enumerate(flows_dict.values()):
         for col_pos, col in enumerate(columns):
             axs[(labels[idx], col_pos)].plot(flow[col], linewidth=0.5)
-            axs[(labels[idx], col_pos)].set(ylabel=col)
-            
+            axs[(labels[idx], col_pos)].set(ylabel=col, yscale=yscale.get(col, 'linear'))
+                 
     plt.tight_layout()
     
     if save_path != None:
