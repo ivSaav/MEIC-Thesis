@@ -34,7 +34,7 @@ class RegressionHyperModel(HyperModel):
 
         model.compile(
             # optimizer=optimizers.Adam( hp.Choice("learning_rate", values=[1e-2, 1e-3])),
-            optimizer='adam', loss='mse', metrics=['mse']
+            optimizer='adam', loss='mse', metrics=['mse'],
         )
     
         return model

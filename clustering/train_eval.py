@@ -8,7 +8,7 @@ from collections import OrderedDict
 import numpy as np
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
-
+import gc
 from keras import backend as K
 
 import logging
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                     cluster_inputs, cluster_outputs = join_files_in_cluster(cluster, inputs, outputs)
                     trainX, testX, trainY, testY = train_test_split(cluster_inputs, cluster_outputs, test_size=0.15, random_state=1)
                     
-                    print(trainX.shape, trainY.shape)
+                    # print(trainX.shape, trainY.shape)
 
                     hypermodel = RegressionHyperModel((trainX.shape[1],))
                     
@@ -122,7 +122,7 @@ if __name__ == '__main__':
                         max_trials=5,
                         executions_per_trial=1,
                         overwrite=True,
-                        directory='./tuner_search', project_name=f.stem + f'_run{run_id}_{cluster_id}'
+                        directory='./tuner_search', 
                     )
 
                     tuner_rs.search(trainX, trainY, epochs=500, validation_split=0.2, verbose=0)  #epochs=500
@@ -151,6 +151,8 @@ if __name__ == '__main__':
                     # clear models from memory 
                     if K.backend() == 'tensorflow':
                         K.clear_session()
+                        gc.collect()
+                        print("Cleared session")
                                             
                 except Exception as e:
                     logging.error(f'Error in {f.stem}_run{run_id}_c{cluster_id}', exc_info=True)
