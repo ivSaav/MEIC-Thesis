@@ -4,16 +4,15 @@ import pandas as pd
 from pickle import load, dump
 import json
 from typing import List, Dict, Tuple
-from collections import OrderedDict
-import numpy as np
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
 import gc
 from keras import backend as K
+import shutil as sh
 
 from keras.callbacks import EarlyStopping
 
-early_stop = EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
 
 import logging
 
@@ -53,6 +52,7 @@ def join_files_in_cluster(cluster_files: List[Path], input_data : pd.DataFrame, 
     """Join all files in a cluster into a single dataframe."""
     cluster_inputs, cluster_outputs = pd.DataFrame(), pd.DataFrame()
     
+    
     inputs = [input_data.loc[input_data['filename'] == f].iloc[:, 1:]
               for f in cluster_files]
     
@@ -60,20 +60,7 @@ def join_files_in_cluster(cluster_files: List[Path], input_data : pd.DataFrame, 
     
     outputs = [output_data.loc[output_data['filename'] == f].iloc[:, 1:]
                for f in cluster_files]
-    cluster_outputs = pd.concat(outputs, axis=0, ignore_index=True)
-    # for f in cluster_files:
-    #     cluster_inputs = pd.concat(
-    #                         [
-    #                             cluster_inputs, 
-    #                             input_data.loc[input_data['filename'] == f].iloc[:, 1:]
-    #                         ],
-    #                         axis=0, ignore_index=True)
-    #     cluster_outputs = pd.concat(
-    #                         [
-    #                             cluster_outputs, 
-    #                             output_data.loc[output_data['filename'] == f].iloc[:, 1:]
-    #                         ], 
-    #                         axis=0, ignore_index=True)        
+    cluster_outputs = pd.concat(outputs, axis=0, ignore_index=True)      
     
     print(cluster_inputs.head())
     print(cluster_inputs.shape)
@@ -81,8 +68,6 @@ def join_files_in_cluster(cluster_files: List[Path], input_data : pd.DataFrame, 
     # print(cluster_df.shape)
     # print(cluster_df.columns)
     print("Cluster shape:", cluster_inputs.shape)
-
-    # TODO val split
     return cluster_inputs, cluster_outputs
 
 if __name__ == '__main__':
@@ -125,10 +110,9 @@ if __name__ == '__main__':
                 print(f'Running {f.stem} run {run_dict["run_id"]} cluster {cluster_id}')
                 try:
                     cluster_inputs, cluster_outputs = join_files_in_cluster(cluster, inputs, outputs)
-                    trainX, testX, trainY, testY = train_test_split(cluster_inputs, cluster_outputs, test_size=0.15, random_state=1)
+                    trainX, testX, trainY, testY = train_test_split(cluster_inputs, cluster_outputs, test_size=0.15,
+                                                                    shuffle=True)
                     
-                    # print(trainX.shape, trainY.shape)
-
                     hypermodel = RegressionHyperModel((trainX.shape[1],))
                     
                     tuner_rs = RandomSearch(
@@ -142,7 +126,7 @@ if __name__ == '__main__':
                     )
 
                     tuner_rs.search(trainX, trainY, epochs=500, validation_split=0.2, verbose=1,
-                                    callbacks=[early_stop])  #epochs=500
+                                    callbacks=[early_stop])
 
                     best_model_r = tuner_rs.get_best_models(num_models=1)[0]
                     loss_r, mse_r = best_model_r.evaluate(testX, testY)
@@ -168,6 +152,7 @@ if __name__ == '__main__':
                     if K.backend() == 'tensorflow':
                         K.clear_session()
                         gc.collect()
+                        sh.rmtree('./tuner_search/', ignore_errors=True)
                         print("Cleared session")
                                             
                 except Exception as e:

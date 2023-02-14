@@ -3,10 +3,9 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 import pandas as pd
 import pickle as pkl
-from typing import List, Dict, Tuple
 
 # preprocessing
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, QuantileTransformer
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, QuantileTransformer, MaxAbsScaler
 from sklearn.decomposition import PCA
 
 from methods import *
@@ -21,6 +20,15 @@ def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_p
             
         lengths = [len(run[k]) for k in run]
         print(lengths)
+        
+        remove_set = set()
+        # remove strange clusters with 1 value
+        for k, length in zip(run.keys(), lengths):
+            if length == 1:
+                remove_set.add(k)
+        for k in remove_set:
+            run.pop(k)
+        lengths = [len(run[k]) for k in run]
         
         # exclude any that do not have necessary min_clusters or only one cluster
         if len(lengths) > 1 and min(lengths) >= min_cluster_size:
@@ -42,8 +50,8 @@ if __name__ == '__main__':
     parser.add_argument('--methods', '-m', type=str, nargs='+', 
                         default=['minisom', 'ts_kmeans', 
                                  'pca_kmeans', 'pca_agg', 'pca_dbscan', 
-                                 'pca_joint_kmeans', 'pca_joint_agg'])
-    parser.add_argument('--max-clusters', type=int, default=6)
+                                 'pca_joint_kmeans', 'pca_joint_agg', 'pca_joint_dbscan'])
+    parser.add_argument('--max-clusters', type=int, default=10)
     parser.add_argument('--min-cluster-size', type=int, default=2000)
     
     args = parser.parse_args()
@@ -56,6 +64,7 @@ if __name__ == '__main__':
     scalers = {
         'standard': StandardScaler(),
         'minmax': MinMaxScaler((-1,1)),
+        'maxabs': MaxAbsScaler(),
         'robust': RobustScaler(),
         'quantile': QuantileTransformer()
     }

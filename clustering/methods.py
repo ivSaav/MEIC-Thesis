@@ -35,7 +35,7 @@ def time_series_som(scaled_files : np.ndarray, filenames : dict, max_clusters : 
     for i in range(2, math.ceil(math.sqrt(max_clusters + 1))):
         som = MiniSom(i, i, 640, sigma=0.3, learning_rate = 0.1)
         som.random_weights_init(train_x)
-        som.train(train_x, 50000, verbose=True) 
+        som.train(train_x, 50000, verbose=False) 
         
         clusters = OrderedDict()
         for scaled, filename in zip(scaled_files, filenames):
