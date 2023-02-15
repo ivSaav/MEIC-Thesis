@@ -1,74 +1,23 @@
 from argparse import ArgumentParser
 from pathlib import Path
-import pandas as pd
-from pickle import load, dump
+from pickle import load
 import json
-from typing import List, Dict, Tuple
-from sklearn.preprocessing import QuantileTransformer
-from sklearn.model_selection import train_test_split
 import gc
-from keras import backend as K
 import shutil as sh
+import logging
 
+from keras import backend as K
+from sklearn.model_selection import train_test_split
+from model import RegressionHyperModel
 from keras.callbacks import EarlyStopping
+from keras_tuner import RandomSearch
+
+from tools.data import load_original_data, join_files_in_cluster
 
 early_stop = EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
 
-import logging
-
-from keras_tuner import RandomSearch
-
-from model import RegressionHyperModel
-
 input_cols = ['R [Rsun]', 'B [G]', 'alpha [deg]']
 output_cols = ['n [cm^-3]', 'v [km/s]', 'T [MK]']
-    
-def load_original_data(data_path: Path) -> Dict[str, pd.DataFrame]:
-    """Load the original data from the file."""
-    
-    inputs = pd.read_csv(data_path / 'inputsdata_compilation.csv')
-    inputs.rename({'Unnamed: 0': 'filename'}, axis=1, inplace=True)
-    outputs = pd.read_csv(data_path / 'outputsdata_compilation.csv')
-    outputs.rename({'Unnamed: 0': 'filename'}, axis=1, inplace=True)    
-    
-    input_filenames = inputs[['filename']]
-    output_filenames = outputs[['filename']]
-    
-    scaler_inputs, scaler_ouputs = QuantileTransformer(), QuantileTransformer()
-    inputs = scaler_inputs.fit_transform(inputs.iloc[:, 1:])
-    outputs = scaler_ouputs.fit_transform(outputs.iloc[:, 1:])
-    
-    inputs = pd.DataFrame(inputs)
-    inputs = pd.concat([input_filenames, inputs], axis=1)
-    
-    outputs = pd.DataFrame(outputs)
-    outputs = pd.concat([output_filenames, outputs], axis=1)
-    
-    print("Scaled inputs:", inputs.head())
-    print("Scaled outputs:", outputs.head())
-    return inputs, outputs
-
-def join_files_in_cluster(cluster_files: List[Path], input_data : pd.DataFrame, output_data : pd.DataFrame) -> pd.DataFrame:
-    """Join all files in a cluster into a single dataframe."""
-    cluster_inputs, cluster_outputs = pd.DataFrame(), pd.DataFrame()
-    
-    
-    inputs = [input_data.loc[input_data['filename'] == f].iloc[:, 1:]
-              for f in cluster_files]
-    
-    cluster_inputs = pd.concat(inputs, axis=0, ignore_index=True)
-    
-    outputs = [output_data.loc[output_data['filename'] == f].iloc[:, 1:]
-               for f in cluster_files]
-    cluster_outputs = pd.concat(outputs, axis=0, ignore_index=True)      
-    
-    print(cluster_inputs.head())
-    print(cluster_inputs.shape)
-    # print(cluster_df)
-    # print(cluster_df.shape)
-    # print(cluster_df.columns)
-    print("Cluster shape:", cluster_inputs.shape)
-    return cluster_inputs, cluster_outputs
 
 if __name__ == '__main__':
     parser = ArgumentParser()
@@ -76,6 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--model-output', '-m', type=Path, required=True)
     parser.add_argument('--cluster-files-dir', '-c', type=str)
     parser.add_argument('--cluster-file', '-cf', type=Path, default=None)
+    parser.add_argument('--save-scalers', '-s', action='store_true', default=False)
     
     opts = vars(parser.parse_args())
     
@@ -88,7 +38,7 @@ if __name__ == '__main__':
         opts['model_output'].mkdir(parents=True, exist_ok=False)
     
     print('Preparing data...')
-    inputs, outputs = load_original_data(opts['data'])
+    inputs, outputs = load_original_data(opts['data'], opts['save_scalers'])
     
     logging.basicConfig(filename=opts['model_output'] / 'train.log', format='%(asctime)s - %(levelname)s - %(message)s')
     

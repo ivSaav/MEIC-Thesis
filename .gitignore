@@ -6,6 +6,7 @@ out
 conf
 data
 .vscode
+run_hist
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

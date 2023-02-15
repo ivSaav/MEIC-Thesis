@@ -17,21 +17,40 @@ files = sorted([f for f in Path("../data/processed/").iterdir()])
 data_inputs = pd.DataFrame()
 data_outputs = pd.DataFrame()
 
-
 inputs, outputs = [], []
 for idx, filename in enumerate(files):
   df = pd.read_csv(filename,skiprows=2)
   df = df.astype(float)
   
-  tmp_out = df.iloc[:,[4,5,6]].values.flatten() # get all outputs as an array
-  tmp_in = df.iloc[:,[0,7,9]].values.flatten() # get all inputs as an array
-  inputs.append(pd.Series(tmp_in).astype(float))
-  outputs.append(pd.Series(tmp_out).astype(float))
+  tmp_out = df.iloc[:,[4,5,6]]
+  tmp_in = df.iloc[:,[0,7,9]]
   
-data_inputs = pd.concat(inputs, axis=1, ignore_index=True)
-data_outputs = pd.concat(outputs, axis=1, ignore_index=True)
+  ns = tmp_out[['n [cm^-3]']].values
+  vs = tmp_out[['v [km/s]']].values
+  ts = tmp_out[['T [MK]']].values
+  
+  file_outputs = np.concatenate((ns,vs,ts), axis=0)
+  
+  rs = tmp_in[['R [Rsun]']].values
+  bs = tmp_in[['B [G]']].values
+  alphas = tmp_in[['alpha [deg]']].values
+  
+  file_inputs = np.concatenate((rs,bs,alphas), axis=0)
+  
+  inputs.append(pd.DataFrame(file_inputs.T))
+  outputs.append(pd.DataFrame(file_outputs.T))
   
 
+
+
+filename_series = [pd.DataFrame([f.stem for f in files], columns=['filename'])]
+data_inputs = pd.concat(inputs, axis=0, ignore_index=True)
+data_inputs = pd.concat(filename_series + [data_inputs], axis=1)
+
+data_outputs = pd.concat(outputs, axis=0, ignore_index=True)
+data_outputs = pd.concat(filename_series + [data_outputs], axis=1)
+  
+  
 # for idx, filename in enumerate(files):
   
 #   df = pd.read_csv(filename,skiprows=2)
@@ -75,16 +94,16 @@ data_outputs = pd.concat(outputs, axis=1, ignore_index=True)
   # data_inputs = pd.concat([data_inputs, df_inputs], ignore_index = True, axis = 1)
   
 
-# Transpose dataframes
-data_inputs.columns = [f.stem for f in files]
-data_inputs = data_inputs.T
-print(data_inputs.head())
-print(data_inputs.shape)
+# # Transpose dataframes
+# data_inputs.columns = [f.stem for f in files]
+# data_inputs = data_inputs.T
+# print(data_inputs.head())
+# print(data_inputs.shape)
 
-data_outputs.columns = [f.stem for f in files]
-data_outputs = data_outputs.T
-print(data_outputs.head())
-print(data_outputs.shape)
+# data_outputs.columns = [f.stem for f in files]
+# data_outputs = data_outputs.T
+# print(data_outputs.head())
+# print(data_outputs.shape)
 
 # data_ns = data_ns.T
 # data_vs = data_vs.T
@@ -94,8 +113,10 @@ print(data_outputs.shape)
 # data_ns.to_csv(output_path / 'output_n_data_compilation.csv', index=False) 
 # data_vs.to_csv(output_path / 'output_v_data_compilation.csv', index=False) 
 # data_ts.to_csv(output_path / 'output_t_data_compilation.csv', index=False) 
-data_inputs.to_csv(output_path / 'inputsdata_compilation.csv', index=True) 
-data_outputs.to_csv(output_path / 'outputsdata_compilation.csv', index=True)
+print(data_inputs)
+print(data_outputs)
+data_inputs.to_csv(output_path / 'inputsdata_compilation.csv', index=False) 
+data_outputs.to_csv(output_path / 'outputsdata_compilation.csv', index=False)
 
 #__________________________________________________________________
 #juntar os outputs de treino num ficheiro n1,v1,t1, n2,v2,t2, ...
