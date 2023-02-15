@@ -8,6 +8,9 @@ data
 .vscode
 run_hist
 
+clustering/clusters
+clustering/notebooks/stats
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

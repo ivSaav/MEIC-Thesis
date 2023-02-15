@@ -38,7 +38,7 @@ if __name__ == '__main__':
         opts['model_output'].mkdir(parents=True, exist_ok=False)
     
     print('Preparing data...')
-    inputs, outputs = load_original_data(opts['data'], opts['save_scalers'])
+    inputs, outputs, _,_ = load_original_data(opts['data'], opts['save_scalers'])
     
     logging.basicConfig(filename=opts['model_output'] / 'train.log', format='%(asctime)s - %(levelname)s - %(message)s')
     
