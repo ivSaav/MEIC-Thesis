@@ -6,26 +6,26 @@ This chapter will provide an overview of the problem this thesis is trying to so
 
 The data used by all the methodologies consists of files with 640 entries ordered as the distance to the Sun. The data is divided into two parts: the input and the output. The input data comprises the magnetic field amplitude, $B$, the flux tube inclination, $\alpha$, and the radial coordinate, $R$. The output data includes the number of charged particles per unit volume, $n$, the velocity, $v$, and the temperature, $T$. Table \ref{tab:multivp_columns} presents the input and output data columns.
 
-\begin{table}[ht]
-    \caption{Data columns of magnetogram used by MULTI-VP.}
-    \label{tab:multivp_columns}
-    \begin{subtable}[h]{0.32\textwidth}
-        \centering
-        \begin{tabular}{lcc}
-        \hline
-        \multicolumn{3}{c}{Input (Partial Flows)}                              \\ \hline
-        $R${[}$R_{sun}${]} & $B${[}$G${]} & $\alpha${[}$deg${]} \\ \hline
-        \end{tabular}
-    \end{subtable}
-    \begin{subtable}[h]{0.32\textwidth}
-        \centering
-        \begin{tabular}{ccc}
-        \hline
-        \multicolumn{3}{c}{Output (Estimations)}                           \\ \hline
-        $n${[}$cm^{-3}${]} & $v${[}$km/s${]} & $T${[}$MK${]} \\ \hline
-        \end{tabular}
-    \end{subtable}
-\end{table}
+% \begin{table}[ht]
+%     \caption{Data columns of magnetogram used by MULTI-VP.}
+%     \label{tab:multivp_columns}
+%     \begin{subtable}[h]{0.32\textwidth}
+%         \centering
+%         \begin{tabular}{lcc}
+%         \hline
+%         \multicolumn{3}{c}{Input (Partial Flows)}                              \\ \hline
+%         $R${[}$R_{sun}${]} & $B${[}$G${]} & $\alpha${[}$deg${]} \\ \hline
+%         \end{tabular}
+%     \end{subtable}
+%     \begin{subtable}[h]{0.32\textwidth}
+%         \centering
+%         \begin{tabular}{ccc}
+%         \hline
+%         \multicolumn{3}{c}{Output (Estimations)}                           \\ \hline
+%         $n${[}$cm^{-3}${]} & $v${[}$km/s${]} & $T${[}$MK${]} \\ \hline
+%         \end{tabular}
+%     \end{subtable}
+% \end{table}
 
 Some preliminary analysis of the input data for the model was carried out to demonstrate the existence of anomalies in the data used to train the prediction model of the previous section. The radial profiles of the magnetic field in the function of the radial coordinate radius, $R$, can be seen in Fig. \ref{fig:magnetic_radius_outliers}. It is possible to observe some extreme variations in the data, which indicate the existence of abnormal samples. Additionally, the distribution of magnetic field, $B$, and flux tube inclination values, $\alpha$, are expressed in Figure \ref{fig:input_distrib_bp}. There exist a large number of out-of-distribution samples in the dataset used for training the prediction model.
 
@@ -102,13 +102,13 @@ A similar process was carried out on the output data (refer to Table \ref{tab:mu
 
 MULTI-VP \cite{pinto.rouillard_MultipleFluxtubeSolar_2017} is a global MHD model that simulates the three-dimensional structures of the solar wind. In addition, it also estimates the conditions at the Sun's chromosphere, transition region, corona, and low heliosphere. The model computes many one-dimension solar wind solutions from full flux-tube geometries and heating functions. Background magnetic field geometries are extrapolated from publicly available magnetogram data. The method can estimate solar wind profiles across the Sun's entire atmosphere up to 30 solar radii. The results directly link the geometry of magnetic flux tubes in the lower corona with the distributions of fast and slow solar wind flows. MULI-VP proved faster than other MHD models and did not suffer from cross-field diffusion effects.
 
-The data used as input to the model is presented in Table \ref{tab:multivp_columns}. A representation of the data processing of MULTI-VP can be seen in Figure \ref{fig:multivp_method}. As previously stated, MULTI-VP takes as input partial flow definitions of the solar wind along with initial expert estimations and derives better solutions during simulation.
+Table \ref{tab:multivp_columns} presents the data used as input to the model. A representation of the data processing of MULTI-VP can be seen in Figure \ref{fig:multivp_method}. As previously stated, MULTI-VP takes as input partial flow definitions of the solar wind along with initial expert estimations and derives better solutions during simulation.
 
 \vspace{0.5cm}
 \begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\textwidth]{figures/multivp_method.png}
-\caption[MULTI-VP methodology dataflow]{MULTI-VP methodology dataflow. The model takes as input both the partial flow and its associated expert initial guess and then derives a better solution.\label{fig:multivp_method}}
+\caption[MULTI-VP methodology dataflow]{MULTI-VP methodology dataflow. The model takes the partial flow and its associated expert initial guess as input and then derives a better solution.\label{fig:multivp_method}}
 \end{figure}
 
 
@@ -135,7 +135,7 @@ However, the reduction in execution time was minimal as the model, like many oth
 
 
 \section{Hypothesis}\label{sec:hypothesis}
-Having these problems into consideration, this thesis aims to evaluate the following hypothesis:
+Taking these problems into consideration, this thesis aims to evaluate the following hypothesis:
 \begin{adjustwidth}{2cm}{}
     GAN-based anomaly detection architectures can accurately and automatically detect outliers in the solar wind profiles data used to train the NN model for initial condition estimation and improve the model's predictions.
 \end{adjustwidth}
