@@ -6,6 +6,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set()
 
 def load_original_data(data_path: Path, save_scalers : bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, QuantileTransformer, QuantileTransformer]:
     """Load the original data from the file."""
@@ -62,21 +63,12 @@ def plot_cluster_preds(pred_df : pd.DataFrame, model_name : str, out_dir : Path)
     vs = pred_df.iloc[:, 640:1280]
     ts = pred_df.iloc[:, 1280:1920]
     
-    print(ns.shape)
-    print(ns.values)
-    
-    print(vs.head())
-    print(ts.head())
-    
     vs.columns = [i for i in range(640)]
     ts.columns = [i for i in range(640)]
     
-    print(vs.head())
-    
-    
     fig, axs = plt.subplots(3, 1, figsize=(12, 6*3))
+    fig.subplots_adjust(hspace=0.8)
     fig.suptitle(f'Predictions for {model_name}')
-
 
     for _, n in ns.iterrows():
         axs[0].plot(n, linewidth=0.1)

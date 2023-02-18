@@ -5,6 +5,7 @@ from pickle import load
 from argparse import ArgumentParser
 
 from tools.data import load_original_data, join_files_in_cluster, plot_cluster_preds
+from sklearn.metrics import mean_squared_error
 
 if __name__ == '__main__':
     argparser = ArgumentParser()
@@ -13,10 +14,11 @@ if __name__ == '__main__':
     argparser.add_argument('--cluster-file', '-cf', type=str, required=True)
     argparser.add_argument('--run-id', '-r', type=int, required=True)
     argparser.add_argument('--plots', '-p', action='store_true', default=False)
+    argparser.add_argument('--no-write', '-sp', action='store_true', default=False)
     opts = vars(argparser.parse_args())
     
     out_dir = opts['hist_path'] / 'predictions' / f"{opts['cluster_file']}_{opts['run_id']}"
-    if not out_dir.exists():
+    if not out_dir.exists() and not opts['no_write']:
         out_dir.mkdir(parents=True, exist_ok=False)
         
     clusters_path = opts['hist_path'] / 'clusters'
@@ -40,18 +42,28 @@ if __name__ == '__main__':
         cluster_filenames.extend(cluster)
         all_predictions.append(pd.DataFrame(predictions))
     
-    # do inverse tranform on the predictions
     all_predictions = pd.concat(all_predictions, ignore_index=True)
+    
+    mse = mean_squared_error(original_out.iloc[:, 1:], all_predictions)
+    
+    # do inverse tranform on the predictions
     all_predictions.columns = all_predictions.columns.astype(str)
     all_predictions = scaler_out.inverse_transform(all_predictions)
     all_predictions = pd.DataFrame(all_predictions)
     
     if opts['plots']:
         plot_cluster_preds(all_predictions, opts['cluster_file'], out_dir)
-        
+    
     all_predictions = pd.concat([pd.DataFrame(cluster_filenames, columns=["filename"]), all_predictions], axis=1)
-    print(all_predictions.head())
-    all_predictions.to_csv(out_dir / f"predictions_compiled.csv", index=False)
+    if not opts['no_write']:    
+        print(all_predictions.head())
+        all_predictions.to_csv(out_dir / f"predictions_compiled.csv", index=False)
+    
+    print(original_out.shape, all_predictions.shape)
+    print("MSE: ", mse)
+    
+    with open('metrics.txt', 'a') as f:
+        f.write(f"{opts['cluster_file']} : {opts['run_id']} : {mse}\n")
         
     
     
