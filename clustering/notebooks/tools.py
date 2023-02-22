@@ -6,7 +6,7 @@ from scipy.cluster.hierarchy import dendrogram
 
 def plot_km_results(cluster_count, labels, series, save_path=None):
     plot_count = math.ceil(math.sqrt(cluster_count))
-    fig, axs = plt.subplots(plot_count,plot_count,figsize=(10,10))
+    fig, axs = plt.subplots(plot_count-1,cluster_count,figsize=(10,10))
     fig.suptitle('Clusters')
     row_i=0
     column_j=0
