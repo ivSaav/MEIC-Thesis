@@ -44,26 +44,46 @@ if __name__ == '__main__':
     
     all_predictions = pd.concat(all_predictions, ignore_index=True)
     
-    mse = mean_squared_error(original_out.iloc[:, 1:], all_predictions)
+    # mse = mean_squared_error(original_out.iloc[:, 1:], all_predictions)
     
     # do inverse tranform on the predictions
     all_predictions.columns = all_predictions.columns.astype(str)
     all_predictions = scaler_out.inverse_transform(all_predictions)
-    all_predictions = pd.DataFrame(all_predictions)
     
-    if opts['plots']:
-        plot_cluster_preds(all_predictions, opts['cluster_file'], out_dir)
     
-    all_predictions = pd.concat([pd.DataFrame(cluster_filenames, columns=["filename"]), all_predictions], axis=1)
-    if not opts['no_write']:    
-        print(all_predictions.head())
-        all_predictions.to_csv(out_dir / f"predictions_compiled.csv", index=False)
+    print(all_predictions.shape)
+    print(all_predictions)
+    preds_dir = out_dir / 'data'
+    if not preds_dir.exists() and not opts['no_write']:
+        preds_dir.mkdir(parents=True)
     
-    print(original_out.shape, all_predictions.shape)
-    print("MSE: ", mse)
+    compiled_in = pd.read_csv(opts['data_path'] / 'inputsdata_compilation.csv') 
+    for f, pred in zip(cluster_filenames, all_predictions):
+        ns, vs, ts = list(pred[:640]), list(pred[640:1280]), list(pred[1280:])
+        outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})
+        
+        inputs = compiled_in.loc[compiled_in['filename'] == f].iloc[:, 1:].values[0]
+        rs, bs, alphas = list(inputs[:640]), list(inputs[640:1280]), list(inputs[1280:])
+        inputs = pd.DataFrame({'R [Rsun]': rs, 'B [G]': bs, 'alpha [deg]': alphas})
+
+        df = pd.concat([inputs, outputs], axis=1)
+        df.to_csv(preds_dir / f'{f}.csv', index=False)
+        
+        
     
-    with open('metrics.txt', 'a') as f:
-        f.write(f"{opts['cluster_file']} : {opts['run_id']} : {mse}\n")
+    # all_predictions = pd.DataFrame(all_predictions)
+    # if opts['plots']:
+    #     plot_cluster_preds(all_predictions, opts['cluster_file'], out_dir)
+    # all_predictions = pd.concat([pd.DataFrame(cluster_filenames, columns=["filename"]), all_predictions], axis=1)
+    # if not opts['no_write']:    
+    #     print(all_predictions.head())
+    #     all_predictions.to_csv(out_dir / f"predictions_compiled.csv", index=False)
+    
+    # # print(original_out.shape, all_predictions.shape)
+    # # print("MSE: ", mse)
+    
+    # with open('metrics.txt', 'a') as f:
+    #     f.write(f"{opts['cluster_file']} : {opts['run_id']} : {mse}\n")
         
     
     
