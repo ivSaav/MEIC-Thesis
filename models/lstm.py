@@ -66,11 +66,11 @@ class Discriminator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        h_0 = torch.zeros(1, batch_size, self.lstm.hidden_size).to(self.device)
-        c_0 = torch.zeros(1, batch_size, self.lstm.hidden_size).to(self.device)
+        h_0 = torch.zeros(self.lstm.num_layers, batch_size, self.lstm.hidden_size).to(self.device)
+        c_0 = torch.zeros(self.lstm.num_layers, batch_size, self.lstm.hidden_size).to(self.device)
         
         recurr_features, (_h1, _c1) = self.lstm(x, (h_0, c_0))        
-        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.lstm.hidden_size))
+        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, 100))
         outputs = outputs.view(batch_size, seq_len, 1)
         return outputs, recurr_features
     
