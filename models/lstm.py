@@ -15,6 +15,7 @@ class Generator(nn.Module):
         super().__init__()
         self.device = device
         self.out_dim = output_size
+        self.hidden_size = hidden_size
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
         self.lstm0 = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
@@ -29,14 +30,11 @@ class Generator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        h_0 = torch.zeros(1, batch_size, self.lstm0.hidden_size).to(self.device)
-        c_0 = torch.zeros(1, batch_size, self.lstm0.hidden_size).to(self.device)
-        
-        recurr_features, (_h1, _c1) = self.lstm0(x, (h_0, c_0))
+        recurr_features, _ = self.lstm0(x)
         recurr_features, _ = self.lstm1(recurr_features)
         recurr_features, _ = self.lstm2(recurr_features)
         
-        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, 128))
+        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*4))
         outputs = outputs.view(batch_size, seq_len, self.out_dim)
         return outputs, recurr_features
 
@@ -54,23 +52,23 @@ class Discriminator(nn.Module):
         """
         super().__init__()
         self.device = device
+        self.hidden_size = hidden_size
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
+        self.lstm1 = nn.LSTM(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout)
         
         self.linear = nn.Sequential(
-            nn.Linear(hidden_size, 1),
+            nn.Linear(hidden_size*2, 1),
             nn.Sigmoid()
         )
         
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        h_0 = torch.zeros(self.lstm.num_layers, batch_size, self.lstm.hidden_size).to(self.device)
-        c_0 = torch.zeros(self.lstm.num_layers, batch_size, self.lstm.hidden_size).to(self.device)
-        
-        recurr_features, (_h1, _c1) = self.lstm(x, (h_0, c_0))        
-        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, 100))
+        recurr_features, _ = self.lstm(x)
+        recurr_features, _ = self.lstm1(recurr_features)      
+        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*2))
         outputs = outputs.view(batch_size, seq_len, 1)
         return outputs, recurr_features
     
