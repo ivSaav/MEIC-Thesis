@@ -6,33 +6,9 @@ import torch
 
 from typing import List, Dict, Tuple
 
-def plot_columns(values_df : pd.DataFrame, labels : List[str] = ["R [Rsun]", "B [G]", "alpha [deg]"], scales : Dict[str, str] = {}):
-    v0 = values_df.iloc[:, 0:640]
-    v1 = values_df.iloc[:, 640:1280]
-    v2 = values_df.iloc[:, 1280:1920]
-    
-    v1.columns = [i for i in range(640)]
-    v2.columns = [i for i in range(640)]
-    
-    fig, axs = plt.subplots(3, 1, figsize=(10, 3*3))
-    fig.subplots_adjust(hspace=0.8)
-    # fig.suptitle(f'')
-
-    for (_, n), (_, v), (_, t) in zip(v0.iterrows(), v1.iterrows(), v2.iterrows()):
-        axs[0].plot(n, linewidth=0.1)
-        axs[1].plot(v, linewidth=0.1)
-        axs[2].plot(t, linewidth=0.1)
-    
-    # set labels
-    for i, label in enumerate(labels):   
-        axs[i].set_ylabel(label) 
-        axs[i].set_yscale(scales[label] if label in scales else 'log')
-    
-    plt.tight_layout()
-    plt.show()
- 
 def plot_data_values(data : np.ndarray, title : str,
-                     labels : List[str] = ["R [Rsun]", "B [G]", "alpha [deg]"], scales : Dict[str, str] = {}):
+                     labels : List[str] = ["R [Rsun]", "B [G]", "alpha [deg]"], 
+                     scales : Dict[str, str] = {}, **figkwargs):
     """
     Plot 3 data columns at once.
     Args:
@@ -45,7 +21,7 @@ def plot_data_values(data : np.ndarray, title : str,
     v1 = data[:, 640:1280]
     v2 = data[:, 1280:1920]
     
-    fig, axs = plt.subplots(3, 1, figsize=(10, 3*3), dpi=200)
+    fig, axs = plt.subplots(3, 1, **figkwargs)
     fig.subplots_adjust(hspace=0.8)
     fig.suptitle(title)
 
@@ -69,7 +45,7 @@ def plot_epoch(train_vals : np.ndarray, scaler, path : Path, title : str,
     lines = np.array([np.concatenate(val, axis=0) for val in train_vals])
     lines = scaler.inverse_transform(lines)
     
-    plot_data_values(lines, title, labels, scales)
+    plot_data_values(lines, title, labels, scales, dpi=200, figsize=(10, 3*3))
     plt.savefig(path, dpi=200)
     plt.close()
     
@@ -86,3 +62,18 @@ def plot_anomalies(anomalies : Tuple[str, float], dataloader : torch.utils.data.
     lines = np.array([np.concatenate(val, axis=0) for val in anomaly_inputs])
     lines = dataloader.dataset.scaler.inverse_transform(lines)
     plot_data_values(lines, title, ["R [Rsun]", "B [G]", "alpha [deg]"], {'B [G]':'symlog', 'alpha [deg]': 'linear'})
+    
+def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
+                    scales : Dict[str, str] = {'B [G]':'symlog', 'alpha [deg]': 'linear'}, **figkwargs):
+    
+    fig, axs = plt.subplots(nrows=len(columns), ncols=1, sharex=True, **figkwargs)
+    for idx, ax in enumerate(axs): 
+        ax.set_ylabel(columns[idx])
+        ax.set_yscale(scales[columns[idx]] if columns[idx] in scales else 'log')
+    
+    for path in filenames:
+        for idx, ax in enumerate(axs):
+            df = pd.read_csv(str(path),  skiprows=2, usecols=columns)
+            ax.plot(df[columns[idx]],  linewidth=0.5)
+    plt.tight_layout()
+    

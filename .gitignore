@@ -4,7 +4,8 @@
 # Custom
 out
 conf
-data
+data/*
+!data/dataset.py
 .vscode
 runs
 train_hist
