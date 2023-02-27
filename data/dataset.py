@@ -12,11 +12,12 @@ class MULTI_VP_Dataset(Dataset):
         super().__init__()
         
         self.path = path
+        self.method = method
+        
         # read from inputs compilation
         self.inputs = pd.read_csv(path)
         
-        if remove_extreme:
-            self._remove_extreme(self.inputs)
+        if remove_extreme: self._remove_extreme()
              
         self.filenames = self.inputs['filename'].values
         self.inputs = self.inputs.iloc[:, 1:] # remove filename column
@@ -49,14 +50,29 @@ class MULTI_VP_Dataset(Dataset):
     def __getitem__(self, idx):
         return self.inputs[idx], self.filenames[idx]
     
-    def _remove_extreme(self, inputs, labels):
+    def _remove_extreme(self):
         # remove extreme values based on magnetic field
-        self.inputs.drop(self.inputs.loc[self.inputs.iloc[:, 640:1280] > 110].index, inplace=True)
-        # TODO
-        pass
+        bad_indices = []
+        for i, row in self.inputs.iterrows():
+            mags = np.abs(row.iloc[640:1280])
+            if mags.max() > 110:
+                bad_indices.append(i)
+            if mags[400:].max() > 1:
+                bad_indices.append(i)
+        
+        self.inputs.drop(bad_indices, inplace=True)
+        print("Removed {} extreme values".format(len(bad_indices)))
     
-    def _plot(self, title : str = "MULTI-VP Data", **figkwargs):
-        tmp_inputs = self.scaler.inverse_transform(self.inputs)
-        plot_data_values(tmp_inputs, title, scales={'B [G]':'symlog', 'alpha [deg]': 'linear'}, **figkwargs)
+    def _unscale(self):
+        if self.method == 'multi':
+            return self.scaler.inverse_transform(
+                np.array([np.concatenate(values, axis=0) for values in self.inputs.numpy()])
+            )
+        # TODO other methods
+        
+    
+    def plot(self, title : str = "MULTI-VP Data", **figkwargs):
+        unscaled_inputs = self._unscale()
+        plot_data_values(unscaled_inputs, title, scales={'B [G]':'symlog', 'alpha [deg]': 'linear'}, **figkwargs)
         
     
