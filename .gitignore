@@ -6,8 +6,8 @@ out
 conf
 data
 .vscode
-run_hist
 runs
+train_hist
 
 clustering/clusters
 clustering/notebooks/stats
