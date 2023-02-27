@@ -57,11 +57,10 @@ class Discriminator(nn.Module):
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
         self.lstm1 = nn.LSTM(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout)
-        self.lstm2 = nn.LSTM(hidden_size*2, hidden_size*4, num_layers, batch_first=True, dropout=dropout)
         
         
         self.linear = nn.Sequential(
-            nn.Linear(hidden_size*4, 1),
+            nn.Linear(hidden_size*2, 1),
             nn.Sigmoid()
         )
         
@@ -70,8 +69,7 @@ class Discriminator(nn.Module):
         batch_size, seq_len = x.size(0), x.size(1)
         recurr_features, _ = self.lstm(x)
         recurr_features, _ = self.lstm1(recurr_features)
-        recurr_features, _ = self.lstm2(recurr_features)    
-        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*4))
+        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*2))
         outputs = outputs.view(batch_size, seq_len, 1)
         return outputs, recurr_features
     

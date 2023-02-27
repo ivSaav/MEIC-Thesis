@@ -50,7 +50,7 @@ def plot_epoch(train_vals : np.ndarray, scaler, path : Path, title : str,
     plt.close()
     
 
-def plot_anomalies(anomalies : Tuple[str, float], dataloader : torch.utils.data.DataLoader, title : str = "Anomalies"):
+def plot_anomalies(anomalies : Tuple[str, float], dataloader : torch.utils.data.DataLoader, title : str = "Anomalies", **figkwargs):
     anomaly_files = set([filename for filename, _ in anomalies])
     
     # get anomaly inputs
@@ -61,7 +61,7 @@ def plot_anomalies(anomalies : Tuple[str, float], dataloader : torch.utils.data.
     # concatenate columns into a single line to apply scaler
     lines = np.array([np.concatenate(val, axis=0) for val in anomaly_inputs])
     lines = dataloader.dataset.scaler.inverse_transform(lines)
-    plot_data_values(lines, title, ["R [Rsun]", "B [G]", "alpha [deg]"], {'B [G]':'symlog', 'alpha [deg]': 'linear'})
+    plot_data_values(lines, title, ["R [Rsun]", "B [G]", "alpha [deg]"], {'B [G]':'symlog', 'alpha [deg]': 'linear'}, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
                     scales : Dict[str, str] = {'B [G]':'symlog', 'alpha [deg]': 'linear'}, **figkwargs):
