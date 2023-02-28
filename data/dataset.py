@@ -55,10 +55,11 @@ class MULTI_VP_Dataset(Dataset):
         bad_indices = []
         for i, row in self.inputs.iterrows():
             mags = np.abs(row.iloc[640:1280])
-            if mags.max() > 110:
+            if (mags.max() > 110 or 
+                mags[400:].max() > 1 or
+                mags[300:].max() > 30):
                 bad_indices.append(i)
-            if mags[400:].max() > 1:
-                bad_indices.append(i)
+            
         
         self.inputs.drop(bad_indices, inplace=True)
         print("Removed {} extreme values".format(len(bad_indices)))
