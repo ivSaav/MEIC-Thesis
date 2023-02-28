@@ -3,18 +3,19 @@ import numpy as np
 
 from pathlib import Path
 
-output_path = Path("../data/compiled/")
+output_path = Path("./data/compiled/")
 if not output_path.exists():
   output_path.mkdir(parents=True)
 
-files = sorted([f for f in Path("../data/processed/").iterdir()])
+files = sorted([f for f in Path("./data/processed/").iterdir()])
 
 data_inputs = pd.DataFrame()
 data_outputs = pd.DataFrame()
 
 inputs, outputs = [], []
+nfiles = len(files)
 for idx, filename in enumerate(files):
-  df = pd.read_csv(filename,skiprows=2)
+  df = pd.read_csv(filename)
   df = df.astype(float)
   
   tmp_out = df.iloc[:,[4,5,6]]
@@ -35,6 +36,9 @@ for idx, filename in enumerate(files):
   inputs.append(pd.DataFrame(file_inputs.T))
   outputs.append(pd.DataFrame(file_outputs.T))
   
+  print("[{}/{}] {}".format(idx, nfiles, filename.stem), end="\r", flush=True)
+  
+  
 filename_series = [pd.DataFrame([f.stem for f in files], columns=['filename'])]
 data_inputs = pd.concat(inputs, axis=0, ignore_index=True)
 data_inputs = pd.concat(filename_series + [data_inputs], axis=1)
@@ -45,5 +49,5 @@ data_outputs = pd.concat(filename_series + [data_outputs], axis=1)
   
 print(data_inputs)
 print(data_outputs)
-data_inputs.to_csv(output_path / 'inputsdata_compilation.csv', index=False) 
-data_outputs.to_csv(output_path / 'outputsdata_compilation.csv', index=False)
+data_inputs.to_csv(output_path / 'inputs.csv', index=False) 
+data_outputs.to_csv(output_path / 'ouputs.csv', index=False)
