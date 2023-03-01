@@ -8,6 +8,7 @@ from typing import List, Dict, Tuple
 # clustering
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from tslearn.clustering import TimeSeriesKMeans
 from minisom import MiniSom
 
@@ -81,6 +82,16 @@ def dbscan(scaled_files : np.ndarray, filenames : dict, max_clusters : int = 12)
             continue
         
         cluster_runs.append(map_filename_to_cluster(labels, filenames))
+    return cluster_runs
+
+def tsne(scaled_files : np.ndarray, filenames : dict, max_clusters : int = 12) -> List[Dict[int, List[str]]]:
+    # generate all possiblle cluster
+    cluster_runs = []
+    for i in range(2, max_clusters + 1):
+        km = TSNE(n_components=2, random_state=0, perplexity=30, n_iter=5000)
+        labels = km.fit_predict(scaled_files)
+        cluster_runs.append(map_filename_to_cluster(labels, filenames))
+    
     return cluster_runs
 
     

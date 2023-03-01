@@ -10,36 +10,53 @@ from sklearn.decomposition import PCA
 
 from methods import *
     
-def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_path=None, outliers=False):
-    """Remove or  with less than min_cluster_size members."""
+def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_path=None, join_small=True,
+                             max_outlier_size=1000):
+    """_summary_
+
+    Args:
+        run_clusters (_type_): _description_
+        min_cluster_size (_type_): _description_
+        method_name (_type_): _description_
+        save_path (_type_, optional): _description_. Defaults to None.
+        join_small (bool, optional): _description_. Defaults to True.
+        max_outlier_size (int, optional): _description_. Defaults to 1000.
+    """
+    print("Saving normalized clusters...")
     final = []
-    for run_id, run in enumerate(run_clusters):
-        # remove outliers from dbscan
-        if outliers:
-            run.pop(-1)
-            
-        lengths = [len(run[k]) for k in run]
-        print(lengths)
+    for run_id, run in enumerate(run_clusters):           
+        lengths = [len(run[c]) for c in run if c != -1]
+        print(f"Run: {run_id} clusters: {lengths}")
         
-        remove_set = set()
-        # remove strange clusters with 1 value
-        for k, length in zip(run.keys(), lengths):
-            if length == 1:
-                remove_set.add(k)
-        for k in remove_set:
-            run.pop(k)
-        lengths = [len(run[k]) for k in run]
+        # join small clusters into one with key -1
+        small_clusters = []
+        if join_small:
+            small_clusters = [k for k, length in zip(run.keys(), lengths) if length < min_cluster_size]
+            if len(small_clusters) > 0:
+                print("\tJoining clusters: ", small_clusters, " into -1")
+                tmp_small = []
+                for k in small_clusters:
+                    tmp_small += run.pop(k)
+                run[-1] = tmp_small
+        
+        # exceeded max outlier size
+        if -1 in run and len(run[-1]) > max_outlier_size:
+            print("\tRun ", run_id, f" has too many outliers ({len(run[-1])}). Skipping...")
+            continue
         
         # exclude any that do not have necessary min_clusters or only one cluster
+        # note: these lenghts do not include outlier label
+        lengths = [len(run[c]) for c in run if c != -1]
         if len(lengths) > 1 and min(lengths) >= min_cluster_size:
             run_dict = {
                 'run_id': run_id,
                 'method': method_name,
                 'clusters': run,
+                'small_clusters': small_clusters,
             }
             final.append(run_dict)   
     
-    print(f'Number of runs: {len(final)}')      
+    print(f'Saved runs: {[r["run_id"] for r in final]}' )      
     if (len(final) > 0):
         pkl.dump(final, open(save_path, 'wb'))
 
@@ -80,12 +97,18 @@ if __name__ == '__main__':
         'pca_dbscan' : dbscan
     }
     
+    tsne_methods = {
+        'tsne_kmeans' : kmeans,
+        'tsne_agg' : agg,
+        'tsne_dbscan' : dbscan
+    }
+    
     # Load data
     print('Loading data...')
     filenames = [f for f in opts['data'].iterdir()]
     flows_dict = OrderedDict()
     for f in filenames:
-        flows_dict[f.stem] = pd.read_csv(f, skiprows=2, usecols=['R [Rsun]', 'B [G]', 'alpha [deg]'])
+        flows_dict[f.stem] = pd.read_csv(f, usecols=['R [Rsun]', 'B [G]', 'alpha [deg]'])
     
     compiled_df = list(flows_dict.values())   
     compiled_df = pd.concat(compiled_df, axis=0)
@@ -108,6 +131,7 @@ if __name__ == '__main__':
     
     # Time Series methods
     for name, method in ts_methods.items():
+        print("______________________________")
         print(f'Running {name}...')
         mag_runs = method(quant_scaled_mag, filenames, opts['max_clusters'])
         save_normalized_clusters(mag_runs, opts['min_cluster_size'], f'{name}_mag', opts['output'] / f'{name}_mag.pkl')
@@ -117,14 +141,15 @@ if __name__ == '__main__':
             
     # ==== PCA CLUSTERING ====
     for name, method in pca_methods.items():
+        print("______________________________")
         print(f'Running {name}...')
         mag_runs = method(quant_scaled_mag, filenames, opts['max_clusters'])
         save_normalized_clusters(mag_runs, opts['min_cluster_size'], f'{name}_mag', 
-                                 opts['output'] / f'{name}_mag.pkl', outliers=name=='pca_dbscan')
+                                 opts['output'] / f'{name}_mag.pkl')
         
         alpha_runs = method(quant_scaled_alpha, filenames, opts['max_clusters'])
         save_normalized_clusters(alpha_runs, opts['min_cluster_size'], f'{name}_alpha',
-                                 opts['output'] / f'{name}_alpha.pkl', outliers=name=='pca_dbscan')
+                                 opts['output'] / f'{name}_alpha.pkl')
         
         
     # ==== JOINT PCA CLUSTERING ====
@@ -147,10 +172,47 @@ if __name__ == '__main__':
         transformed = pca.fit_transform(scaled_all)
         
         for name, method in pca_methods.items():
+            print("______________________________")
             print(f'Running {name} with {scaler_name}...')
             runs = method(transformed, filenames, opts['max_clusters'])     
             save_normalized_clusters(runs, opts['min_cluster_size'], f'{scaler_name}_{name}',
-                                     opts['output'] / f'{scaler_name}_{name}.pkl', outliers=name=='pca_dbscan')
+                                     opts['output'] / f'{scaler_name}_{name}.pkl')
         
+    # ==== TSNE CLUSTERING ====
+    for name, method in tsne_methods.items():
+        print("______________________________")
+        print(f'Running {name}...')
+        mag_runs = method(quant_scaled_mag, filenames, opts['max_clusters'])
+        save_normalized_clusters(mag_runs, opts['min_cluster_size'], f'{name}_mag', 
+                                 opts['output'] / f'{name}_mag.pkl')
         
+        alpha_runs = method(quant_scaled_alpha, filenames, opts['max_clusters'])
+        save_normalized_clusters(alpha_runs, opts['min_cluster_size'], f'{name}_alpha',
+                                 opts['output'] / f'{name}_alpha.pkl')
+        
+    # ==== JOINT TSNE CLUSTERING ====
+    for scaler_name, scaler in scalers.items():
+        # concat flows
+        scaled_flows = list(flows_dict.values())
+        scaled_flows = pd.concat(scaled_flows, axis=0)
+
+        scaler.fit(scaled_flows)
+        scaled_flows = scaler.transform(scaled_flows)
+        scaled_flows = pd.DataFrame(scaled_flows, columns=flow_columns)
+        
+        # separate into file series
+        scaled_all = [scaled_flows.iloc[i*640:i*640+640, :] for i in range(len(scaled_flows) // 640)]
+        scaled_all = [flow.values for flow in scaled_all]
+        scaled_all = np.array([flow.ravel() for flow in np.array(scaled_all)])
+        
+        # reduce to 2 components
+        tsne = TSNE(n_components=2)
+        transformed = tsne.fit_transform(scaled_all)
+        
+        for name, method in tsne_methods.items():
+            print("______________________________")
+            print(f'Running {name} with {scaler_name}...')
+            runs = method(transformed, filenames, opts['max_clusters'])     
+            save_normalized_clusters(runs, opts['min_cluster_size'], f'{scaler_name}_{name}',
+                                     opts['output'] / f'{scaler_name}_{name}.pkl')
     

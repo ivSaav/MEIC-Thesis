@@ -9,6 +9,8 @@ data/*
 .vscode
 runs
 train_hist
+tmp
+
 
 clustering/clusters
 clustering/notebooks/stats

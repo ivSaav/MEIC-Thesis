@@ -11,8 +11,8 @@ sns.set()
 def load_original_data(data_path: Path, save_scalers : bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, QuantileTransformer, QuantileTransformer]:
     """Load the original data from the file."""
 
-    inputs = pd.read_csv(data_path / 'inputsdata_compilation.csv')
-    outputs = pd.read_csv(data_path / 'outputsdata_compilation.csv')
+    inputs = pd.read_csv(data_path / 'inputs.csv')
+    outputs = pd.read_csv(data_path / 'outputs.csv')
     
     input_filenames = inputs[['filename']]
     output_filenames = outputs[['filename']]

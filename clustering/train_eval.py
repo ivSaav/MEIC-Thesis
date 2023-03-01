@@ -14,7 +14,7 @@ from keras_tuner import RandomSearch
 
 from tools.data import load_original_data, join_files_in_cluster
 
-early_stop = EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_loss', patience=25, restore_best_weights=True)
 
 input_cols = ['R [Rsun]', 'B [G]', 'alpha [deg]']
 output_cols = ['n [cm^-3]', 'v [km/s]', 'T [MK]']
@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('--cluster-files-dir', '-c', type=str)
     parser.add_argument('--cluster-file', '-cf', type=Path, default=None)
     parser.add_argument('--save-scalers', '-s', action='store_true', default=False)
+    parser.add_argument('--ignore-outlier-runs', action="store_true")    
     
     opts = vars(parser.parse_args())
     
@@ -53,6 +54,10 @@ if __name__ == '__main__':
         # test each run
         stats = dict()
         for run_dict in all_runs:
+            # do not train on runs with outliers (values joined into -1)
+            if opts['ignore_outlier_runs'] and len(run_dict['small_clusters']) > 0:
+                continue
+            
             stats[run_dict['run_id']] = list()
             # train model on each cluster
             for cluster_id, cluster in run_dict['clusters'].items():
@@ -72,7 +77,7 @@ if __name__ == '__main__':
                         max_trials=5,
                         executions_per_trial=1,
                         overwrite=True,
-                        directory='./tuner_search', 
+                        directory='./tmp', 
                     )
 
                     tuner_rs.search(trainX, trainY, epochs=500, validation_split=0.2, verbose=1,
@@ -93,6 +98,7 @@ if __name__ == '__main__':
                         'loss': float(loss_r),
                         'mse': float(mse_r),
                         'cluster_size': len(cluster),
+                        'model_params': best_model_r.get_best_hyperparameters()[0]
                     })
                     
                     with open(out_dir / 'stats.json', 'w') as stats_f:
