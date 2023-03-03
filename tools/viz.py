@@ -64,18 +64,12 @@ def plot_epoch(train_vals : np.ndarray, scaler, path : Path, title : str,
 
     
 
-def plot_anomalies(anomalies : Tuple[str, float], dataloader : torch.utils.data.DataLoader, title : str = "Anomalies", **figkwargs):
-    anomaly_files = set([filename for filename, _ in anomalies])
-    
-    # get anomaly inputs
-    anomaly_inputs = []
-    for _, (x, files) in enumerate(dataloader):
-        anomaly_inputs.extend([inputs.numpy() for inputs, filename in zip(x, files) if filename in anomaly_files])
-    
-    # concatenate columns into a single line to apply scaler
-    lines = np.array([np.concatenate(val, axis=0) for val in anomaly_inputs])
-    lines = dataloader.dataset.scaler.inverse_transform(lines)
-    plot_data_values(lines, title, ["R [Rsun]", "B [G]", "alpha [deg]"], {'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
+def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies", **figkwargs):
+    # get all compiled inputs
+    df = pd. read_csv(data_path, usecols=["filename", "R [Rsun]", "B [G]", "alpha [deg]"])
+    # select the rows with the filenames in anomalies
+    df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
+    plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
                     scales : Dict[str, str] = {'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs):
@@ -87,7 +81,7 @@ def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', '
     
     for path in filenames:
         for idx, ax in enumerate(axs):
-            df = pd.read_csv(str(path),  skiprows=2, usecols=columns)
+            df = pd.read_csv(str(path), usecols=columns)
             ax.plot(df[columns[idx]],  linewidth=0.5)
     plt.tight_layout()
     

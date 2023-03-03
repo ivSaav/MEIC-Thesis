@@ -17,6 +17,7 @@ class Generator(nn.Module):
         self.device = device
         self.out_dim = output_size
         self.hidden_size = hidden_size
+        self.input_size = input_size
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
         self.lstm0 = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
@@ -38,9 +39,13 @@ class Generator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        recurr_features, _ = self.lstm0(x)
-        recurr_features, _ = self.lstm1(recurr_features)
-        recurr_features, _ = self.lstm2(recurr_features)
+        hidden = (
+            torch.zeros(1, batch_size, self.hidden_size).to(self.device),
+            torch.zeros(1, batch_size, self.hidden_size).to(self.device)
+        )
+        recurr_features, hidden = self.lstm0(x, hidden)
+        recurr_features, hidden = self.lstm1(recurr_features, hidden)
+        recurr_features, _ = self.lstm2(recurr_features, hidden)
         
         outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*4))
         outputs = outputs.view(batch_size, seq_len, self.out_dim)
@@ -62,6 +67,7 @@ class Discriminator(nn.Module):
         super().__init__()
         self.device = device
         self.hidden_size = hidden_size
+        self.input_size = input_size
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
@@ -76,8 +82,12 @@ class Discriminator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        recurr_features, _ = self.lstm(x)
-        recurr_features, _ = self.lstm1(recurr_features)
+        hidden = (
+            torch.zeros(1, batch_size, self.hidden_size).to(self.device),
+            torch.zeros(1, batch_size, self.hidden_size).to(self.device)
+        )
+        recurr_features, hidden = self.lstm(x, hidden)
+        recurr_features, _ = self.lstm1(recurr_features, hidden)
         outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*2))
         outputs = outputs.view(batch_size, seq_len, 1)
         return outputs, recurr_features
