@@ -66,7 +66,7 @@ def plot_epoch(train_vals : np.ndarray, scaler, path : Path, title : str,
 
 def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies", **figkwargs):
     # get all compiled inputs
-    df = pd. read_csv(data_path, usecols=["filename", "R [Rsun]", "B [G]", "alpha [deg]"])
+    df = pd. read_csv(data_path)
     # select the rows with the filenames in anomalies
     df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
     plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)

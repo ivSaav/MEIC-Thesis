@@ -2,17 +2,21 @@ from torch.utils.data import Dataset
 import torch
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import QuantileTransformer
+from sklearn.preprocessing import QuantileTransformer, RobustScaler, PowerTransformer, MinMaxScaler
 from pathlib import Path
 
 from tools.viz import plot_data_values, plot_single_var
 
 class MULTI_VP_Dataset(Dataset):
-    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, nseqs : int = 4) -> None:
+    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), nseqs : int = 4, sequences : bool = True) -> None:
         super().__init__()
         
         self.path = path
         self.method = method
+        self.scaler = None
+        self.stride = 1
+        self.nseqs = nseqs
+        self.sequences = sequences
         
         # read from inputs compilation
         self.inputs = pd.read_csv(path)
@@ -27,11 +31,17 @@ class MULTI_VP_Dataset(Dataset):
             self.inputs = self.inputs.iloc[:, 640:1280]
         
         # scale data
-        self.scaler = QuantileTransformer()
-        self.inputs = self.scaler.fit_transform(self.inputs)
+        self.scaler = scaler
+        self.inputs = self.scaler.fit_transform(self.inputs)[:2500]
         
+        if self.sequences:
+            self.seq_len = len(self.inputs) // nseqs
+            self.create_sequences()
+        # print(self.inputs[0].shape)
+        
+            
         # reshape inputs to the desired format
-        self._reshape_inputs(method, nseqs)
+        # self._reshape_inputs(method, nseqs)
         print("Inputs shape:", self.inputs.shape)
         print("Inputs head:\n", self.inputs[:5])
         
@@ -39,7 +49,18 @@ class MULTI_VP_Dataset(Dataset):
         return len(self.inputs)
     
     def __getitem__(self, idx):
-        return self.inputs[idx], self.filenames[idx]
+        return torch.tensor(self.inputs[idx]).float(), self.filenames[idx]
+    
+    
+    def create_sequences(self):
+        input_seqs = []
+        for i in range(0, len(self.inputs)-self.seq_len, self.stride):
+            input_seqs.append(self.inputs[i:i+self.seq_len])
+            # input_seqs.append(self.inputs[i:i+self.seq_len])
+
+        self.inputs = np.array(input_seqs)
+            
+        
     
     def _reshape_inputs(self, method, nseqs):
         # [
@@ -54,13 +75,13 @@ class MULTI_VP_Dataset(Dataset):
                     row[640:1280],
                     row[1280:1920],
                 ])
-            self.inputs = torch.from_numpy(np.array(reshaped)).float()
+            self.inputs = np.array(reshaped)
         # [
         #     [R1,B1,alpha1], 
         #     [R2,B2,alpha2]
         # ]
         elif method == 'joint':
-            self.inputs = torch.from_numpy(self.inputs).float()
+            self.inputs = self.inputs.to_numpy()
             self.inputs = self.inputs.reshape(self.inputs.shape[0], 1, self.inputs.shape[1]) # 2d -> 3d
         # [
         #     [[B1_s1], [B1_s2], [B1_sn]], 
@@ -71,9 +92,14 @@ class MULTI_VP_Dataset(Dataset):
             # split magntic field into nseqs sequences
             for line in self.inputs:
                 reshaped.append(np.split(line, nseqs))
-            self.inputs = torch.from_numpy(np.array(reshaped)).float()
-    
+            self.inputs = np.array(reshaped)
+            
     def _remove_extreme(self):
+        # bad_files = ["profile_wso_CR1992_line_1504"]
+        
+        initial_len = len(self.inputs)
+        # self.inputs = self.inputs[~self.inputs['filename'].isin(bad_files)]
+        
         # remove extreme values based on magnetic field
         bad_indices = []
         for i, row in self.inputs.iterrows():
@@ -85,37 +111,49 @@ class MULTI_VP_Dataset(Dataset):
             
         
         self.inputs.drop(bad_indices, inplace=True)
-        print("Removed {} extreme values".format(len(bad_indices)))
+        print("Removed {} extreme values".format(initial_len-len(self.inputs)))
     
-    def _unscale(self, values):
+    def unscale(self, values):
+        
+        # get first from strided windows
+        if self.sequences:
+            return self.scaler.inverse_transform([vals[0] for vals in values])
+        
+        unscaled = []
+        if not self.scaler:
+            unscaled = values.reshape(values.shape[0], -1)
+        
         if self.method == 'multi':
-            return self.scaler.inverse_transform(
-                np.array([np.concatenate(vals, axis=0) for vals in values.numpy()])
+            unscaled = self.scaler.inverse_transform(
+                np.array([np.concatenate(vals, axis=0) for vals in values])
             )
         elif self.method == 'joint':
-            return self.scaler.inverse_transform(
-                values.numpy().reshape(values.shape[0], -1)
+            unscaled = self.scaler.inverse_transform(
+                values.reshape(values.shape[0], -1)
             )
         elif self.method == 'single_mag':
-            print(values.shape)
-            return self.scaler.inverse_transform(
-                values.numpy().reshape(values.shape[0], -1)
+            unscaled = self.scaler.inverse_transform(
+                values.reshape(values.shape[0], -1)
             )
             
+        return unscaled
+
             
     def plot(self, title : str = "MULTI-VP Data", **figkwargs):
         
-        unscaled_inputs = self._unscale(self.inputs)
+        unscaled_inputs = self.unscale(self.inputs)
+        print(unscaled_inputs.shape)
+        # unscaled_inputs = self.inputs
         if self.method == 'multi':
             plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
         else:
-            plot_single_var(unscaled_inputs, title, scale="log", **figkwargs)
+            plot_single_var(unscaled_inputs, title, scale="log", label="B [G]", **figkwargs)
             
-    def plot_values(self, data : np.ndarray = None, title : str = "MULTI-VP Data", **figkwargs):
-        unscaled_inputs = self._unscale(data)
-        if self.method == 'multi':
-            plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
-        else:
-            plot_single_var(unscaled_inputs, title, scale="log", **figkwargs)
+    # def plot_values(self, data : np.ndarray = None, title : str = "MULTI-VP Data", **figkwargs):
+    #     unscaled_inputs = self.unscale(data)
+    #     if self.method == 'multi':
+    #         plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
+    #     else:
+    #         plot_single_var(unscaled_inputs, title, scale="log", **figkwargs)
         
     
