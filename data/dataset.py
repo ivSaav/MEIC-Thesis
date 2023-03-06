@@ -8,15 +8,13 @@ from pathlib import Path
 from tools.viz import plot_data_values, plot_single_var
 
 class MULTI_VP_Dataset(Dataset):
-    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), nseqs : int = 4, sequences : bool = True) -> None:
+    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), nseqs : int = 4, window_size : int = 1) -> None:
         super().__init__()
         
         self.path = path
         self.method = method
         self.scaler = None
-        self.stride = 1
         self.nseqs = nseqs
-        self.sequences = sequences
         
         # read from inputs compilation
         self.inputs = pd.read_csv(path)
@@ -26,29 +24,49 @@ class MULTI_VP_Dataset(Dataset):
         self.filenames = self.inputs['filename'].values
         self.inputs = self.inputs.iloc[:, 1:] # remove filename column
         self.inputs.columns = self.inputs.columns.astype(int) # convert column names to int
+        self.length = len(self.inputs)
         
-        if method == "single_mag":
+        if method == "single_mag" or method == "window_mag":
             self.inputs = self.inputs.iloc[:, 640:1280]
         
         # scale data
         self.scaler = scaler
         self.inputs = self.scaler.fit_transform(self.inputs)[:2500]
         
-        if self.sequences:
-            self.seq_len = len(self.inputs) // nseqs
-            self.create_sequences()
+        if self.method == "window_mag":
+            self.length = self.length - window_size # update length to accomodate window size
+            self.stride = 1
+            self.wsize = window_size
+            self.inputs, _ = self.__getitem__(0) # sanity check
+            print(f"Window size: {window_size}")
+            print("Window shape: ", self.inputs.shape)
+            print("First window:\n", self.inputs)
+        else:
+            # self.create_sequences()
         # print(self.inputs[0].shape)
         
             
         # reshape inputs to the desired format
         # self._reshape_inputs(method, nseqs)
-        print("Inputs shape:", self.inputs.shape)
-        print("Inputs head:\n", self.inputs[:5])
+            print("Inputs shape:", self.inputs.shape)
+            print("Inputs head:\n", self.inputs[:5])
         
     def __len__(self):
-        return len(self.inputs)
+        return self.length
     
     def __getitem__(self, idx):
+        
+        if self.method == "window_mag":
+            print(idx)
+            window = pd.read_csv(self.path, skiprows=idx, nrows=self.wsize).iloc[:, 1:] # read only specific rows of window size
+            window = window.iloc[:, 640:1280] # get only mag values
+            print(window)
+            print(window.columns)
+            window.columns = window.columns.astype(int)
+            window = self.scaler.transform(window)
+            # return window and name of the starting filename
+            return torch.tensor(window).float(), self.filenames[idx]
+        
         return torch.tensor(self.inputs[idx]).float(), self.filenames[idx]
     
     
@@ -114,46 +132,22 @@ class MULTI_VP_Dataset(Dataset):
         print("Removed {} extreme values".format(initial_len-len(self.inputs)))
     
     def unscale(self, values):
-        
-        # get first from strided windows
-        if self.sequences:
-            return self.scaler.inverse_transform([vals[0] for vals in values])
-        
-        unscaled = []
-        if not self.scaler:
-            unscaled = values.reshape(values.shape[0], -1)
-        
-        if self.method == 'multi':
-            unscaled = self.scaler.inverse_transform(
-                np.array([np.concatenate(vals, axis=0) for vals in values])
-            )
-        elif self.method == 'joint':
-            unscaled = self.scaler.inverse_transform(
-                values.reshape(values.shape[0], -1)
-            )
-        elif self.method == 'single_mag':
-            unscaled = self.scaler.inverse_transform(
-                values.reshape(values.shape[0], -1)
-            )
-            
-        return unscaled
+        return self.scaler.inverse_transform(self.flatten(values))
+    
+    def flatten(self, values):
+        # get first element of every window
+        if self.method == "window_mag":
+            return np.array([vals[0] for vals in values])
+        return values.reshape(values.shape[0], -1)
+    #TODO might be different for "multi"
 
             
     def plot(self, title : str = "MULTI-VP Data", **figkwargs):
-        
         unscaled_inputs = self.unscale(self.inputs)
-        print(unscaled_inputs.shape)
         # unscaled_inputs = self.inputs
         if self.method == 'multi':
             plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
         else:
             plot_single_var(unscaled_inputs, title, scale="log", label="B [G]", **figkwargs)
-            
-    # def plot_values(self, data : np.ndarray = None, title : str = "MULTI-VP Data", **figkwargs):
-    #     unscaled_inputs = self.unscale(data)
-    #     if self.method == 'multi':
-    #         plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
-    #     else:
-    #         plot_single_var(unscaled_inputs, title, scale="log", **figkwargs)
         
     
