@@ -25,17 +25,6 @@ class Generator(nn.Module):
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
         self.main = nn.GRU(input_size//5, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
-        # if activation == 'relu':
-        #     self.actv = nn.ReLU()
-        # elif activation == 'leaky_relu':
-        #     self.actv = nn.LeakyReLU()
-        # elif activation == "sigmoid":
-        #     self.actv = nn.Sigmoid()
-        # elif activation == "log_sig":
-        #     self.actv = nn.Hardsigmoid()
-        # else:
-        #     self.actv = nn.Tanh()
-        
         self.linear = nn.Sequential(
             nn.Linear(hidden_size*2, output_size),
             nn.Tanh()
