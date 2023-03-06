@@ -42,6 +42,8 @@ class MULTI_VP_Dataset(Dataset):
             print(f"Window size: {window_size}")
             print("Window shape: ", first.shape)
             print("First window:\n", first)
+        elif self.method == "multi":
+            self._reshape_inputs(method, nseqs)
      
         print("Inputs shape:", self.inputs.shape)
         print("Inputs head:\n", self.inputs[:5])

@@ -78,7 +78,7 @@ class Discriminator(nn.Module):
         batch_size, seq_len = x.size(0), x.size(1)
         outputs = self.lf0(x)
         outputs = self.dropout(outputs)
-        recurr_features, hidden = self.main(outputs)
+        recurr_features, _hidden = self.main(outputs)
         
         outputs = self.linear(recurr_features)
         outputs = outputs.view(batch_size, seq_len, 1)

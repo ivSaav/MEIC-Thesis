@@ -110,5 +110,6 @@ def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
     image = ToTensor()(image)
     
     writer.add_image(tag, image, step)
+    return fig
     # plt.close(fig)
     
