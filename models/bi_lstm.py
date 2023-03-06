@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class Generator(nn.Module):
     def __init__(self, input_size : int, hidden_size : int, output_size : int, num_layers : int = 1, dropout : int  = 0, device : str = 'cpu',
-                 activation : str = 'relu', bidirectional : bool = False):
+                bidirectional : bool = False):
         """LSTM Generator Model
 
         Args:
@@ -19,21 +19,23 @@ class Generator(nn.Module):
         self.hidden_size = hidden_size
         self.input_size = input_size
         self.num_layers = num_layers
+        self.num_dirs = 2 if bidirectional else 1
         
-        self.initial = nn.Linear(input_size, input_size//5)
+        
+        self.lf0 = nn.Linear(input_size, input_size//2)
         self.dropout = nn.Dropout(p=dropout)
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.main = nn.GRU(input_size//5, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        self.main = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
         self.linear = nn.Sequential(
-            nn.Linear(hidden_size*2, output_size),
+            nn.Linear(hidden_size*self.num_dirs, output_size),
             nn.Tanh()
         )
         
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        outputs = self.initial(x)
+        outputs = self.lf0(x)
         outputs = self.dropout(outputs)
         recurr_features, _ = self.main(outputs)
         outputs = self.linear(recurr_features)
@@ -58,22 +60,23 @@ class Discriminator(nn.Module):
         self.hidden_size = hidden_size
         self.input_size = input_size
         self.num_layers = num_layers
+        self.num_dirs = 2 if bidirectional else 1
         
-        self.initial = nn.Linear(input_size, input_size//5)
+        self.lf0 = nn.Linear(input_size, input_size//2)
         self.dropout = nn.Dropout(p=dropout)
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.main = nn.GRU(input_size//5, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        self.main = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
         
         self.linear = nn.Sequential(
-            nn.Linear(hidden_size*2, 1),
+            nn.Linear(hidden_size*self.num_dirs, 1),
             nn.Sigmoid()
         )
         
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        outputs = self.initial(x)
+        outputs = self.lf0(x)
         outputs = self.dropout(outputs)
         recurr_features, hidden = self.main(outputs)
         

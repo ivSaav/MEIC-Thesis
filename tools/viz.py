@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import pandas as pd
 import numpy as np
-import torch
+import io
+
+import PIL.Image
+from torchvision.transforms import ToTensor
 
 from typing import List, Dict, Tuple
 
@@ -36,10 +39,11 @@ def plot_data_values(data : np.ndarray, title : str,
         axs[i].set_yscale(scales[label] if label in scales else 'log')
     
     plt.tight_layout()
+    return fig
 
 
 def plot_single_var(values : np.ndarray, title : str,
-                       label : str = "R [Rsun]", scale : str = 'log', **figkwargs):
+                       label : str = "B [G]", scale : str = 'log', **figkwargs):
     fig, ax = plt.subplots(**figkwargs)
     for line in values:
         ax.plot(line, linewidth=0.1)
@@ -47,6 +51,7 @@ def plot_single_var(values : np.ndarray, title : str,
     ax.set_yscale(scale)
     plt.title(title)
     plt.tight_layout()
+    return fig
    
  
     
@@ -69,7 +74,7 @@ def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str 
     df = pd. read_csv(data_path)
     # select the rows with the filenames in anomalies
     df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
-    plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
+    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
                     scales : Dict[str, str] = {'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs):
@@ -84,4 +89,26 @@ def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', '
             df = pd.read_csv(str(path), usecols=columns)
             ax.plot(df[columns[idx]],  linewidth=0.5)
     plt.tight_layout()
+    
+    
+def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
+    """
+    Takes a matplotlib figure handle and converts it using
+    canvas and string-casts to a numpy array that can be
+    visualized in TensorBoard using the add_image function
+    Parameters:
+        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.
+        fig (matplotlib.pyplot.fig): Matplotlib figure handle.
+        step (int): counter usually specifying steps/epochs/time.
+    """
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='jpeg')
+    buf.seek(0)
+    
+    image = PIL.Image.open(buf)
+    image = ToTensor()(image)
+    
+    writer.add_image(tag, image, step)
+    # plt.close(fig)
     
