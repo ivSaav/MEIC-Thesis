@@ -24,7 +24,8 @@ class Generator(nn.Module):
         self.num_layers = num_layers
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.lstm0 = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        self.l0 = nn.Linear(input_size, input_size//2)
+        self.lstm0 = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         self.lstm1 = nn.GRU(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         self.lstm2 = nn.GRU(hidden_size*2, hidden_size*4, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
@@ -38,9 +39,11 @@ class Generator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        hidden = torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device)
         
-        recurr_features, hidden = self.lstm0(x, hidden)
+        outputs = self.l0(x)
+        
+        hidden = torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device)
+        recurr_features, hidden = self.lstm0(outputs, hidden)
         recurr_features, hidden = self.lstm1(recurr_features)
         recurr_features, _ = self.lstm2(recurr_features)
         
@@ -67,8 +70,10 @@ class Discriminator(nn.Module):
         self.input_size = input_size
         self.num_layers = num_layers
         
+        
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.lstm = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        self.l0 = nn.Linear(input_size, input_size//2)
+        self.lstm = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         self.lstm1 = nn.GRU(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
         
@@ -80,9 +85,10 @@ class Discriminator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        hidden = torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device)
+        outputs = self.l0(x)
         
-        recurr_features, hidden = self.lstm(x, hidden)
+        hidden = torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device)
+        recurr_features, hidden = self.lstm(outputs, hidden)
         recurr_features, _ = self.lstm1(recurr_features)
         outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*2))
         outputs = outputs.view(batch_size, seq_len, 1)
