@@ -149,7 +149,7 @@ class MULTI_VP_Dataset(Dataset):
         """
         unscaled_inputs = self.unscale(self.inputs)
         # unscaled_inputs = self.inputs
-        if self.method == 'multi':
+        if self.method == 'multi' or self.method == 'joint':
             plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
         else:
             plot_single_var(unscaled_inputs, title, scale="log", label="B [G]", **figkwargs)

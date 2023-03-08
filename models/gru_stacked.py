@@ -29,7 +29,7 @@ class Generator(nn.Module):
         
         self.linear = nn.Sequential(
             nn.Linear(hidden_size*self.num_dirs, output_size),
-            nn.Tanh()
+            nn.Tanh() # TODO test without this
         )
         
     def forward(self, x):
