@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.preprocessing import QuantileTransformer, RobustScaler, PowerTransformer, MinMaxScaler
 from pathlib import Path
 
-from tools.viz import plot_data_values, plot_single_var
+from anomaly.tools.viz import plot_data_values, plot_single_var
 
 class MULTI_VP_Dataset(Dataset):
     def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), nseqs : int = 4, window_size : int = 1) -> None:
