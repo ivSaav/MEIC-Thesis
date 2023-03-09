@@ -5,10 +5,11 @@ import numpy as np
 from sklearn.preprocessing import QuantileTransformer, RobustScaler, PowerTransformer, MinMaxScaler
 from pathlib import Path
 
-from anomaly.tools.viz import plot_data_values, plot_single_var
+from tools.viz import plot_data_values, plot_single_var
 
 class MULTI_VP_Dataset(Dataset):
-    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), nseqs : int = 4, window_size : int = 1) -> None:
+    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), 
+                 nseqs : int = 4, window_size : int = 1, pca : bool = False) -> None:
         super().__init__()
         
         self.path = path
@@ -33,18 +34,15 @@ class MULTI_VP_Dataset(Dataset):
         
         # transform inputs
         self.inputs = self.scaler.fit_transform(self.inputs)
-        
         if self.method == "window_mag":
             self.length = self.length - window_size # update length to accomodate window size
             self.wsize = window_size
             first, _ = self.__getitem__(0) # sanity check
-            # self.inputs.columns = self.inputs.columns.astype(int) # convert column names to int
             print(f"Window size: {window_size}")
             print("Window shape: ", first.shape)
             print("First window:\n", first)
         elif self.method == "multi":
             self._reshape_inputs(method, nseqs)
-     
         print("Inputs shape:", self.inputs.shape)
         print("Inputs head:\n", self.inputs[:5])
         
@@ -114,6 +112,7 @@ class MULTI_VP_Dataset(Dataset):
         self.inputs.drop(bad_indices, inplace=True)
         print("Removed {} extreme values".format(initial_len-len(self.inputs)))
     
+    
     def unscale(self, values : np.ndarray) -> np.ndarray:
         """Inverse transform values
 
@@ -124,6 +123,7 @@ class MULTI_VP_Dataset(Dataset):
             np.ndarray: unscaled values
         """
         return self.scaler.inverse_transform(self.flatten(values))
+    
     
     def flatten(self, values : np.ndarray) -> np.ndarray:
         """Flatten values to the original input shape
@@ -147,11 +147,11 @@ class MULTI_VP_Dataset(Dataset):
         Args:
             title (str, optional): title of the plot. Defaults to "MULTI-VP Data".
         """
-        unscaled_inputs = self.unscale(self.inputs)
-        # unscaled_inputs = self.inputs
+        unscaled_inputs = self.inputs
+        # unscaled_inputs = self.unscale(self.inputs)
         if self.method == 'multi' or self.method == 'joint':
             plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
         else:
-            plot_single_var(unscaled_inputs, title, scale="log", label="B [G]", **figkwargs)
+            plot_single_var(unscaled_inputs, title, scale="linear", label="B [G]", **figkwargs)
         
     
