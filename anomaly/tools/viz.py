@@ -113,3 +113,45 @@ def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
     return fig
     # plt.close(fig)
     
+    
+def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_path : Path, save_path : Path = None, 
+                logger = None, logger_var : str ="test/", scale="linear", method : str = ""):
+    # calculate anomaly threshold based on percentage of anomalies
+    sorted_scores = sorted([s[1] for s in scores], reverse=True)
+    t = sorted_scores[int(len(sorted_scores)*percent)]
+    print("Anomaly Threshold: ", t)
+    
+    # plot anomaly scores with calculated threshold
+    scores_fig, ax = plt.subplots(figsize=(20, 5))
+    ax.plot([score[1] for score in scores], label='Anomaly Score', linewidth=0.3)
+    ax.plot(t*np.ones(len(scores)), label=f'Threshold ({int(t)})')
+    ax.set_yscale(scale)
+    plt.legend()
+    
+    anomalies = [score[0] for score in scores if score[1] > t]
+    print(f"Found {len(anomalies)} anomalies")
+    anomal_fig = plot_anomalies(anomalies, data_path, f"{method + ' '}Anomalies - {len(anomalies)}", figsize=(8, 5), dpi=200)
+    
+    if save_path != None: 
+        scores_fig.savefig(str(save_path) + "_scores", dpi=200)
+        anomal_fig.savefig(str(save_path) + "_anomalies", dpi=200)
+        
+    if logger != None: 
+        plot_to_tensorboard(logger, scores_fig, 0, logger_var)
+        plot_to_tensorboard(logger, anomal_fig, 0, logger_var + "_anomalies")
+    
+    return t, scores_fig
+
+
+def plot_train_hist(D_losses, G_losses, out_dir : Path = None):
+    fig = plt.figure(figsize=(10,5))
+    plt.title("Generator and Discriminator Loss During Training")
+    plt.plot(G_losses,label="G")
+    plt.plot(D_losses,label="D")
+    plt.xlabel("iterations")
+    plt.ylabel("Loss")
+    plt.legend()
+    
+    if out_dir: fig.savefig(out_dir / "img/train_hist", dpi=200)
+    return fig
+    

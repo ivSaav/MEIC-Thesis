@@ -2,21 +2,26 @@ from torch.utils.data import Dataset
 import torch
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import QuantileTransformer, RobustScaler, PowerTransformer, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.decomposition import PCA
 from pathlib import Path
 
 from tools.viz import plot_data_values, plot_single_var
 
 class MULTI_VP_Dataset(Dataset):
-    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, scaler = MinMaxScaler(), 
-                 nseqs : int = 4, window_size : int = 1, pca : bool = False) -> None:
+    def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, is_train : bool = False, 
+                 scaler = None, nseqs : int = 0, window_size : int = 0, 
+                 use_pca : bool = False, n_components : int = 32, pca = None, pca_scaler = None) -> None:
         super().__init__()
         
         self.path = path
         self.method = method
-        self.scaler = None
-        self.nseqs = nseqs
         self.scaler = scaler
+        self.nseqs = nseqs
+        self.wsize = window_size
+        self.n_components = n_components
+        self.pca = pca
+        self.pca_scaler = pca_scaler
         
         # read from inputs compilation
         self.inputs = pd.read_csv(path)
@@ -28,24 +33,24 @@ class MULTI_VP_Dataset(Dataset):
         self.inputs.columns = self.inputs.columns.astype(int) # convert column names to int
         self.length = len(self.inputs)
         
-        if method == "single_mag" or method == "window_mag":
-            self.inputs = self.inputs.iloc[:, 640:1280]
-            self.inputs.columns = range(self.inputs.shape[1])
-        
-        # transform inputs
-        self.inputs = self.scaler.fit_transform(self.inputs)
-        if self.method == "window_mag":
-            self.length = self.length - window_size # update length to accomodate window size
-            self.wsize = window_size
-            first, _ = self.__getitem__(0) # sanity check
-            print(f"Window size: {window_size}")
-            print("Window shape: ", first.shape)
-            print("First window:\n", first)
-        elif self.method == "multi":
-            self._reshape_inputs(method, nseqs)
-        print("Inputs shape:", self.inputs.shape)
-        print("Inputs head:\n", self.inputs[:5])
-        
+        self._preprocess(is_train, use_pca)
+    
+    @classmethod
+    def _from(cls, old, is_train=False, remove_extreme=False):
+        return cls(
+            path=old.path,
+            method=old.method,
+            remove_extreme=remove_extreme,
+            is_train=is_train,
+            scaler=old.scaler,
+            window_size=old.wsize,
+            nseqs=old.nseqs,
+            use_pca=old.pca != None,
+            n_components=old.n_components,
+            pca=old.pca,
+            pca_scaler=old.pca_scaler
+        )        
+
     def __len__(self):
         return self.length
     
@@ -56,6 +61,39 @@ class MULTI_VP_Dataset(Dataset):
             return torch.tensor(window).float(), self.filenames[idx]
         
         return torch.tensor(self.inputs[idx]).float(), self.filenames[idx]
+    
+    
+    def _preprocess(self, is_train : bool, use_pca : bool):
+        # select only magnetic field values
+        if self.method == "single_mag" or self.method == "window_mag":
+            self.inputs = self.inputs.iloc[:, 640:1280]
+            self.inputs.columns = range(self.inputs.shape[1])
+        
+        # only fit data when it is normal
+        if is_train:
+            self.inputs = self.scaler.fit_transform(self.inputs)
+            if use_pca: 
+                self.pca = PCA(n_components=self.n_components).fit(self.inputs)
+                self.inputs = self.pca.transform(self.inputs)
+                self.pca_scaler = MinMaxScaler((-1,1))
+                self.inputs = self.pca_scaler.fit_transform(self.inputs)
+        else: # test
+            self.inputs = self.scaler.transform(self.inputs)
+            if use_pca: 
+                self.inputs = self.pca.transform(self.inputs)
+                self.inputs = self.pca_scaler.transform(self.inputs)
+                
+        if self.method == "window_mag":
+            self.length = self.length - self.wsize # update length to accomodate window size
+            first, _ = self.__getitem__(0) # sanity check
+            print(f"Window size: {self.wsize}")
+            print("Window shape: ", first.shape)
+            print("First window:\n", first)
+        elif self.method == "multi":
+            self._reshape_inputs(self.method, self.nseqs)
+        print("Inputs shape:", self.inputs.shape)
+        print("Inputs head:\n", self.inputs[:5])
+        
          
     
     def _reshape_inputs(self, method : str, nseqs : int) -> None:
@@ -150,7 +188,7 @@ class MULTI_VP_Dataset(Dataset):
         unscaled_inputs = self.inputs
         # unscaled_inputs = self.unscale(self.inputs)
         if self.method == 'multi' or self.method == 'joint':
-            plot_data_values(unscaled_inputs, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
+            plot_data_values(unscaled_inputs, title, scales={'B [G]':'linear', 'alpha [deg]': 'linear'}, **figkwargs)
         else:
             plot_single_var(unscaled_inputs, title, scale="linear", label="B [G]", **figkwargs)
         
