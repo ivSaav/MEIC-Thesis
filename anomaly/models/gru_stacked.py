@@ -22,25 +22,21 @@ class Generator(nn.Module):
         self.num_dirs = 2 if bidirectional else 1
         
         
-        self.lf0 = nn.Linear(input_size, input_size//2)
-        self.dropout = nn.Dropout(p=dropout)
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.main = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        self.main = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
         self.linear = nn.Sequential(
             nn.Linear(hidden_size*self.num_dirs, output_size),
-            nn.Tanh() # TODO test without this
+            # nn.Tanh() # TODO test without this
         )
         
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        outputs = self.lf0(x)
-        outputs = self.dropout(outputs)
-        recurr_features, _ = self.main(outputs)
+        recurr_features, _ = self.main(x)
         outputs = self.linear(recurr_features)
         outputs = outputs.view(batch_size, seq_len, self.out_dim)
-        return outputs, recurr_features
+        return outputs
 
 
     
@@ -62,11 +58,8 @@ class Discriminator(nn.Module):
         self.num_layers = num_layers
         self.num_dirs = 2 if bidirectional else 1
         
-        self.lf0 = nn.Linear(input_size, input_size//2)
-        self.dropout = nn.Dropout(p=dropout)
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.main = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
-        
+        self.main = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
         self.linear = nn.Sequential(
             nn.Linear(hidden_size*self.num_dirs, 1),
@@ -76,13 +69,11 @@ class Discriminator(nn.Module):
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        outputs = self.lf0(x)
-        outputs = self.dropout(outputs)
-        recurr_features, _hidden = self.main(outputs)
+        recurr_features, _hidden = self.main(x)
         
         outputs = self.linear(recurr_features)
         outputs = outputs.view(batch_size, seq_len, 1)
-        return outputs, recurr_features
+        return outputs
     
 if __name__ == '__main__':
     batch_size = 1

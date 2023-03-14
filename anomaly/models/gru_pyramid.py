@@ -24,32 +24,28 @@ class Generator(nn.Module):
         self.num_layers = num_layers
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.l0 = nn.Linear(input_size, input_size//2)
-        self.lstm0 = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        self.lstm0 = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         self.lstm1 = nn.GRU(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         self.lstm2 = nn.GRU(hidden_size*2, hidden_size*4, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
-        self.actv = nn.Tanh()
+        self.linear = nn.Linear(hidden_size*4, output_size)
         
-        self.linear = nn.Sequential(
-            nn.Linear(hidden_size*4, output_size),
-            self.actv
-        )
+        nn.init.trunc_normal_(self.linear.bias)
+        nn.init.trunc_normal_(self.linear.weight)
         
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
         
-        outputs = self.l0(x)
-        
         hidden = torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device)
-        recurr_features, hidden = self.lstm0(outputs, hidden)
+        recurr_features, hidden = self.lstm0(x, hidden)
         recurr_features, hidden = self.lstm1(recurr_features)
         recurr_features, _ = self.lstm2(recurr_features)
+        # self.recurr_features = recurr_features
         
         outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*4))
         outputs = outputs.view(batch_size, seq_len, self.out_dim)
-        return outputs, recurr_features
+        return outputs
 
 
     
@@ -72,27 +68,27 @@ class Discriminator(nn.Module):
         
         
         # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html
-        self.l0 = nn.Linear(input_size, input_size//2)
-        self.lstm = nn.GRU(input_size//2, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
-        self.lstm1 = nn.GRU(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        # self.l0 = nn.Linear(input_size, input_size//2)
+        self.lstm = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
+        # self.lstm1 = nn.GRU(hidden_size, hidden_size*2, num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         
+        self.linear = nn.Linear(hidden_size, 1)
+        self.sigmoid = nn.Sigmoid()
         
-        self.linear = nn.Sequential(
-            nn.Linear(hidden_size*2, 1),
-            nn.Sigmoid()
-        )
+        nn.init.trunc_normal_(self.linear.bias)
+        nn.init.trunc_normal_(self.linear.weight)
         
     def forward(self, x):
         # create inputs
         batch_size, seq_len = x.size(0), x.size(1)
-        outputs = self.l0(x)
         
         hidden = torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device)
-        recurr_features, hidden = self.lstm(outputs, hidden)
-        recurr_features, _ = self.lstm1(recurr_features)
-        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size*2))
+        recurr_features, hidden = self.lstm(x, hidden)
+        # recurr_features, _ = self.lstm1(recurr_features)
+        
+        outputs = self.linear(recurr_features.contiguous().view(batch_size*seq_len, self.hidden_size))
         outputs = outputs.view(batch_size, seq_len, 1)
-        return outputs, recurr_features
+        return outputs
     
 if __name__ == '__main__':
     batch_size = 1

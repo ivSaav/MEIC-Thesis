@@ -11,7 +11,7 @@ from typing import List, Dict, Tuple
 
 def plot_data_values(data : np.ndarray, title : str,
                      labels : List[str] = ["R [Rsun]", "B [G]", "alpha [deg]"], 
-                     scales : Dict[str, str] = {}, **figkwargs):
+                     scales : Dict[str, str] = {}, scale : str ="log", **figkwargs):
     """
     Plot 3 data columns at once.
     Args:
@@ -36,7 +36,7 @@ def plot_data_values(data : np.ndarray, title : str,
     # set labels
     for i, label in enumerate(labels):   
         axs[i].set_ylabel(label) 
-        axs[i].set_yscale(scales[label] if label in scales else 'log')
+        axs[i].set_yscale(scales[label] if label in scales else scale)
     
     plt.tight_layout()
     return fig

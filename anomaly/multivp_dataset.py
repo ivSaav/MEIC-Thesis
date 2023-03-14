@@ -75,7 +75,7 @@ class MULTI_VP_Dataset(Dataset):
             if use_pca: 
                 self.pca = PCA(n_components=self.n_components).fit(self.inputs)
                 self.inputs = self.pca.transform(self.inputs)
-                self.pca_scaler = MinMaxScaler((-1,1))
+                # self.pca_scaler = StandardScaler()
                 self.inputs = self.pca_scaler.fit_transform(self.inputs)
         else: # test
             self.inputs = self.scaler.transform(self.inputs)
@@ -188,7 +188,7 @@ class MULTI_VP_Dataset(Dataset):
         unscaled_inputs = self.inputs
         # unscaled_inputs = self.unscale(self.inputs)
         if self.method == 'multi' or self.method == 'joint':
-            plot_data_values(unscaled_inputs, title, scales={'B [G]':'linear', 'alpha [deg]': 'linear'}, **figkwargs)
+            plot_data_values(unscaled_inputs, title, scale="linear", **figkwargs)
         else:
             plot_single_var(unscaled_inputs, title, scale="linear", label="B [G]", **figkwargs)
         

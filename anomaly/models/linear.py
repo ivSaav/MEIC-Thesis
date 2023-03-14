@@ -41,7 +41,6 @@ class Generator(nn.Module):
     def forward(self, x):
         batch_size = x.size(0)
         x = self.main(x)
-        print(x)
         x = x.view(batch_size, self.output_size)
         return x
     
@@ -59,7 +58,7 @@ class Discriminator(nn.Module):
             self.main.add_module('in_bn', nn.BatchNorm1d(hidden_size))
             self.main.add_module('in_leaky', nn.LeakyReLU(neg_slope, inplace=True))
         
-        # pyramid
+        # inverted pyramid
         for i in range(1, nlayers):
             self.main.add_module(f'l{i}', nn.Linear(hidden_size//(2**(i-1)), hidden_size//(2**i)))
             self.main.add_module(f'bn{i}', nn.BatchNorm1d(hidden_size//(2**i)))
