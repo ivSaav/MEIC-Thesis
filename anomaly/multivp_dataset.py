@@ -10,7 +10,7 @@ from tools.viz import plot_data_values, plot_single_var
 
 class MULTI_VP_Dataset(Dataset):
     def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, is_train : bool = False, 
-                 scaler = None, nseqs : int = 0, window_size : int = 0, 
+                 scaler = None, nseqs : int = 0, window_size : int = 0, drop_radius : bool = True,
                  use_pca : bool = False, n_components : int = 32, pca = None, pca_scaler = None) -> None:
         super().__init__()
         
@@ -22,6 +22,7 @@ class MULTI_VP_Dataset(Dataset):
         self.n_components = n_components
         self.pca = pca
         self.pca_scaler = pca_scaler
+        self.drop_radius = drop_radius
         
         # read from inputs compilation
         self.inputs = pd.read_csv(path)
@@ -33,7 +34,8 @@ class MULTI_VP_Dataset(Dataset):
         self.inputs.columns = self.inputs.columns.astype(int) # convert column names to int
         self.length = len(self.inputs)
         
-        self._preprocess(is_train, use_pca)
+        self._preprocess(is_train, use_pca, drop_radius)
+        self.shape = self.inputs.shape
     
     @classmethod
     def _from(cls, old, is_train=False, remove_extreme=False):
@@ -48,7 +50,8 @@ class MULTI_VP_Dataset(Dataset):
             use_pca=old.pca != None,
             n_components=old.n_components,
             pca=old.pca,
-            pca_scaler=old.pca_scaler
+            pca_scaler=old.pca_scaler,
+            drop_radius=old.drop_radius
         )        
 
     def __len__(self):
@@ -63,11 +66,13 @@ class MULTI_VP_Dataset(Dataset):
         return torch.tensor(self.inputs[idx]).float(), self.filenames[idx]
     
     
-    def _preprocess(self, is_train : bool, use_pca : bool):
+    def _preprocess(self, is_train : bool, use_pca : bool, drop_radius : bool):
         # select only magnetic field values
         if self.method == "single_mag" or self.method == "window_mag":
             self.inputs = self.inputs.iloc[:, 640:1280]
             self.inputs.columns = range(self.inputs.shape[1])
+        elif drop_radius:
+            self.inputs = self.inputs.iloc[:, 640:]
         
         # only fit data when it is normal
         if is_train:
@@ -89,7 +94,7 @@ class MULTI_VP_Dataset(Dataset):
             print(f"Window size: {self.wsize}")
             print("Window shape: ", first.shape)
             print("First window:\n", first)
-        elif self.method == "multi":
+        else:
             self._reshape_inputs(self.method, self.nseqs)
         print("Inputs shape:", self.inputs.shape)
         print("Inputs head:\n", self.inputs[:5])
@@ -120,9 +125,8 @@ class MULTI_VP_Dataset(Dataset):
         #     [R1,B1,alpha1], 
         #     [R2,B2,alpha2]
         # ]
-        elif method == 'joint':
-            self.inputs = self.inputs.to_numpy()
-            self.inputs = self.inputs.reshape(self.inputs.shape[0], 1, self.inputs.shape[1]) # 2d -> 3d
+        # elif method == 'joint':
+        #     self.inputs = self.inputs.reshape(self.inputs.shape[0], self.inputs.shape[1]) # 2d -> 3d
         # [
         #     [[B1_s1], [B1_s2], [B1_sn]], 
         #     [[B2_s1], [B2_s2], [B2_sn]]
@@ -185,10 +189,12 @@ class MULTI_VP_Dataset(Dataset):
         Args:
             title (str, optional): title of the plot. Defaults to "MULTI-VP Data".
         """
-        unscaled_inputs = self.inputs
+        unscaled_inputs = self.flatten(self.inputs)
+        print("Unscaled inputs shape:", unscaled_inputs.shape)
         # unscaled_inputs = self.unscale(self.inputs)
         if self.method == 'multi' or self.method == 'joint':
-            plot_data_values(unscaled_inputs, title, scale="linear", **figkwargs)
+            labels = ["R [Rsun]", "B [G]", "alpha [deg]"] if not self.drop_radius else ["B [G]", "alpha [deg]"]
+            plot_data_values(unscaled_inputs, title, labels=labels, scale="linear", **figkwargs)
         else:
             plot_single_var(unscaled_inputs, title, scale="linear", label="B [G]", **figkwargs)
         

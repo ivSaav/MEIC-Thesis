@@ -19,19 +19,25 @@ def plot_data_values(data : np.ndarray, title : str,
         title (str): plot title
         labels (List[str], optional): ylabels. Defaults to ["R [Rsun]", "B [G]", "alpha [deg]"].
         scales (Dict[str, str], optional): yscale dictionary. Defaults to {}.
-    """
+    """    
     v0 = data[:, 0:640]
     v1 = data[:, 640:1280]
-    v2 = data[:, 1280:1920]
+    v2 = []
+    if "R [Rsun]" in labels:
+        v2 = data[:, 1280:1920]    
     
-    fig, axs = plt.subplots(3, 1, **figkwargs)
+    fig, axs = plt.subplots(len(labels), 1, **figkwargs)
     fig.subplots_adjust(hspace=0.8)
     fig.suptitle(title)
 
-    for l0,l1,l2 in zip(v0, v1, v2):
+
+    for l0,l1 in zip(v0, v1):
         axs[0].plot(l0, linewidth=0.1)
         axs[1].plot(l1, linewidth=0.1)
-        axs[2].plot(l2, linewidth=0.1)
+        
+    if len(labels) > 2:
+        for l2 in v2:
+            axs[2].plot(l2, linewidth=0.1)
     
     # set labels
     for i, label in enumerate(labels):   
