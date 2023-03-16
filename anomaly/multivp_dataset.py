@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.decomposition import PCA
 from pathlib import Path
+from typing import List
 
 from tools.viz import plot_data_values, plot_single_var
 
@@ -154,6 +155,20 @@ class MULTI_VP_Dataset(Dataset):
         self.inputs.drop(bad_indices, inplace=True)
         print("Removed {} extreme values".format(initial_len-len(self.inputs)))
     
+        
+    def remove_files(self, files : List[str]) -> None:
+        """Remove files from the dataset
+
+        Args:
+            files (list): list of files to remove
+        """
+        
+        indexes = np.in1d(self.filenames, np.array(files)).nonzero()[0]
+        print("Bad files: ", indexes, len(indexes))
+        self.inputs = np.delete(self.inputs, indexes, axis=0)
+        self.length = len(self.inputs)
+        print("Removed {} files".format(len(files)))
+    
     
     def unscale(self, values : np.ndarray) -> np.ndarray:
         """Inverse transform values
@@ -183,15 +198,18 @@ class MULTI_VP_Dataset(Dataset):
     #TODO might be different for "multi"
 
             
-    def plot(self, title : str = "MULTI-VP Data", **figkwargs) -> None:
+    def plot(self, title : str = "MULTI-VP Data", scaled : bool = False, **figkwargs) -> None:
         """Plot input values
 
         Args:
             title (str, optional): title of the plot. Defaults to "MULTI-VP Data".
         """
-        unscaled_inputs = self.flatten(self.inputs)
-        print("Unscaled inputs shape:", unscaled_inputs.shape)
-        # unscaled_inputs = self.unscale(self.inputs)
+        if scaled:
+            unscaled_inputs = self.flatten(self.inputs)
+        else:
+            unscaled_inputs = self.unscale(self.inputs)
+            
+        print("Unscaled inputs shape:", self.inputs.shape)
         if self.method == 'multi' or self.method == 'joint':
             labels = ["R [Rsun]", "B [G]", "alpha [deg]"] if not self.drop_radius else ["B [G]", "alpha [deg]"]
             plot_data_values(unscaled_inputs, title, labels=labels, scale="linear", **figkwargs)
