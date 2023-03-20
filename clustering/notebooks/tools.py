@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.cluster.hierarchy import dendrogram
+import seaborn as sns
+import pandas as pd
 
 def plot_km_results(cluster_count, labels, series, save_path=None):
     plot_count = math.ceil(math.sqrt(cluster_count))
@@ -46,6 +48,7 @@ def plot_unscaled_clusters(labels, nclusters, flows_dict, columns, yscale={}, sa
         for col_pos, col in enumerate(columns):
             axs[(labels[idx], col_pos)].plot(flow[col], linewidth=0.5)
             axs[(labels[idx], col_pos)].set(ylabel=col, yscale=yscale.get(col, 'linear'))
+        axs[(labels[idx], 1)].set_title("Cluster " + str(labels[idx]))
                  
     plt.tight_layout()
     
@@ -74,3 +77,38 @@ def plot_dendrogram(model, **kwargs):
 
     # Plot the corresponding dendrogram
     dendrogram(linkage_matrix, **kwargs)
+    
+def plot_cluster_file_group(filenames, labels, nclusters):
+    # get filegroups and create a dict with the number of files per cluster
+    locs = set([l.stem.split('_')[2] for l in filenames])
+    cluster_file_distr = {loc:[0 for _ in range(nclusters)] for loc in locs}
+
+    # count the number of files per cluster
+    for f, c in zip(filenames, labels):
+        loc = f.stem.split('_')[2]
+        cluster_file_distr[loc][c] += 1
+    cluster_file_distr = dict(sorted(cluster_file_distr.items()))
+    print(cluster_file_distr)
+    
+    # arrange data for plotting
+    cluster_ids = sorted(list(set(labels)))
+    # move -1 to the end in the case of dbscan
+    if -1 in cluster_ids:
+        cluster_ids = cluster_ids[1:] + [-1]
+
+    print(cluster_ids)
+    tmp_dict = {"group" : [], "cluster" : [], "count" : []}
+    for f, v in cluster_file_distr.items():
+        for idx, count in zip(cluster_ids, v):
+            tmp_dict["group"].append(f)
+            tmp_dict["cluster"].append(idx)
+            tmp_dict["count"].append(count)
+            
+    fig, ax = plt.subplots(figsize=(10, 5))       
+    sns.barplot(x="group", y="count", hue="cluster", data=pd.DataFrame(tmp_dict), ax=ax)
+    ax.set_xlabel("File Group")
+    ax.set_ylabel("Number of files")
+    ax.set_title("Number of files per cluster per file group")
+    fig.legend(loc="center right", title="Cluster")
+    ax.get_legend().remove()
+    return fig
