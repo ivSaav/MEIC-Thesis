@@ -43,7 +43,7 @@ def plot_data_values(data : np.ndarray, title : str,
     for i, label in enumerate(labels):   
         axs[i].set_ylabel(label) 
         axs[i].set_yscale(scales[label] if label in scales else scale)
-    
+        
     plt.tight_layout()
     return fig
 
@@ -80,7 +80,7 @@ def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str 
     df = pd. read_csv(data_path)
     # select the rows with the filenames in anomalies
     df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
-    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
+    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'symlog'}, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
                     scales : Dict[str, str] = {'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs):

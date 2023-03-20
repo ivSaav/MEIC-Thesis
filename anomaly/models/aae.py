@@ -142,7 +142,7 @@ def train(netEnc : nn.Module, netDec : nn.Module, netD : nn.Module,
             errD_real = criterion(netD(z), real_labels)
             errD_fake = criterion(netD(enc_x.detach()), fake_labels)    
             errD = 0.5 * (errD_real + errD_fake)
-            D_x = outputs.mean().item()
+            D_z = outputs.mean().item()
             
             errD.backward()
             optmD.step()
@@ -151,19 +151,19 @@ def train(netEnc : nn.Module, netDec : nn.Module, netD : nn.Module,
             G_epoch_loss += errG.item() / bsize
         
         # Output training stats
-        print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f'
-                % (epoch, opts.epochs, errD.item(), errG.item(), D_x, errD_fake.mean().item()),
+        print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(z): %.4f\tD(E(x)): %.4f'
+                % (epoch, opts.epochs, errD.item(), errG.item(), D_z, errD_fake.mean().item()),
                 end='\r', flush=True)
         D_losses.append(errD.item())
         G_losses.append(errG.item())
         
-        if epoch % opts.sample_interval == 0:
+        if epoch % opts.sample_interval == 0 or epoch == opts.epochs-1:
             dec_x = dataloader.dataset.unscale(dec_x.detach().cpu().numpy())
             # fake = dataset.flatten(fake.detach().cpu().numpy())
             fig = plot_data_values(dec_x, 
                             title=f"Epoch {epoch} - G loss: {errG.item():.4f} - D loss: {errD.item():.4f}", 
                             labels=["B [G]", "alpha [deg]"],
-                            scales={"alpha [deg]" : "linear"})
+                            scales={"alpha [deg]" : "symlog"})
             preffix = f"{model_id}_" if model_id else ""
             plt.savefig(opts.model_out / "img" / f"{preffix}e{epoch}.png")
             plt.close(fig)
