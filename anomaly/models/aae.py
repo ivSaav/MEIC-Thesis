@@ -28,7 +28,6 @@ class Encoder(nn.Module):
             nn.Linear(input_size, 512),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(512, 512),
-            # nn.BatchNorm1d(512),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
@@ -53,7 +52,6 @@ class Decoder(nn.Module):
             nn.Linear(l_dim, 512),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(512, 512),
-            # nn.BatchNorm1d(512),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(512, output_size),
             nn.Tanh(),

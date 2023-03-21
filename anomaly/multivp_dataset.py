@@ -162,12 +162,24 @@ class MULTI_VP_Dataset(Dataset):
         Args:
             files (list): list of files to remove
         """
-        
-        indexes = np.in1d(self.filenames, np.array(files)).nonzero()[0]
-        print("Bad files: ", indexes, len(indexes))
+        files = set(files)
+        indexes = []
+        for idx, f in enumerate(self.filenames):
+            if f in files:
+               indexes.append(idx) 
+            
+        original_size = self.inputs.shape[0]
+        # indexes = np.in1d(self.filenames, np.array(files)).nonzero()[0]
+        print("Number of files to remove: ", len(files))
         self.inputs = np.delete(self.inputs, indexes, axis=0)
         self.length = len(self.inputs)
-        print("Removed {} files".format(len(files)))
+        self.filenames = np.delete(self.filenames, indexes, axis=0)
+        print("Removed ", original_size-self.inputs.shape[0], " files")
+        
+        if (self.length != len(self.filenames)):
+            print("Error: length of inputs and filenames do not match")
+            exit(1)
+        # print("Removed {} files".format(len(files)))
     
     
     def unscale(self, values : np.ndarray) -> np.ndarray:
@@ -212,8 +224,8 @@ class MULTI_VP_Dataset(Dataset):
         print("Unscaled inputs shape:", self.inputs.shape)
         if self.method == 'multi' or self.method == 'joint':
             labels = ["R [Rsun]", "B [G]", "alpha [deg]"] if not self.drop_radius else ["B [G]", "alpha [deg]"]
-            plot_data_values(unscaled_inputs, title, labels=labels, scale="linear", **figkwargs)
+            plot_data_values(unscaled_inputs, title, labels=labels, 
+                            scales={"B [G]" : "log", "alpha [deg]" : "symlog"}, **figkwargs)
+            
         else:
-            plot_single_var(unscaled_inputs, title, scale="linear", label="B [G]", **figkwargs)
-        
-    
+            plot_single_var(unscaled_inputs, title, scale="log", label="B [G]", **figkwargs)
