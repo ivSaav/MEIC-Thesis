@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, QuantileTransformer
 import datetime
 from typing import List
 import matplotlib.pyplot as plt
@@ -24,13 +24,15 @@ class Options:
         self.nworkers = 4
         self.shuffle = True
         self.method = "joint"
+        # self.scaler = QuantileTransformer()
         self.scaler = MinMaxScaler((-1, 1))
         self.l_dim = 100
         # self.wsize = 5
         
         # Train params
-        self.lr = 0.0002
-        self.epochs = 100
+        self.D_lr = 0.0002
+        self.G_lr = 0.0001
+        self.epochs = 200
         self.sample_interval = self.epochs // 2
         self.train_plots = True
         self.iters = 10
@@ -44,7 +46,7 @@ class Options:
         
         # logging
         self.tags = ["iterative", "aae", "joint", "minmax", "test"]
-        self.desc = "No model reset"
+        self.desc = "High epochs (equal generator loss)"
         self.type = "Iter"
         
 opts = Options()
@@ -108,7 +110,7 @@ for i in range(opts.iters):
     # thresh = opts.anomaly_threshold / (i+1) # decrease percentage of data that is dropped in every iter
     thresh = opts.anomaly_threshold if i == 0 else 0.01
     print("Anomaly Percentage: ", thresh)
-    score_thresh , _ = plot_anomaly_scores(anomaly_scores, thresh, opts.data_path, opts.model_out /  f"img/iter{i}_reconstr_scores",
+    score_thresh , _ = plot_anomaly_scores(anomaly_scores, thresh, opts.data_path, opts.model_out /  f"img/iter{i}_reconstr",
                         scale="log", method=f"Reconstruction Iter {i}")
     detected_anomalies = [score[0] for score in anomaly_scores if score[1] > score_thresh]
     anomalies.extend(detected_anomalies)

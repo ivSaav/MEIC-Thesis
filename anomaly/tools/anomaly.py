@@ -6,7 +6,7 @@ import torch
 def covariance_reconstruction(batch : torch.Tensor, netG : nn.Module, netD : nn.Module,
                               device: str, max_iter : int = 100):
     x = batch.to(device)
-    z = torch.rand_like(x, requires_grad=True).to(device)
+    z = torch.randn_like(x, requires_grad=True).to(device)
     
     optm = torch.optim.RMSprop([z], lr=0.01)
     
@@ -19,7 +19,7 @@ def covariance_reconstruction(batch : torch.Tensor, netG : nn.Module, netD : nn.
 def madgan_reconstruction(batch : torch.Tensor, netG : nn.Module, netD : nn.Module,
                           device : str, max_iter : int = 100):
     x = batch.to(device)
-    z = torch.rand_like(x, requires_grad=True).to(device)
+    z = torch.randn_like(x, requires_grad=True).to(device)
     # nn.init.normal_(z, std=0.05)
     
     optm = torch.optim.RMSprop([z], lr=0.01)
@@ -44,7 +44,7 @@ def madgan_reconstruction(batch : torch.Tensor, netG : nn.Module, netD : nn.Modu
 def madgan_reconstruction_discr_loss(batch : torch.Tensor, netG : nn.Module,
                                      netD : nn.Module, device : str, max_iter : int = 100):
     x = batch.to(device)
-    z = torch.rand_like(x, requires_grad=True).to(device)
+    z = torch.randn_like(x, requires_grad=True).to(device)
     # nn.init.normal_(z, std=0.05)
     
     optm = torch.optim.RMSprop([z], lr=0.01)
@@ -64,7 +64,7 @@ def madgan_reconstruction_discr_loss(batch : torch.Tensor, netG : nn.Module,
 def feature_anomaly_score(batch : torch.Tensor, netG : nn.Module, netD : nn.Module,
                           device, lambda_thresh=0.1, max_iter=100):
     x = batch.to(device)
-    z = torch.rand_like(x, requiresgrad=True).to(device)
+    z = torch.randn_like(x, requiresgrad=True).to(device)
     # nn.init.normal(z, std=0.05)
 
     optm = torch.optim.RMSprop([z], lr=0.01)

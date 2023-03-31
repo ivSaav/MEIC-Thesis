@@ -4,7 +4,9 @@ import numpy as np
 import torch.nn as nn
 import torch
 from torch import optim
+
 from typing import Tuple
+
 
 from tools.viz import plot_data_values
 
@@ -12,13 +14,27 @@ from tools.viz import plot_data_values
 def reparameterization(mu, logvar, l_dim, device):
     std = torch.exp(logvar / 2)
     sampled_z = torch.rand(mu.size(0), l_dim, device=device)
-    # sampled_z = Variable(Tensor(np.random.normal(0, 1, (mu.size(0), opt.latent_dim))))
     z = sampled_z * std + mu
     return z
 
+def init_weights(model : nn.Sequential, slope=0.2):
+    # Init weights with xavier uniform distribution to reduce vanishing gradients
+    # https://machinelearningmastery.com/weight-initialization-for-deep-learning-neural-networks/
+    for idx, layer in enumerate(model):
+        if layer._get_name() == "Linear":
+            if idx+1 >= len(model): continue # last layer
+            
+            actv = model[idx+1]._get_name()
+            if actv == "LeakyReLU":
+                nn.init.kaiming_normal_(layer.weight, a=slope)
+            elif actv == "Sigmoid":
+                nn.init.xavier_normal_(layer.weight, 1)
+            elif actv == "Tanh":
+                nn.init.xavier_normal_(layer.weight, 5/3)
+
 
 class Encoder(nn.Module):
-    def __init__(self, input_size, l_dim, device):
+    def __init__(self, input_size, l_dim, device, slope=0.2):
         super(Encoder, self).__init__()
         
         self.l_dim = l_dim
@@ -26,13 +42,15 @@ class Encoder(nn.Module):
 
         self.model = nn.Sequential(
             nn.Linear(input_size, 512),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(slope, inplace=True),
             nn.Linear(512, 512),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(slope, inplace=True),
         )
 
         self.mu = nn.Linear(512, l_dim)
         self.logvar = nn.Linear(512, l_dim)
+        
+        init_weights(self.model, slope)
 
     def forward(self, x):
         x = self.model(x)
@@ -43,36 +61,40 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, output_size, l_dim):
+    def __init__(self, output_size, l_dim, slope=0.2):
         super(Decoder, self).__init__()
         
         self.output_size = output_size
 
         self.model = nn.Sequential(
             nn.Linear(l_dim, 512),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(slope, inplace=True),
             nn.Linear(512, 512),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(slope, inplace=True),
             nn.Linear(512, output_size),
-            nn.Tanh(),
+            # nn.Tanh(),
+            nn.Sigmoid(),
         )
+        
+        init_weights(self.model, slope)
 
     def forward(self, z):
         return self.model(z)
 
 
 class Discriminator(nn.Module):
-    def __init__(self, l_dim):
+    def __init__(self, l_dim, slope=0.2):
         super(Discriminator, self).__init__()
 
         self.model = nn.Sequential(
             nn.Linear(l_dim, 512),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(slope, inplace=True),
             nn.Linear(512, 256),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(slope, inplace=True),
             nn.Linear(256, 1),
             nn.Sigmoid(),
         )
+        init_weights(self.model, slope)
 
     def forward(self, z):
         validity = self.model(z)
@@ -93,9 +115,9 @@ def train(netEnc : nn.Module, netDec : nn.Module, netD : nn.Module,
     # Setup Adam optimizers for both G and D
     optmG = optim.Adam(
         itertools.chain(netEnc.parameters(), netDec.parameters()), 
-        lr=opts.lr,
+        lr=opts.G_lr,
     )
-    optmD = optim.Adam(netD.parameters(), lr=opts.lr)
+    optmD = optim.Adam(netD.parameters(), lr=opts.D_lr)
     
     # Training Loop
 
@@ -123,9 +145,7 @@ def train(netEnc : nn.Module, netDec : nn.Module, netD : nn.Module,
             dec_x = netDec(enc_x)
             
             # Loss measures generator's ability to fool the discriminator
-            errG = 0.001 * criterion(netD(enc_x), real_labels) + 0.999 * pixelwise_loss(
-                dec_x, real
-            )
+            errG = 0.001 * criterion(netD(enc_x), real_labels) + 0.999 * pixelwise_loss(dec_x, real)
             
             errG.backward()
             optmG.step()
@@ -139,7 +159,7 @@ def train(netEnc : nn.Module, netDec : nn.Module, netD : nn.Module,
             outputs = netD(z)
             errD_real = criterion(netD(z), real_labels)
             errD_fake = criterion(netD(enc_x.detach()), fake_labels)    
-            errD = 0.5 * (errD_real + errD_fake)
+            errD = 0.5 * (errD_real  + errD_fake)
             D_z = outputs.mean().item()
             
             errD.backward()

@@ -75,11 +75,15 @@ def plot_epoch(train_vals : np.ndarray, scaler, path : Path, title : str,
 
     
 
-def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies", **figkwargs):
+def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies", inverse=False, **figkwargs):
     # get all compiled inputs
     df = pd. read_csv(data_path)
-    # select the rows with the filenames in anomalies
-    df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
+    
+    if inverse:
+        df = df[~df["filename"].isin(anomalies)].iloc[:, 1:]
+    else:
+        # select the rows with the filenames in anomalies
+        df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
     return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'symlog'}, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
@@ -121,7 +125,7 @@ def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
     
     
 def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_path : Path, save_path : Path = None, 
-                logger = None, logger_var : str ="test/", scale="linear", method : str = ""):
+                logger = None, logger_var : str ="test/", scale="linear", method : str = "", normal_plot : bool =False):
     # calculate anomaly threshold based on percentage of anomalies
     sorted_scores = sorted([s[1] for s in scores], reverse=True)
     t = sorted_scores[int(len(sorted_scores)*percent)]
@@ -137,16 +141,21 @@ def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_
     anomalies = [score[0] for score in scores if score[1] > t]
     print(f"Found {len(anomalies)} anomalies")
     anomal_fig = plot_anomalies(anomalies, data_path, f"{method + ' '}Anomalies - {len(anomalies)}", figsize=(8, 5), dpi=200)
+    if normal_plot:
+        data_fig = plot_anomalies(anomalies, data_path, "Dataset", inverse=True, figsize=(8, 5), dpi=200)
     
     if save_path != None: 
         scores_fig.savefig(str(save_path) + "_scores", dpi=200)
         anomal_fig.savefig(str(save_path) + "_anomalies", dpi=200)
+        if normal_plot: data_fig.savefig(str(save_path) + "_normal", dpi=200)
         
     if logger != None: 
         plot_to_tensorboard(logger, scores_fig, 0, logger_var)
         plot_to_tensorboard(logger, anomal_fig, 0, logger_var + "_anomalies")
     
     return t, scores_fig
+
+    
 
 
 def plot_train_hist(D_losses, G_losses, out_dir : Path = None):
@@ -160,4 +169,4 @@ def plot_train_hist(D_losses, G_losses, out_dir : Path = None):
     
     if out_dir: fig.savefig(out_dir / "img/train_hist", dpi=200)
     return fig
-    
+

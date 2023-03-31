@@ -2,8 +2,8 @@ from torch.utils.data import Dataset
 import torch
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.decomposition import PCA
+
 from pathlib import Path
 from typing import List
 
@@ -63,7 +63,6 @@ class MULTI_VP_Dataset(Dataset):
             window = self.inputs[idx:idx+self.wsize]
             # return window and name of the starting filename
             return torch.tensor(window).float(), self.filenames[idx]
-        
         return torch.tensor(self.inputs[idx]).float(), self.filenames[idx]
     
     
@@ -71,6 +70,9 @@ class MULTI_VP_Dataset(Dataset):
         # select only magnetic field values
         if self.method == "single_mag" or self.method == "window_mag":
             self.inputs = self.inputs.iloc[:, 640:1280]
+            self.inputs.columns = range(self.inputs.shape[1])
+        elif self.method == "single_alpha":
+            self.inputs = self.inputs.iloc[:, 1280:]
             self.inputs.columns = range(self.inputs.shape[1])
         elif drop_radius:
             self.inputs = self.inputs.iloc[:, 640:]
@@ -97,6 +99,7 @@ class MULTI_VP_Dataset(Dataset):
             print("First window:\n", first)
         else:
             self._reshape_inputs(self.method, self.nseqs)
+            
         print("Inputs shape:", self.inputs.shape)
         print("Inputs head:\n", self.inputs[:5])
         
@@ -132,18 +135,16 @@ class MULTI_VP_Dataset(Dataset):
         #     [[B1_s1], [B1_s2], [B1_sn]], 
         #     [[B2_s1], [B2_s2], [B2_sn]]
         # ]
-        elif method == 'single_mag':
-            reshaped = []
-            # split magntic field into nseqs sequences
-            for line in self.inputs:
-                reshaped.append(np.split(line, nseqs))
-            self.inputs = np.array(reshaped)
+        # elif method == 'single_mag':
+        #     reshaped = []
+        #     # split magntic field into nseqs sequences
+        #     for line in self.inputs:
+        #         reshaped.append(np.split(line, nseqs))
+        #     self.inputs = np.array(reshaped)
      
             
     def _remove_extreme(self) -> None:
         initial_len = len(self.inputs)
-        # bad_files = ["profile_wso_CR1992_line_1504"]
-        # self.inputs = self.inputs[~self.inputs['filename'].isin(bad_files)]
         # remove extreme values based on magnetic field
         bad_indices = []
         for i, row in self.inputs.iterrows():
@@ -155,19 +156,22 @@ class MULTI_VP_Dataset(Dataset):
         self.inputs.drop(bad_indices, inplace=True)
         print("Removed {} extreme values".format(initial_len-len(self.inputs)))
     
-        
+    
+    def _get_filename_indexes(self, files : List[str]):
+        files = set(files)
+        indexes = []
+        for idx, f in enumerate(self.filenames):
+            if f in files:
+               indexes.append(idx)    
+        return indexes
+
     def remove_files(self, files : List[str]) -> None:
         """Remove files from the dataset
 
         Args:
             files (list): list of files to remove
-        """
-        files = set(files)
-        indexes = []
-        for idx, f in enumerate(self.filenames):
-            if f in files:
-               indexes.append(idx) 
-            
+        """ 
+        indexes = self._get_filename_indexes(files)  
         original_size = self.inputs.shape[0]
         # indexes = np.in1d(self.filenames, np.array(files)).nonzero()[0]
         print("Number of files to remove: ", len(files))
@@ -216,6 +220,7 @@ class MULTI_VP_Dataset(Dataset):
         Args:
             title (str, optional): title of the plot. Defaults to "MULTI-VP Data".
         """
+        
         if scaled:
             unscaled_inputs = self.flatten(self.inputs)
         else:
