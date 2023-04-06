@@ -98,7 +98,7 @@ if __name__ == '__main__':
                         'loss': float(loss_r),
                         'mse': float(mse_r),
                         'cluster_size': len(cluster),
-                        'model_params': tuner_rs.get_best_hyperparameters()[0]
+                        # 'model_params': tuner_rs.get_best_hyperparameters()[0]
                     })
                     
                     with open(out_dir / 'stats.json', 'w') as stats_f:

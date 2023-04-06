@@ -54,7 +54,7 @@ if __name__ == '__main__':
         if not preds_dir.exists() and not opts['no_write']:
             preds_dir.mkdir(parents=True)
         
-        compiled_in = pd.read_csv(opts['data_path'] / 'inputsdata_compilation.csv') 
+        compiled_in = pd.read_csv(opts['data_path'] / 'inputs.csv') 
         for f, pred in zip(cluster_filenames, all_predictions):
             ns, vs, ts = list(pred[:640]), list(pred[640:1280]), list(pred[1280:])
             outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})

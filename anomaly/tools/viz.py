@@ -125,7 +125,8 @@ def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
     
     
 def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_path : Path, save_path : Path = None, 
-                logger = None, logger_var : str ="test/", scale="linear", method : str = "", normal_plot : bool =False):
+                logger = None, logger_var : str ="test/", scale="linear", method : str = "", 
+                normal_plot : bool =False, exclude : List[str] = []):
     # calculate anomaly threshold based on percentage of anomalies
     sorted_scores = sorted([s[1] for s in scores], reverse=True)
     t = sorted_scores[int(len(sorted_scores)*percent)]
@@ -142,6 +143,7 @@ def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_
     print(f"Found {len(anomalies)} anomalies")
     anomal_fig = plot_anomalies(anomalies, data_path, f"{method + ' '}Anomalies - {len(anomalies)}", figsize=(8, 5), dpi=200)
     if normal_plot:
+        anomalies.extend(exclude) # exclude files (for profile filtering)
         data_fig = plot_anomalies(anomalies, data_path, "Dataset", inverse=True, figsize=(8, 5), dpi=200)
     
     if save_path != None: 

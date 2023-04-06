@@ -185,7 +185,17 @@ class MULTI_VP_Dataset(Dataset):
             exit(1)
         # print("Removed {} files".format(len(files)))
     
-    
+    def filter_profiles(self, profiles : List[str]) -> None:
+        
+        def filter_profile(f : str) -> bool:
+            for p in profiles:
+                if p in f: return False
+            return True
+        files = list(filter(filter_profile, self.filenames))
+                    
+        self.remove_files(files)
+        return files
+           
     def unscale(self, values : np.ndarray) -> np.ndarray:
         """Inverse transform values
 
