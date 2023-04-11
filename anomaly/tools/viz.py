@@ -5,7 +5,7 @@ import numpy as np
 import io
 
 import PIL.Image
-from torchvision.transforms import ToTensor
+# from torchvision.transforms import ToTensor
 
 from typing import List, Dict, Tuple
 
@@ -99,6 +99,7 @@ def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', '
             df = pd.read_csv(str(path), usecols=columns)
             ax.plot(df[columns[idx]],  linewidth=0.5)
     plt.tight_layout()
+    return axs
     
     
 def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
