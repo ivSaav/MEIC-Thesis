@@ -18,23 +18,24 @@ for idx, filename in enumerate(files):
   df = pd.read_csv(filename)
   df = df.astype(float)
   
-  tmp_out = df.iloc[:,[4,5,6]]
-  tmp_in = df.iloc[:,[0,7,9]]
+  ns = df[['n [cm^-3]']].values
+  vs = df[['v [km/s]']].values
+  ts = df[['T [MK]']].values
   
-  ns = tmp_out[['n [cm^-3]']].values
-  vs = tmp_out[['v [km/s]']].values
-  ts = tmp_out[['T [MK]']].values
+  # file_outputs = np.concatenate((ns,vs,ts), axis=0)
+  file_outputs = []
+  for n,v,t in zip(ns,vs,ts):
+    file_outputs.extend([n,v,t])
   
-  file_outputs = np.concatenate((ns,vs,ts), axis=0)
   
-  rs = tmp_in[['R [Rsun]']].values
-  bs = tmp_in[['B [G]']].values
-  alphas = tmp_in[['alpha [deg]']].values
+  rs = df[['R [Rsun]']].values
+  bs = df[['B [G]']].values
+  alphas = df[['alpha [deg]']].values
   
   file_inputs = np.concatenate((rs,bs,alphas), axis=0)
   
   inputs.append(pd.DataFrame(file_inputs.T))
-  outputs.append(pd.DataFrame(file_outputs.T))
+  outputs.append(pd.DataFrame(file_outputs).T)
   
   print("[{}/{}] {}".format(idx, nfiles, filename.stem), end="\r", flush=True)
   
@@ -50,4 +51,4 @@ data_outputs = pd.concat(filename_series + [data_outputs], axis=1)
 print(data_inputs)
 print(data_outputs)
 data_inputs.to_csv(output_path / 'inputs.csv', index=False) 
-data_outputs.to_csv(output_path / 'outputs.csv', index=False)
+data_outputs.to_csv(output_path / 'outputs_inter.csv', index=False)

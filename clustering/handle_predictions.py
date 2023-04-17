@@ -5,6 +5,7 @@ from pickle import load
 from argparse import ArgumentParser
 
 from tools.data import load_original_data, join_files_in_cluster, plot_cluster_preds
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     argparser = ArgumentParser()
@@ -29,12 +30,25 @@ if __name__ == '__main__':
     
     all_predictions = []
     cluster_filenames = []
+    pfs = {}
     for cluster_id, cluster in clusters.items():
         model_file = f"{opts['cluster_file']}_run{opts['run_id']}_{cluster_id}.h5"
         model = load_model(opts['hist_path'] / f"models/{opts['cluster_file']}" / model_file)
         
-        inputs, _outputs = join_files_in_cluster(cluster, original_in, original_out)
+        inputs, outputs = join_files_in_cluster(cluster, original_in, original_out)
+        
         predictions = model.predict(inputs)
+        
+        
+        
+        print(predictions.shape)
+        print(outputs.shape)
+        bla = pd.DataFrame(predictions)
+        bla.columns = bla.columns.astype(str)
+        bla = scaler_out.inverse_transform(bla)
+        bla = pd.DataFrame(bla)
+        plot_cluster_preds(bla, f"cluster {cluster_id}", out_dir=Path('./out'))
+        plt.close("all")
         
         cluster_filenames.extend(cluster)
         all_predictions.append(pd.DataFrame(predictions))
@@ -47,6 +61,7 @@ if __name__ == '__main__':
     
     print("Preds shape: ", all_predictions.shape)
     print(all_predictions)
+    exit(0)
     
     # save predictions in separate files
     if not opts['no_write']:
@@ -69,6 +84,7 @@ if __name__ == '__main__':
     # plot predictions
     if opts['plots']:
         all_predictions = pd.DataFrame(all_predictions)
+        print("Preds shape: ", all_predictions.shape)
         plot_cluster_preds(all_predictions, opts['cluster_file'], out_dir)
         
     

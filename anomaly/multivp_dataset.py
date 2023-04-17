@@ -186,7 +186,7 @@ class MULTI_VP_Dataset(Dataset):
         # print("Removed {} files".format(len(files)))
     
     def filter_profiles(self, profiles : List[str]) -> None:
-        
+        if not profiles: return []
         def filter_profile(f : str) -> bool:
             for p in profiles:
                 if p in f: return False

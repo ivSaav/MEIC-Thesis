@@ -11,7 +11,7 @@ from sklearn.decomposition import PCA
 from methods import *
     
 def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_path=None, join_small=True,
-                             max_outlier_size=1000):
+                             max_outlier_size=1000, min_clusters=2):
     """_summary_
 
     Args:
@@ -24,7 +24,7 @@ def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_p
     """
     print("Saving normalized clusters...")
     final = []
-    for run_id, run in enumerate(run_clusters):           
+    for run_id, run in enumerate(run_clusters):    
         lengths = [len(run[c]) for c in run if c != -1]
         print(f"Run: {run_id} clusters: {lengths}")
         
@@ -47,7 +47,7 @@ def save_normalized_clusters(run_clusters, min_cluster_size, method_name, save_p
         # exclude any that do not have necessary min_clusters or only one cluster
         # note: these lenghts do not include outlier label
         lengths = [len(run[c]) for c in run if c != -1]
-        if len(lengths) > 1 and min(lengths) >= min_cluster_size:
+        if len(lengths) >= min_clusters and min(lengths) >= min_cluster_size:
             run_dict = {
                 'run_id': run_id,
                 'method': method_name,
@@ -70,6 +70,7 @@ if __name__ == '__main__':
                                  'pca_joint_kmeans', 'pca_joint_agg', 'pca_joint_dbscan'])
     parser.add_argument('--max-clusters', type=int, default=10)
     parser.add_argument('--min-cluster-size', type=int, default=2000)
+    parser.add_argument('--all-data', action='store_true', default=False)
     
     args = parser.parse_args()
     opts = vars(args)
@@ -109,13 +110,18 @@ if __name__ == '__main__':
     flows_dict = OrderedDict()
     for f in filenames:
         flows_dict[f.stem] = pd.read_csv(f, usecols=['R [Rsun]', 'B [G]', 'alpha [deg]'])
+        
+    filenames = list(flows_dict.keys())
+    if opts['all_data']:
+        all_data = [{0 : filenames}]
+        save_normalized_clusters(all_data, method_name="single_cluster", min_clusters=1, min_cluster_size=0, save_path="all_data.pkl")
+        exit(0)
     
     compiled_df = list(flows_dict.values())   
     compiled_df = pd.concat(compiled_df, axis=0)
     compiled_df.reset_index(drop=True, inplace=True)
     compiled_df.columns = ['R [Rsun]', 'B [G]', 'alpha [deg]']
     
-    filenames = list(flows_dict.keys())
 
     # Scale data
     quantile_scaler = QuantileTransformer(n_quantiles=1000, output_distribution='uniform')
