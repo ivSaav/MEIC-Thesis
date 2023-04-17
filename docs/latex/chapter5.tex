@@ -2,7 +2,7 @@
 An extensive analysis of the data that will be used during the development process was carried out. This chapter presents the results of this analysis, which are used to guide the development of the system.
 
 
-\section{Preliminary Analysis}\label{sec:data_prelim_analysis}
+\section{MULTI-VP Dataset}\label{sec:data_prelim_analysis}
 The data used by MULTI-VP and, consequently, the RNN prediction model consists of magnetogram data from the Wilcox Solar Observatory. Each file contains 12 columns representing measurements of the magnetic field in the solar atmosphere at different heights. Every variable comprises 640 points (abscissas) measured at different radial distances from the Sun (up to 30 Solar radii). In addition, the data is distributed evenly throughout five profiles, each consisting of solar wind measurements at different surface locations. For this work, only six columns will be used, as the others are derivations of these and, thus, are obtained with these columns. 
 
 The data columns can be seen in Table \ref{tab:multivp_columns}. These are divided into two parts: the input and the output. The former comprises the set of variables used by the simulation to approximate solar wind conditions, and the latter the initial expert guesses needed to kickstart the multiple flux simulation. The input data includes the magnetic field amplitude, $B$, the flux tube inclination, $\alpha$, and the radial coordinate, $R$. The output data consists of the number of charged particles per unit volume, $n$, the velocity, $v$, and the temperature, $T$.
@@ -70,3 +70,19 @@ Out of the three input columns used, the magnetic field ($B$) has the highest st
     max       & 31.501                & 247095.581         & 89.257                   & 1.009917e+16                            & 1889.365              & 19.897              \\ \bottomrule
     \end{tabular}
 \end{table}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/variables_corrplot.png}
+    \caption{Correlation plot of all variables used in this work.}
+    \label{fig:corrplot}
+\end{figure}
+
+In addition to these statistics, the correlation between the variables can be seen in Fig. \ref{fig:corrplot}. There is virtually no correlation between the input variables ($R$, $B$, and $\alpha$), which is expected, as they are independent of each other. 
+
+% TODO prof check this
+The output variables ($n$, $v$, and $T$) are somewhat correlated. The temperature, $T$, is positively correlated with the velocity of the solar wind, $v$, which is expected as with higher wind speeds the particles there is a tendency for higher temperatures. The opposite is true for the volume density of the solar wind, $n$, which is negatively correlated with the temperature. This is expected as with higher densities, the particles will have less kinetic energy and, therefore, a lower temperature. The velocity of the solar wind is also slightly negatively correlated with the volume density.
+
+A high correlation between the radial coordinate $R$ and the velocity $v$ can be observed, as the velocity is expected to increase with distance from the Sun. Additionally, the temperature of the solar wind drops as the distance to the Sun increases, which is reflected in the negative correlation between $R$ and $T$. These findings indicate that the distance to the Sun has more influence on the temperature of the solar wind than the velocity.
+
