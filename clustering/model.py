@@ -26,7 +26,7 @@ class RegressionHyperModel(HyperModel):
         model = Sequential()
         model.add(layers.Flatten(input_shape=self.input_shape))
 
-        for i in range(hp.Int('layers',8,100)):
+        for i in range(hp.Int('layers',8,40)):
           model.add(layers.Dense(units=hp.Int('units_' + str(i), 16, 128, step=4), activation=hp.Choice('act_' + str(i), ['relu', 'tanh', 'sigmoid'])))
                   #########################
           model.add(
@@ -63,17 +63,30 @@ if __name__ == "__main__":
     # in_filenames = data_inputs[['filename']]
     # out_filenames = data_outputs[['filename']]
     
+    val_files = []
+    with open("../data/testing_profiles.txt", "r") as f:
+      val_files = f.readlines()
+      val_files = [f.split(".")[0] for f in val_files]
+    
+    valX = data_inputs[data_inputs['filename'].isin(val_files)]
+    valY = data_outputs[data_outputs['filename'].isin(val_files)]
+    data_inputs = data_inputs[~data_inputs['filename'].isin(val_files)]
+    data_outputs = data_outputs[~data_outputs['filename'].isin(val_files)]
+    
     data_inputs = data_inputs.drop(['filename'], axis=1)
     data_outputs = data_outputs.drop(['filename'], axis=1)
+    valX.drop(['filename'], axis=1, inplace=True)
+    valY.drop(['filename'], axis=1, inplace=True)
     
     scaler_inputs = QuantileTransformer()
     data_inputs = scaler_inputs.fit_transform(data_inputs)
+    valX = scaler_inputs.transform(valX)
     scaler_outputs = QuantileTransformer()
     data_outputs = scaler_outputs.fit_transform(data_outputs)
-    
+    valY = scaler_outputs.transform(valY)
 
     trainX, testX, trainY, testY = train_test_split(data_inputs, data_outputs, test_size=0.15, random_state=1, shuffle=True)
-    _trainX, valX, _trainY, valY = train_test_split(data_inputs, data_outputs, test_size=0.40, random_state=1, shuffle=True)
+    # _trainX, valX, _trainY, valY = train_test_split(data_inputs, data_outputs, test_size=0.40, random_state=1, shuffle=True)
 
     #print("Inputs: Train \n",testX, trainX.shape, "\n Test \n", testX, testX.shape)
     #print("Outputs: Train \n", trainY, trainY.shape, "\n Test\n", testY, testY.shape)
@@ -89,7 +102,7 @@ if __name__ == "__main__":
                 hypermodel,
                 objective='mse',
                 seed=42,
-                max_trials=50,
+                max_trials=40,
                 executions_per_trial=1,
                 overwrite=True,
                 )
@@ -115,20 +128,21 @@ if __name__ == "__main__":
       
       #Normalize the inputs
       #predictions
-      bla = model.predict(valX)
+      bla = model.predict(data_inputs)
       preds = pd.DataFrame(bla)
       preds.columns = scaler_outputs.feature_names_in_
 
       ##de normalization: 
       predictions = scaler_outputs.inverse_transform(preds)
-      
-      
-      # save results
-      model.save(f"./out/rs/random_search_{idx}.h5")
-      with open(f"./out/rs/random_search_{idx}.txt", "w") as text_file:
+      model.save(f"./models/rs/random_search_{idx}.h5")
+      with open(f"./models/rs/random_search_{idx}.txt", "w") as text_file:
+        loss, mse = model.evaluate(testX, testY)
+        val_loss, mse = model.evaluate(valX, valY)
         model.summary(print_fn=lambda x: text_file.write(x + '\n'))
+        text_file.write(f"\n\ntest loss: {loss} \n")
+        text_file.write(f"val loss: {val_loss} \n")
       
-      fig, axs = plt.subplots(1, 3, figsize=(10,10), dpi=200)
+      fig, axs = plt.subplots(3, 1, figsize=(10,15), dpi=200)
       for p in predictions:  
         ns = p[::3]
         vs = p[1::3]
@@ -143,7 +157,34 @@ if __name__ == "__main__":
       axs[1].set_yscale("log")
       axs[2].set_yscale("log")
         
-      plt.savefig(f"./out/rs/random_search_{idx}.png")
+      plt.savefig(f"./models/rs/random_search_{idx}.png")
+      plt.close(fig)
+      
+      #Normalize the inputs
+      #predictions
+      bla = model.predict(valX)
+      preds = pd.DataFrame(bla)
+      preds.columns = scaler_outputs.feature_names_in_
+
+      ##de normalization: 
+      predictions = scaler_outputs.inverse_transform(preds)
+      
+      fig, axs = plt.subplots(3, 1, figsize=(10,15), dpi=200)
+      for p in predictions:  
+        ns = p[::3]
+        vs = p[1::3]
+        ts = p[2::3]
+        
+        axs[0].plot(ns)
+        axs[1].plot(vs)
+        axs[2].plot(ts)
+        # for i in range(3):
+          # axs[i].plot(p[i*640:(i+1)*640])
+      axs[0].set_yscale("log")
+      axs[1].set_yscale("log")
+      axs[2].set_yscale("log")
+        
+      plt.savefig(f"./models/rs/val_random_search_{idx}.png")
       plt.close(fig)
       
       
