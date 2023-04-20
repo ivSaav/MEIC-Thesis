@@ -48,6 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('--cluster-file', '-cf', type=Path, default=None)
     parser.add_argument('--save-scalers', '-s', action='store_true', default=False)
     parser.add_argument('--ignore-outlier-runs', action="store_true")    
+    parser.add_argument('--run-id', '-r', type=int, default=None)
     
     opts = vars(parser.parse_args())
     
@@ -60,7 +61,17 @@ if __name__ == '__main__':
         opts['model_output'].mkdir(parents=True, exist_ok=False)
     
     print('Preparing data...')
-    inputs, outputs, scaler_in, scaler_out = load_original_data(opts['data'], opts['save_scalers'])
+    val_files = []
+    with open("../data/testing_profiles.txt", "r") as f:
+        val_files = f.readlines()
+        val_files = [f.split('.')[0] for f in val_files]    
+    
+    inputs, outputs, valX, valY, scaler_in, scaler_out = load_original_data(opts['data'], opts['save_scalers'], val_files)
+    
+    print("Inputs shape: ", inputs.shape)
+    print("Outputs shape: ", outputs.shape)
+    print("Validation inputs shape: ", valX.shape)
+    print("Validation outputs shape: ", valY.shape)
     
     logging.basicConfig(filename=opts['model_output'] / 'train.log', format='%(asctime)s - %(levelname)s - %(message)s')
     logging.captureWarnings(True)
@@ -80,6 +91,13 @@ if __name__ == '__main__':
             if opts['ignore_outlier_runs'] and len(run_dict['small_clusters']) > 0:
                 continue
             
+            if opts['run_id'] is not None and run_dict['run_id'] != opts['run_id']:
+                continue
+            
+            if any(len(cluster) < 1000 for cluster in run_dict['clusters'].values()):
+                print("Cluster size too small, skipping...")
+                continue
+            
             stats[run_dict['run_id']] = list()
             
             # train model on each cluster
@@ -96,7 +114,7 @@ if __name__ == '__main__':
                         hypermodel,
                         objective='mse',
                         seed=42,
-                        max_trials=50,
+                        max_trials=40,
                         executions_per_trial=1,
                         overwrite=True,
                         directory='./tmp', 
@@ -106,6 +124,12 @@ if __name__ == '__main__':
                     
                     for idx, model in enumerate(tuner_rs.get_best_models(num_models=10)):
                         loss, mse = model.evaluate(testX, testY)
+                        
+                        val_cluster = list(set(cluster).intersection(set(val_files)))
+                        
+                        valX_cluster = valX.loc[valX["filename"].isin(val_cluster)].iloc[:, 1:].values
+                        valY_cluster = valY.loc[valY["filename"].isin(val_cluster)].iloc[:, 1:].values
+                        val_loss, mse = model.evaluate(valX_cluster, valY_cluster)
                         print(f"Random Search - {f.stem} : run{run_dict['run_id']} : cluster{cluster_id} : top{idx}")
                         print(f'loss: {loss} | mse: {mse}')
                         
@@ -116,11 +140,16 @@ if __name__ == '__main__':
                         plot_values(predictions, f"{f.stem}_run{run_dict['run_id']}_c{cluster_id}_top{idx}", 
                                     scaler_out, savepath=model_dir / f"top{idx}.png")
                         
+                        predictions = model.predict(valX_cluster)
+                        plot_values(predictions, f"{f.stem}_run{run_dict['run_id']}_c{cluster_id}_top{idx}", 
+                                    scaler_out, savepath=model_dir / f"top{idx}_val.png")
+                        
                         stats[run_dict['run_id']].append({
                             'run': int(run_dict['run_id']),
                             'top': idx,
                             'cluster': int(cluster_id),
                             'loss': float(loss),
+                            'val_loss': float(val_loss),
                             'mse': float(mse),
                             'cluster_size': len(cluster),
                             # 'model_params': tuner_rs.get_best_hyperparameters()[0]
@@ -128,14 +157,25 @@ if __name__ == '__main__':
                         
                         with open(model_dir / 'stats.json', 'w') as stats_f:
                             json.dump(stats, stats_f, indent=3)
+                            
+                        with open(model_dir / f'top{idx}.txt', "w") as text_file:
+                            model.summary(print_fn=lambda x: text_file.write(x + '\n'))
+                            text_file.write(f"\n\nloss: {loss} \n")
+                            text_file.write(f"val loss: {val_loss} \n")
+                        
+                        del model
+                        del predictions
+                        plt.close("all")
                         
                     # clear models from memory 
                     if K.backend() == 'tensorflow':
+                        del hypermodel
+                        del tuner_rs
                         K.clear_session()
                         gc.collect()
                         sh.rmtree('./tmp/', ignore_errors=True)
                         print("Cleared session")
-                   
+                
                 except Exception as e:
                     logging.error(f'Error in {f.stem}_run{run_dict["run_id"]}_c{cluster_id}', exc_info=True)
                     print(f'Error in {f.stem}_run{run_dict["run_id"]}_c{cluster_id}', e)

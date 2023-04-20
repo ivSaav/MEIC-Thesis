@@ -15,44 +15,40 @@ if __name__ == '__main__':
     argparser.add_argument('--run-id', '-r', type=int, required=True)
     argparser.add_argument('--plots', '-p', action='store_true', default=False)
     argparser.add_argument('--no-write', '-sp', action='store_true', default=False)
+    argparser.add_argument('--all-data', '-a', action='store_true', default=False)
     opts = vars(argparser.parse_args())
-    
-    out_dir = opts['hist_path'] / 'predictions' / f"{opts['cluster_file']}_{opts['run_id']}"
-    if not out_dir.exists() and not opts['no_write']:
-        out_dir.mkdir(parents=True, exist_ok=False)
-        
-    clusters_path = opts['hist_path'] / 'clusters'
     
     original_in, original_out, _scaler_in, scaler_out = load_original_data(opts['data_path'])
     
-    cluster_conf = load(open(clusters_path / f"{opts['cluster_file']}.pkl", 'rb'))
-    clusters = cluster_conf[opts['run_id']]['clusters']
+    if opts["all_data"]:
+        out_dir = opts['hist_path'] / 'predictions' / f"all_data_t{opts['run_id']}"
+        clusters = {
+            0: list(original_in["filename"].values)
+        }
+    else:
+        out_dir = opts['hist_path'] / 'predictions' / f"{opts['cluster_file']}_{opts['run_id']}"
+        clusters_path = opts['hist_path'] / 'clusters'
+        cluster_conf = load(open(clusters_path / f"{opts['cluster_file']}.pkl", 'rb'))
+        clusters = cluster_conf[opts['run_id']]['clusters']
     
+    if not out_dir.exists():
+        out_dir.mkdir(parents=True, exist_ok=False)
+        
     all_predictions = []
     cluster_filenames = []
     pfs = {}
     for cluster_id, cluster in clusters.items():
-        model_file = f"{opts['cluster_file']}_run{opts['run_id']}_{cluster_id}.h5"
-        model = load_model(opts['hist_path'] / f"models/{opts['cluster_file']}" / model_file)
+        if opts['all_data']:
+            model_file = f"all_data/top{opts['run_id']}.h5"
+        else:
+            model_file = f"{opts['cluster_file']}/run{opts['run_id']}_c{cluster_id}/top0.h5"
+        model = load_model(opts['hist_path'] / "models" / model_file)
         
         inputs, outputs = join_files_in_cluster(cluster, original_in, original_out)
         
         predictions = model.predict(inputs)
-        
-        
-        
-        print(predictions.shape)
-        print(outputs.shape)
-        bla = pd.DataFrame(predictions)
-        bla.columns = bla.columns.astype(str)
-        bla = scaler_out.inverse_transform(bla)
-        bla = pd.DataFrame(bla)
-        plot_cluster_preds(bla, f"cluster {cluster_id}", out_dir=Path('./out'))
-        plt.close("all")
-        
         cluster_filenames.extend(cluster)
         all_predictions.append(pd.DataFrame(predictions))
-    
     all_predictions = pd.concat(all_predictions, ignore_index=True)
     
     # do inverse tranform on the predictions
@@ -61,17 +57,28 @@ if __name__ == '__main__':
     
     print("Preds shape: ", all_predictions.shape)
     print(all_predictions)
-    exit(0)
-    
+  
     # save predictions in separate files
+    print("Saving Predictions...")
+    # TODO save only validation predictions
+    bla = set()
     if not opts['no_write']:
         preds_dir = out_dir / 'data'
         if not preds_dir.exists() and not opts['no_write']:
             preds_dir.mkdir(parents=True)
         
+        val_dir = out_dir / 'val'
+        val_dir.mkdir(parents=True, exist_ok=True)
+        
+        val_files = []   
+        with open("../data/testing_profiles.txt", 'r') as f:
+            val_files = f.readlines()
+            val_files = [f.split(".")[0] for f in val_files]
+        val_files = set(val_files)
+           
         compiled_in = pd.read_csv(opts['data_path'] / 'inputs.csv') 
         for f, pred in zip(cluster_filenames, all_predictions):
-            ns, vs, ts = list(pred[:640]), list(pred[640:1280]), list(pred[1280:])
+            ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])            
             outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})
             
             inputs = compiled_in.loc[compiled_in['filename'] == f].iloc[:, 1:].values[0]
@@ -79,16 +86,46 @@ if __name__ == '__main__':
             inputs = pd.DataFrame({'R [Rsun]': rs, 'B [G]': bs, 'alpha [deg]': alphas})
 
             df = pd.concat([inputs, outputs], axis=1)
-            df.to_csv(preds_dir / f'{f}.csv', index=False)
-        
+            
+            if f in val_files:
+                bla.add(f)
+                df.to_csv(val_dir / f'{f}.csv', index=False)
+            else:
+                df.to_csv(preds_dir / f'{f}.csv', index=False)
+    
+    print(val_files.difference(bla))    
     # plot predictions
+    print("Plotting Predictions...")
     if opts['plots']:
-        all_predictions = pd.DataFrame(all_predictions)
-        print("Preds shape: ", all_predictions.shape)
-        plot_cluster_preds(all_predictions, opts['cluster_file'], out_dir)
+        fig, axs = plt.subplots(3, 2, figsize=(20, 15), dpi=200, sharey="row" ,sharex="all")
+        real_out = pd.read_csv(opts['data_path'] / 'outputs.csv')
+        for f, pred in zip(cluster_filenames, all_predictions):
+            ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])
+            
+            real = real_out.loc[real_out['filename'] == f].iloc[:, 1:].values[0]
+            real_ns, real_vs, real_ts = list(real[:640]), list(real[640:1280]), list(real[1280:])
+            
+            axs[0,0].plot(real_ns, linewidth=0.5)
+            axs[0,1].plot(ns, linewidth=0.5)
+            
+            axs[1,0].plot(real_vs, linewidth=0.5)
+            axs[1,1].plot(vs, linewidth=0.5)
+            
+            axs[2,0].plot(real_ts, linewidth=0.5)
+            axs[2,1].plot(ts, linewidth=0.5)
         
-    
-    
-    
-    
+        for ax in axs.flat:
+            ax.set_yscale('log')
+            
+        axs[0,0].set_ylabel('n [cm^-3]')
+        axs[1,0].set_ylabel('v [km/s]')
+        axs[2,0].set_ylabel('T [MK]')
+        
+        axs[0,0].set_title('Real')
+        axs[0,1].set_title('Predicted')
+        
+        plt.tight_layout()
+        
+        plt.savefig(out_dir / 'predictions.png')
+            
     
