@@ -8,14 +8,22 @@ In this chapter, the clustering methods that were used will be briefly explained
 \section{Clustering Methods}\label{sec:clustering_methods}
 Clustering is defined as the task of finding and then grouping the data values that are close to each other in some way. Because of this, clustering is not only a useful technique for data analysis but also for the task of anomaly detection, as abnormal samples tend to be far from the rest of the data. In this section, the clustering methods that were used in this work will be presented.
 
-\subsection{K-Means}\label{sec:kmeans}
+\subsection{K-Means}\label{sec:kmeans} 
+
+The objective of K-means is to find a partition of the data into K clusters, where each data point belongs to the cluster with the nearest mean. The K-means algorithm is an iterative algorithm that starts by randomly assigning each data point to a cluster. Then, the mean of each cluster is calculated and the data points are reassigned to the cluster with the nearest mean. This process is repeated until the data points stop changing clusters. 
 
 \subsection{SOM}\label{sec:som}
+This method is based on the idea of self-organizing maps, which are artificial neural networks that are used to find a low-dimensional representation of a high-dimensional space. The SOM algorithm is an unsupervised learning algorithm that is used to find a low-dimensional representation of a high-dimensional space. The algorithm starts by randomly assigning each data point to a neuron in the map. Then, the weights of each neuron are updated to be closer to the data point that it represents. This process is repeated until the data points stop changing neurons.
 
-\subsection{Aglomerative Clustering}\label{sec:aglomerative}
+\subsection{Agglomerative Clustering}\label{sec:aglomerative}
+Agglomerative clustering is a hierarchical clustering method that starts by assigning each data point to its own cluster. Then, the two clusters that are closest to each other are merged into a single cluster. This process is repeated until all the data points are in the same cluster. Clusters are combined by comparing the distance between the clusters and the distance between the data points in the clusters. The distance between the clusters is calculated using a linkage function. The distance between the data points in the clusters is calculated using a distance metric (normally the Euclidean distance). The size and shape of the clusters are directly influenced by these two parameters.
+
+In this work, the Ward linkage function was used. This linkage function minimizes the variance of the clusters being merged. The Euclidean distance was used as the distance metric.
 
 \subsection{DBSCAN}\label{sec:dbscan}
+This unsupervised clustering method was first introduced in Ester et al. \cite{dbscan}. It is a density-based clustering algorithm that is used to find clusters of data points that are close to each other. The algorithm assigns "core" labels to the points that have at least $minPts$ points within a distance $eps$ from them. Points that are reachable from a core point, but do not have at least $minPts$ points within a distance $eps$ from them, are assigned "border" labels. These are considered to be a part of the cluster formed by the core point.
 
+The points that are not reachable from any core point are assigned "noise" labels and are considered to be outliers. Because of this, the algorithm provides a basic method for outlier detection.
 
 \section{Dimensionality Reduction}\label{sec:dim_reduction}
 
