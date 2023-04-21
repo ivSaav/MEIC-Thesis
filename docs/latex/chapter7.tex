@@ -12,20 +12,43 @@ Clustering is defined as the task of finding and then grouping the data values t
 
 The objective of K-means is to find a partition of the data into K clusters, where each data point belongs to the cluster with the nearest mean. The K-means algorithm is an iterative algorithm that starts by randomly assigning each data point to a cluster. Then, the mean of each cluster is calculated and the data points are reassigned to the cluster with the nearest mean. This process is repeated until the data points stop changing clusters. 
 
+The number of divisions is defined by the $k$ parameter, which can be determined with the help of the following methods:
+
+\begin{itemize}
+    \item \textbf{Elbow Method:} The elbow method is a heuristic method that is used to find the optimal number of clusters. This method plots the sum of squared errors (SSE) for each value of $k$ and then finds the value of $k$ that has the "elbow" in the plot. This value of $k$ is considered to be the optimal number of clusters. This method presents some disadvantages, as it is not always clear where the "elbow" is, making it a subjective method. Also, the SSE is not a good measure of the quality of the clustering, as it is biased towards clusters with similar sizes.
+    % TODO disadvantages
+    \item \textbf{Silhouette Method:} The silhouette method is a method that is used to find the optimal number of clusters. This method calculates the silhouette coefficient for each data point, by evaluating the intra-cluster and inter-cluster distances. Scores for each point can range from -1 to 1, with lower values indicating that the data point is in the wrong cluster and higher values that it is in the correct cluster. The silhouette coefficient for each cluster is then calculated by averaging the silhouette coefficients of the data points in the cluster. Finally, the score for the entire dataset is calculated by averaging the coefficients from every cluster. The optimal number of clusters is the value of $k$ that has the highest silhouette coefficient.
+\end{itemize}
+
+K-means is advantageous when compared to other clustering methods because of its simplicity and the fact that it doesn't require any prior knowledge of the data. However, the disadvantages are that it is biased towards spherical clusters with similar sizes, is sensitive to the initial position of cluster centroids and requires the determination of the number of clusters beforehand.
+
 \subsection{SOM}\label{sec:som}
-This method is based on the idea of self-organizing maps, which are artificial neural networks that are used to find a low-dimensional representation of a high-dimensional space. The SOM algorithm is an unsupervised learning algorithm that is used to find a low-dimensional representation of a high-dimensional space. The algorithm starts by randomly assigning each data point to a neuron in the map. Then, the weights of each neuron are updated to be closer to the data point that it represents. This process is repeated until the data points stop changing neurons.
+This method is based on the idea of self-organizing maps, which are artificial neural networks used to find a low-dimensional representation of a high-dimensional space. It is usually employed to reduce the dimensions of the data to a map, but can also be used as a clustering method, as it groups similar data. 
+
+The algorithm starts by randomly assigning each data point to a neuron in the map. Then, the weights of each neuron are updated to be closer to the data point that it represents. This process is repeated until the data points stop changing neurons. 
+
+The advantage of this algorithm is that it can map high-dimensional input vectors to a low-dimensional space while preserving the original topology of the data. Unlike other clustering methods, which aren't able to provide good results for data with high dimensionality.\footnote{Self-Organizing Maps \url{https://sites.pitt.edu/~is2470pb/Spring05/FinalProjects/Group1a/tutorial/som.html}}
 
 \subsection{Agglomerative Clustering}\label{sec:aglomerative}
-Agglomerative clustering is a hierarchical clustering method that starts by assigning each data point to its own cluster. Then, the two clusters that are closest to each other are merged into a single cluster. This process is repeated until all the data points are in the same cluster. Clusters are combined by comparing the distance between the clusters and the distance between the data points in the clusters. The distance between the clusters is calculated using a linkage function. The distance between the data points in the clusters is calculated using a distance metric (normally the Euclidean distance). The size and shape of the clusters are directly influenced by these two parameters.
+Agglomerative clustering is a hierarchical clustering method that starts by assigning each data point to its own cluster. Then, the two clusters that are closest to each other are merged into a single cluster. This process is repeated until all the data points are in the same cluster. These are combined by comparing intra-cluster and inter-cluster distances. Distance between the clusters is calculated using a linkage function, and the distance between the data points in the clusters is calculated using a distance metric (normally the Euclidean distance). The size and shape of the clusters are directly influenced by these two parameters.
 
-In this work, the Ward linkage function was used. This linkage function minimizes the variance of the clusters being merged. The Euclidean distance was used as the distance metric.
+The number of clusters can be determined with the help of a dendogram plot. This plot shows the distance between the clusters as they are merged. Each leaf in the dendrogram represents a data point that is fused with a similar point into the same cluster as the height of the tree increases. The height of the fusion (on the vertical axis) represents the dissimilarity score between the two clusters. Higher fusions indicate that the clusters are more distinct. As a rule of thumb, the number of clusters can be determined by looking at the height of the fusion(s) that has the most distinct clusters (higher dissimilarity scores).\footnote{Agglomerative Clustering \url{https://www.datanovia.com/en/lessons/agglomerative-hierarchical-clustering/}}
+
+One of the problems with this method is that there is no clear way to determine the number of clusters, as the dendrogram doesn't always produce clear divisions, making the process of choosing the number of clusters subjective.
 
 \subsection{DBSCAN}\label{sec:dbscan}
 This unsupervised clustering method was first introduced in Ester et al. \cite{dbscan}. It is a density-based clustering algorithm that is used to find clusters of data points that are close to each other. The algorithm assigns "core" labels to the points that have at least $minPts$ points within a distance $eps$ from them. Points that are reachable from a core point, but do not have at least $minPts$ points within a distance $eps$ from them, are assigned "border" labels. These are considered to be a part of the cluster formed by the core point.
 
 The points that are not reachable from any core point are assigned "noise" labels and are considered to be outliers. Because of this, the algorithm provides a basic method for outlier detection.
 
+The algorithm is advantageous because it doesn't require the determination of the number of clusters beforehand, as it can find clusters of any size and is also robust to the existence of outliers. Despite this, it is sensitive to the parameters $minPts$ and $eps$, with slight changes in these parameters having a significant impact on the results.
+
 \section{Dimensionality Reduction}\label{sec:dim_reduction}
+In Data Science and Machine Learning, dimensionality refers to the number of features of the dataset. The dimensionality of a dataset can be reduced by removing features that are not relevant to the problem at hand. This can be done by using feature selection methods, which are methods that select the most relevant features for the task at hand. However, this can also be done by using dimensionality reduction methods, which are methods that transform the data into a lower-dimensional space, while preserving the most important information.
+
+These processes are useful in these contexts because they can reduce the computational cost of the algorithms, as well as the time needed to train the models. They can also improve the performance of the algorithms, as they can remove noise and irrelevant features from the data.
+
+From the data analysis in Section \ref{sec:data_prelim_analysis}, it can be seen that each line, representing a distinct variable, has 640 abcissas which translates to the same number of features. This is an extremely high number of features that can be problematic for some algorithms, as the features are not all equally relevant to the problem at hand. Therefore, it is important to reduce the dimensionality of the dataset, so that the algorithms can be trained more efficiently and efficiently. % TODO falar da distributição dos dados para cada variável e como quaase todas as linhas de R têm sempre o mesmo valor no início e no fim
 
 \section{Experiments}\label{sec:clustering_experiments}
 
