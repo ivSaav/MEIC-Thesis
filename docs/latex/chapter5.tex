@@ -55,21 +55,21 @@ A preliminary statistical analysis of the data can be seen in tables \ref{tab:da
 
 Out of the three input columns used, the magnetic field ($B$) has the highest standard deviation, which might indicate that this column is more prone to anomalies than the others. The radial coordinate ($R$) has the lowest standard deviation, which is expected, as it is a constant value for each file. The output variables have a similar standard deviation, with the number of charged particles per unit volume ($n$) having the highest and the temperature ($T$) the lowest. The velocity ($v$) has a standard deviation similar to that of the temperature.
 
-\begin{table}[h]
-    \caption{Data Statistical Analysis}
+\begin{table}[]
+    \caption{Statistical Analysis of the dataset.}
     \label{tab:data_stats}
-    \begin{tabular}{@{}rrrrrrr@{}}
+    \begin{tabular}{@{}lrrrrrr@{}}
     \toprule
-    \textbf{} & \textbf{R {[}Rsun{]}} & \textbf{B {[}G{]}} & \textbf{$\alpha$ {[}deg{]}} & \textbf{n {[}cm\textasciicircum{}-3{]}} & \textbf{v {[}km/s{]}} & \textbf{T {[}MK{]}} \\ \midrule
-    mean      & 4.755                 & -0.536             & 1.885                    & 8.630207e+13                            & 255.325               & 1.384               \\
-    std       & 7.165                 & 91.948             & 14.728                   & 6.839549e+14                            & 214.855               & 0.897               \\
-    min       & 1.000                 & -17541.107         & -87.632                  & 1.972793e+01                            & -0.007                & 0.006               \\
-    $25\%$    & 1.021                 & -2.145             & -0.108                   & 1.622396e+04                            & 49.263                & 0.718               \\
-    $50\%$    & 1.151                 & 0.001              & 0.000                    & 2.350818e+06                            & 211.022               & 1.337               \\
-    $75\%$    & 4.250                 & 2.054              & 1.000                    & 2.131588e+07                            & 450.770               & 2.098               \\
-    max       & 31.501                & 247095.581         & 89.257                   & 1.009917e+16                            & 1889.365              & 19.897              \\ \bottomrule
+           & R {[}Rsun{]} & B {[}G{]} & $\alpha$ {[}deg{]} & $n${[}$cm^{-3}${]} & $v${[}$km/s${]} & $T${[}$MK${]} \\ \midrule
+    mean   & 4.755        & 5.471     & 1.885              & 8.630e+13 & 2.553e+02  & 1.384     \\
+    std    & 7.165        & 9.178e+01 & 1.472e+01          & 6.839e+14 & 2.148e+02  & 8.968e-01 \\
+    min    & 1.000        & 5.122e-05 & -8.763e+01         & 1.973e+01 & -6.757e-03 & 5.765e-03 \\
+    $25\%$ & 1.021        & 4.051e-02 & -1.079e-01         & 1.622e+04 & 4.926e+01  & 7.179e-01 \\
+    $50\%$ & 1.151        & 2.095     & 0.000              & 2.351e+06 & 2.110e+02  & 1.337     \\
+    $75\%$ & 4.250        & 5.582     & 9.997e-01          & 2.132e+07 & 4.508e+02  & 2.098     \\
+    max    & 3.150e+01    & 2.470e+05 & 8.925e+01          & 1.010e+16 & 1.889e+03  & 1.990e+01 \\ \bottomrule
     \end{tabular}
-\end{table}
+    \end{table}
 
 
 \begin{figure}[h]
@@ -85,4 +85,13 @@ In addition to these statistics, the correlation between the variables can be se
 The output variables ($n$, $v$, and $T$) are somewhat correlated. The temperature, $T$, is positively correlated with the velocity of the solar wind, $v$, which is expected as with higher wind speeds the particles there is a tendency for higher temperatures. The opposite is true for the volume density of the solar wind, $n$, which is negatively correlated with the temperature. This is expected as with higher densities, the particles will have less kinetic energy and, therefore, a lower temperature. The velocity of the solar wind is also slightly negatively correlated with the volume density.
 
 A high correlation between the radial coordinate $R$ and the velocity $v$ can be observed, as the velocity is expected to increase with distance from the Sun. Additionally, the temperature of the solar wind drops as the distance to the Sun increases, which is reflected in the negative correlation between $R$ and $T$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/input_vars_distribution.png}
+    \caption{Distribution of the input variables}
+    \label{fig:input_vars_distr}
+\end{figure}
+
+A distribution plot of each of the input variables can be seen in Fig. \ref{fig:input_vars_distr}. The values of the radial coordinate $R$ range from 1 to about 31.5 as was already seen by looking at Table \ref{tab:data_stats}, with most values being concentrated around 1. % TODO
 
