@@ -5,7 +5,32 @@ from pickle import load
 from argparse import ArgumentParser
 
 from tools.data import load_original_data, join_files_in_cluster, plot_cluster_preds
+from tools.viz import plot_predictions
 import matplotlib.pyplot as plt
+
+def save_predictions(opts, out_dir, cluster_filenames, all_predictions, val_files):
+    """Save predictions in separate files"""
+    preds_dir = out_dir / 'data'
+    if not preds_dir.exists() and not opts['no_write']:
+        preds_dir.mkdir(parents=True)
+    
+    val_dir = out_dir / 'val'
+    val_dir.mkdir(parents=True, exist_ok=True)
+    
+    compiled_in = pd.read_csv(opts['data_path'] / 'inputs.csv') 
+    for f, pred in zip(cluster_filenames, all_predictions):
+        ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])            
+        outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})
+        
+        inputs = compiled_in.loc[compiled_in['filename'] == f].iloc[:, 1:].values[0]
+        rs, bs, alphas = list(inputs[:640]), list(inputs[640:1280]), list(inputs[1280:])
+        inputs = pd.DataFrame({'R [Rsun]': rs, 'B [G]': bs, 'alpha [deg]': alphas})
+
+        df = pd.concat([inputs, outputs], axis=1)
+        if f in val_files:
+            df.to_csv(val_dir / f'{f}.csv', index=False)
+        else:
+            df.to_csv(preds_dir / f'{f}.csv', index=False)
 
 if __name__ == '__main__':
     argparser = ArgumentParser()
@@ -39,7 +64,7 @@ if __name__ == '__main__':
     pfs = {}
     for cluster_id, cluster in clusters.items():
         if opts['all_data']:
-            model_file = f"all_data/top{opts['run_id']}.h5"
+            model_file = f"{opts['cluster_file']}/top{opts['run_id']}.h5"
         else:
             model_file = f"{opts['cluster_file']}/run{opts['run_id']}_c{cluster_id}/top0.h5"
         model = load_model(opts['hist_path'] / "models" / model_file)
@@ -58,45 +83,53 @@ if __name__ == '__main__':
     print("Preds shape: ", all_predictions.shape)
     print(all_predictions)
   
-    # save predictions in separate files
-    print("Saving Predictions...")
-    # TODO save only validation predictions
-    bla = set()
-    if not opts['no_write']:
-        preds_dir = out_dir / 'data'
-        if not preds_dir.exists() and not opts['no_write']:
-            preds_dir.mkdir(parents=True)
-        
-        val_dir = out_dir / 'val'
-        val_dir.mkdir(parents=True, exist_ok=True)
-        
-        val_files = []   
-        with open("../data/testing_profiles.txt", 'r') as f:
-            val_files = f.readlines()
-            val_files = [f.split(".")[0] for f in val_files]
-        val_files = set(val_files)
-           
-        compiled_in = pd.read_csv(opts['data_path'] / 'inputs.csv') 
-        for f, pred in zip(cluster_filenames, all_predictions):
-            ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])            
-            outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})
-            
-            inputs = compiled_in.loc[compiled_in['filename'] == f].iloc[:, 1:].values[0]
-            rs, bs, alphas = list(inputs[:640]), list(inputs[640:1280]), list(inputs[1280:])
-            inputs = pd.DataFrame({'R [Rsun]': rs, 'B [G]': bs, 'alpha [deg]': alphas})
-
-            df = pd.concat([inputs, outputs], axis=1)
-            
-            if f in val_files:
-                bla.add(f)
-                df.to_csv(val_dir / f'{f}.csv', index=False)
-            else:
-                df.to_csv(preds_dir / f'{f}.csv', index=False)
+    # load validation filenames
+    val_files = []   
+    with open(opts["data_path"].parent / "testing_profiles.txt", 'r') as f:
+        val_files = f.readlines()
+        val_files = [f.split(".")[0] for f in val_files]
+    val_files = set(val_files)
     
-    print(val_files.difference(bla))    
+    # save predictions in separate files
+    if not opts['no_write']:
+        print("Saving Predictions...")
+        save_predictions(opts, out_dir, cluster_filenames, all_predictions, val_files)
+        
+        # preds_dir = out_dir / 'data'
+        # if not preds_dir.exists() and not opts['no_write']:
+        #     preds_dir.mkdir(parents=True)
+        
+        # val_dir = out_dir / 'val'
+        # val_dir.mkdir(parents=True, exist_ok=True)
+        
+           
+        # compiled_in = pd.read_csv(opts['data_path'] / 'inputs.csv') 
+        # for f, pred in zip(cluster_filenames, all_predictions):
+        #     ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])            
+        #     outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})
+            
+        #     inputs = compiled_in.loc[compiled_in['filename'] == f].iloc[:, 1:].values[0]
+        #     rs, bs, alphas = list(inputs[:640]), list(inputs[640:1280]), list(inputs[1280:])
+        #     inputs = pd.DataFrame({'R [Rsun]': rs, 'B [G]': bs, 'alpha [deg]': alphas})
+
+        #     df = pd.concat([inputs, outputs], axis=1)
+            
+        #     if f in val_files:
+        #         df.to_csv(val_dir / f'{f}.csv', index=False)
+        #     else:
+        #         df.to_csv(preds_dir / f'{f}.csv', index=False)
+    
     # plot predictions
-    print("Plotting Predictions...")
     if opts['plots']:
+        print("Plotting Predictions...")
+        fig = plot_predictions(cluster_filenames, all_predictions, "Predictions", opts['data_path'] / "outputs.csv")
+        plt.savefig(out_dir / 'predictions.png', dpi=200)
+        plt.close(fig)
+        
+        fig = plot_predictions(cluster_filenames, all_predictions, "Predictions - Validation", opts['data_path'] / "outputs.csv", val_files)
+        plt.savefig(out_dir / 'predictions_val.png', dpi=200)
+        
+        exit()
         fig, axs = plt.subplots(3, 2, figsize=(20, 15), dpi=200, sharey="row" ,sharex="all")
         real_out = pd.read_csv(opts['data_path'] / 'outputs.csv')
         for f, pred in zip(cluster_filenames, all_predictions):
