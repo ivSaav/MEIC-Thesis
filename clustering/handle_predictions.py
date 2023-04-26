@@ -94,30 +94,6 @@ if __name__ == '__main__':
     if not opts['no_write']:
         print("Saving Predictions...")
         save_predictions(opts, out_dir, cluster_filenames, all_predictions, val_files)
-        
-        # preds_dir = out_dir / 'data'
-        # if not preds_dir.exists() and not opts['no_write']:
-        #     preds_dir.mkdir(parents=True)
-        
-        # val_dir = out_dir / 'val'
-        # val_dir.mkdir(parents=True, exist_ok=True)
-        
-           
-        # compiled_in = pd.read_csv(opts['data_path'] / 'inputs.csv') 
-        # for f, pred in zip(cluster_filenames, all_predictions):
-        #     ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])            
-        #     outputs = pd.DataFrame({'n [cm^-3]': ns, 'v [km/s]': vs, 'T [MK]': ts})
-            
-        #     inputs = compiled_in.loc[compiled_in['filename'] == f].iloc[:, 1:].values[0]
-        #     rs, bs, alphas = list(inputs[:640]), list(inputs[640:1280]), list(inputs[1280:])
-        #     inputs = pd.DataFrame({'R [Rsun]': rs, 'B [G]': bs, 'alpha [deg]': alphas})
-
-        #     df = pd.concat([inputs, outputs], axis=1)
-            
-        #     if f in val_files:
-        #         df.to_csv(val_dir / f'{f}.csv', index=False)
-        #     else:
-        #         df.to_csv(preds_dir / f'{f}.csv', index=False)
     
     # plot predictions
     if opts['plots']:
@@ -129,36 +105,4 @@ if __name__ == '__main__':
         fig = plot_predictions(cluster_filenames, all_predictions, "Predictions - Validation", opts['data_path'] / "outputs.csv", val_files)
         plt.savefig(out_dir / 'predictions_val.png', dpi=200)
         
-        exit()
-        fig, axs = plt.subplots(3, 2, figsize=(20, 15), dpi=200, sharey="row" ,sharex="all")
-        real_out = pd.read_csv(opts['data_path'] / 'outputs.csv')
-        for f, pred in zip(cluster_filenames, all_predictions):
-            ns, vs, ts = list(pred[::3]), list(pred[1::3]), list(pred[2::3])
-            
-            real = real_out.loc[real_out['filename'] == f].iloc[:, 1:].values[0]
-            real_ns, real_vs, real_ts = list(real[:640]), list(real[640:1280]), list(real[1280:])
-            
-            axs[0,0].plot(real_ns, linewidth=0.5)
-            axs[0,1].plot(ns, linewidth=0.5)
-            
-            axs[1,0].plot(real_vs, linewidth=0.5)
-            axs[1,1].plot(vs, linewidth=0.5)
-            
-            axs[2,0].plot(real_ts, linewidth=0.5)
-            axs[2,1].plot(ts, linewidth=0.5)
-        
-        for ax in axs.flat:
-            ax.set_yscale('log')
-            
-        axs[0,0].set_ylabel('n [cm^-3]')
-        axs[1,0].set_ylabel('v [km/s]')
-        axs[2,0].set_ylabel('T [MK]')
-        
-        axs[0,0].set_title('Real')
-        axs[0,1].set_title('Predicted')
-        
-        plt.tight_layout()
-        
-        plt.savefig(out_dir / 'predictions.png')
-            
     
