@@ -43,7 +43,7 @@ def plot_unscaled_clusters(labels, nclusters, flows_dict, columns, yscale={}, sa
         print("Not enough clusters to plot")
         return
     
-    _fig, axs = plt.subplots(nrows=nclusters, ncols=len(columns), figsize=(4*len(columns), 4*nclusters))
+    _fig, axs = plt.subplots(nrows=nclusters, ncols=len(columns), figsize=(4*len(columns), 4*nclusters), sharey="col")
     for idx, flow in enumerate(flows_dict.values()):
         for col_pos, col in enumerate(columns):
             axs[(labels[idx], col_pos)].plot(flow[col], linewidth=0.5)
