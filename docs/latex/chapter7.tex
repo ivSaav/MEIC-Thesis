@@ -48,8 +48,23 @@ In Data Science and Machine Learning, dimensionality refers to the number of fea
 
 These processes are useful in these contexts because they can reduce the computational cost of the algorithms, as well as the time needed to train the models. They can also improve the performance of the algorithms, as they can remove noise and irrelevant features from the data.
 
-From the data analysis in Section \ref{sec:data_prelim_analysis}, it can be seen that each line, representing a distinct variable, has 640 abcissas which translates to the same number of features. This is an extremely high number of features that can be problematic for some algorithms, as the features are not all equally relevant to the problem at hand. Therefore, it is important to reduce the dimensionality of the dataset, so that the algorithms can be trained more efficiently and efficiently. % TODO falar da distributição dos dados para cada variável e como quaase todas as linhas de R têm sempre o mesmo valor no início e no fim
+From the data analysis in Section \ref{sec:data_prelim_analysis}, it can be seen that each line, representing a distinct variable, has 640 abscissas which translate to the same number of features. This is an extremely high number of features that can be problematic for some algorithms, as the features are not all equally relevant to the problem at hand. Therefore, it is important to reduce the dimensionality of the dataset, so that the algorithms can be trained more efficiently and efficiently. 
+
+In this case, variables with the same repeating values with be considered less important and be discarded by the dimensionality reduction algorithm, giving more emphasis on other variables that have more variation. This will be the case for the $R$ variable which is almost constant throughout every line measurement and thus provides almost no meaningful information.
+
+% TODO falar da distributição dos dados para cada variável e como quaase todas as linhas de R têm sempre o mesmo valor no início e no fim
 
 \section{Experiments}\label{sec:clustering_experiments}
+After the identification of the most common clustering and dimensionality reduction methods, the next step is to apply them to the dataset and evaluate their performance. This section will describe the experiments that were carried out to try to better understand the dataset.
+
+\subsection{Time Series Methods}\label{sec:time_series_methods}
+The first method to be tested was the \textit{TimeSeriesKmeans} clustering algorithm from \textit{tslearn}\footnote{TimeSeriesKMeans \url{https://tslearn.readthedocs.io/en/stable/gen_modules/clustering/tslearn.clustering.TimeSeriesKMeans.html}}. As the name indicates, this algorithm is a variation of the K-means algorithm that is used for time series data. It is advantageous as it can cluster time series data without the need to transform it into a vector, which can be problematic because it can lead to the loss of information. Despite this, the method is still based on the K-Means algorithm presented in Section \ref{sec:kmeans} and presents the same disadvantages as the original algorithm. 
+
+Clustering was conducted on the $B$ and $\alpha$ variables of the dataset ranging from 2 to 6 clusters. It is difficult to determine the number of appropriate clusters for the dataset beforehand as this method has no technique for their determination, unlike the regular K-Means. Therefore, the number of clusters was determined by looking at the results and trying to find the number of clusters that best represented the data.
+
+% TODO adidcionar imagem de um dos clustres de alpha e campo magnético
+In Figure \ref{}
+
+
 
 \section{Results}\label{sec:clustering_results}

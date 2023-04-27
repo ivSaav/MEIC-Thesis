@@ -6,9 +6,9 @@ from scipy.cluster.hierarchy import dendrogram
 import seaborn as sns
 import pandas as pd
 
-def plot_km_results(cluster_count, labels, series, save_path=None):
+def plot_km_results(cluster_count, labels, series, save_path=None, scale="log"):
     plot_count = math.ceil(math.sqrt(cluster_count))
-    fig, axs = plt.subplots(plot_count,plot_count,figsize=(10,10))
+    fig, axs = plt.subplots(plot_count,plot_count,figsize=(10,10), sharey="all")
     fig.suptitle('Clusters')
     row_i=0
     column_j=0
@@ -28,6 +28,9 @@ def plot_km_results(cluster_count, labels, series, save_path=None):
             row_i+=1
             column_j=0
     plt.tight_layout()
+    
+    for ax in axs.flat:
+        ax.set_yscale(scale)
     
     if save_path != None:
         plt.savefig(save_path, dpi=200)
@@ -51,6 +54,8 @@ def plot_unscaled_clusters(labels, nclusters, flows_dict, columns, yscale={}, sa
         axs[(labels[idx], 1)].set_title("Cluster " + str(labels[idx]))
                  
     plt.tight_layout()
+    
+    # TODO share y along columns
     
     if save_path != None:
         plt.savefig(save_path, dpi=200)
