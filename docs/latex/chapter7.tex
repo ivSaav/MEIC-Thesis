@@ -52,6 +52,12 @@ From the data analysis in Section \ref{sec:data_prelim_analysis}, it can be seen
 
 In this case, variables with the same repeating values with be considered less important and be discarded by the dimensionality reduction algorithm, giving more emphasis on other variables that have more variation. This will be the case for the $R$ variable which is almost constant throughout every line measurement and thus provides almost no meaningful information.
 
+For this work, we will be using the following dimensionality reduction methods:
+
+\begin{itemize}
+    \item \textbf{PCA:} Principal Component Analysis is a linear dimensionality reduction method that uses Singular Value Decomposition to project the data into a lower-dimensional space. It is advantageous because it is fast and efficient, but it is also sensitive to outliers.
+    \item \textbf{t-SNE:} t-Distributed Stochastic Neighbor Embedding is a non-linear dimensionality reduction method that is based on the idea that similar data points should be close to each other in the lower-dimensional space. It is advantageous because it can preserve the topology of the data, but it is also computationally expensive.
+\end{itemize}
 % TODO falar da distributição dos dados para cada variável e como quaase todas as linhas de R têm sempre o mesmo valor no início e no fim
 
 \section{Experiments}\label{sec:clustering_experiments}
