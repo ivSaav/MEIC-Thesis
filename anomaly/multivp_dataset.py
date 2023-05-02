@@ -221,7 +221,6 @@ class MULTI_VP_Dataset(Dataset):
         if self.method == "window_mag":
             return np.array([vals[0] for vals in values])
         return values.reshape(values.shape[0], -1)
-    #TODO might be different for "multi"
 
             
     def plot(self, title : str = "MULTI-VP Data", scaled : bool = False, **figkwargs) -> None:
