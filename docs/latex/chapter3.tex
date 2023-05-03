@@ -5,9 +5,57 @@
 %To understand the applications and characteristics of GANs, a simple search for "Generative Adversarial Networks" was performed on Google Scholar\footnote{Google Scholar \url{https://scholar.google.com/}}. The most relevant paper was written by Goodfellow et al. \cite{goodfellow.etal_GenerativeAdversarialNets_} where they discussed the architecture of the newly developed generative adversarial network, possible improvements and some applications (refer to sec. \ref{sec:gan_background}). A brief comparison between other generative models is also performed. In the following years, Conditional GANs \cite{goodfellow.etal_GenerativeAdversarialNets_} were proposed to improve the productive performance; Wasserstein GANs \cite{arjovsky.etal_WassersteinGenerativeAdversarial_} introduced a new loss function that provides some stability during the training process; in Radford et al. \cite{radford.etal_UnsupervisedRepresentationLearning_2016} deep convolutional networks were used for both the generator and discriminator which showed a significant performance increase when generating images. Since then, many variations have emerged to tackle different problems.
 
 %Most GANs were designed for problems with image datasets; however, the dataset used in this study consists only of tabular data. With this, the focus of the search shifted from conventional GANs for image applications to ones more focused on tabular data. During this search phase, the previously unknown area of detection of anomalies with GANs surfaced. Because of this, state of the art for this study will be divided into two parts. The first pertains to the more prevalent architectures for tabular generation, and the other focuses on GANs applied to anomaly detection on table datasets.
-A Systematic Literature Review (SLR) was performed to understand the current trends of GANs applied to anomaly detection. This search method allows for the analysis of all the existing research on a defined question. To achieve this, a set of search questions is formulated (sec. \ref{sec:search_questions}) and grouped into the main search query (sec. \ref{sec:search_queries}). Next, the inclusion/exclusion criteria for the obtained results are identified (sec. \ref{sec:inclusion_exclusion}).
 
-\section{Search Questions}\label{sec:search_questions}
+A Systematic Literature Review (SLR) was performed to understand the current trends of clustering methods and the use of GANs for anomaly detection. This chapter is divided into two parts. The first part will focus on the relevant clustering methods for this work. The second part will focus on the most relevant GAN architectures for anomaly detection. Each part will start with the definition of the search questions and the search queries. Next, the inclusion/exclusion criteria for the obtained results are identified. Finally, the results are presented and discussed.
+
+
+The first part (sec. \ref{sec:gan_background}) will focus on the most relevant GAN architectures for anomaly detection. The second part (sec. \ref{sec:clustering_methods}) will focus on the most relevant clustering methods.
+
+
+A Systematic Literature Review (SLR) was performed to understand the current trends of GANs applied to anomaly detection and clustering methods. This search method allows for the analysis of all the existing research on a defined question. To achieve this, a set of search questions is formulated (sec. \ref{sec:search_questions}) and grouped into two search queries (sec. \ref{sec:search_queries}). Next, the inclusion/exclusion criteria for the obtained results are identified (sec. \ref{sec:inclusion_exclusion}).
+
+
+\section{Clustering}\label{sec:sota_clustering}
+\subsection{Search Questions}\label{sec:cluster_search_questions}
+
+\subsection{Search Query}\label{sec:cluster_search_queries}
+
+\subsection{Inclusion/Exclusion Criteria}\label{sec:cluster_inclusion_exclusion}
+
+\subsection{Results}\label{sec:cluster_results}
+\begin{description}
+    \item[Jain]\cite{Jain_Dataclustering50_2010} performs an extensive review of the K-Means algorithm. The author defines clusters as representations of $n$ objects separated into $k$ groups based on a similarity measure. The use cases for the application of clustering are also defined. These include the discovery of the underlying data structures, natural classification (degree of similarity between forms) and compression (a method for the organization and summarization of data).
+    
+    A brief analysis of the history of clustering is provided, where the author shows the use of clustering methods in a wide range of fields and a brief explanation of hierarchical and partition-based clustering algorithms. Next, an explanation of the base K-Means algorithm is presented along with a discussion of the parameters that need to be defined by the user. In addition, an analysis of other clustering methods, such as DBSCAN and CLIQUE is performed. 
+
+    In the next sections, the author explains the importance of the data representation and the features chosen for the clustering task. A discussion on the decision of the correct number of clusters is also performed, to which the author concludes that there is no definitive answer.
+
+    The next section explains the concept of cluster validity, which evaluates the results of cluster analysis in a quantitive and objective manner. The validity criteria assess the internal cluster structure, the degree of separation between structures and the degree of correspondence between the clustering and the external information (class labels). Possible cluster admissibility criteria are also presented. These are defined by rules that aim to ensure that clusters do not intersect each other and that the chosen algorithm provides the same results on data with different transformations, such as scaling.
+    
+    Finally, the authors enumerate a set of guidelines that should be taken into account when choosing a clustering algorithm, based on the criteria discussed in the previous sections.
+\end{description}
+
+\begin{description}
+    \item[ConsensusClusterPlus] \cite{Wilkerson.Hayes_ConsensusClusterPlusclassdiscovery_2010} is an unsupervised class discovery method, used in cancer research to discover intrinsic groups sharing the same biological characteristics. The goal of the authors was to determine how many groups were in a dataset and to determine their number with confidence.
+    
+    The implementation is based on the preexisting consensus clustering method, which is a resampling-based approach that assesses the stability of clusters. The authors extended this method by allowing the use of new clustering algorithms and improving the visualization techniques used to infer the number of classes.
+
+    % TODO rever
+\end{description}
+
+\begin{description}
+    \item[] 
+\end{description}
+
+
+
+
+
+
+
+\section{Adversarial Anomaly Detection}\label{sec:sota_anomaly_detection}
+
+\subsection{Search Questions}\label{sec:gan_search_questions}
 Two search questions were defined to find out the most relevant articles that would more closely fit the needs of this work:
 
 %\noindent\textbf{SQ1} \textit{What are the current GAN architectures for anomaly detection?} GANs are a pervasive field of research with many different applications. For this work, we are only interested in the subset that pertains to the use of GANs for anomaly detection.
@@ -16,7 +64,7 @@ Two search questions were defined to find out the most relevant articles that wo
 
 \noindent\textbf{SQ2} Of the results from the previous question, which ones can generate new samples following the distribution of the dataset and detect out-of-distribution examples? The proposed goals for this thesis are to produce a model that can generate new solar wind profiles and another that can accurately distinguish out-of-distribution samples from normal ones. As so, the generator should be able to generate examples in the same distribution as the original dataset, while the discriminator must distinguish anomalous ones.
 
-\section{Search Query}\label{sec:search_queries}
+\subsection{Search Query}\label{sec:gan_search_queries}
 The search questions defined in the previous sections were aggregated into a single search query. The query construction was incremental to narrow the search results to the desired questions. In the end, the search query was the following:
 \begin{center}
 \textbf{(gan*  OR  adversarial learning  OR  generative adversarial net*) \\ AND (( anomal*  OR  outlier?  OR  abnormal  OR  novel* )  AND  detect* ) \\ AND NOT  (imag*  OR  video*  OR  segment* OR photo*)}
@@ -26,7 +74,7 @@ The first part consists of a mixture of terms associated with GANs and intendeds
 
 %As previously stated, to achieve the goals of this study, we are interested in mainly two search topics. The first consists of GAN architectures designed/adapted to handle tabular data and was performed on Google Scholar\footnote{Google Scholar \url{https://scholar.google.com/}}. For this, a combination of related terms and abbreviations for "generative adversarial networks" and "tabular data" was used (1000 results at the end). The second search topic, which can be considered a subtopic of the first, pertains to the use of GANs for anomaly detection in table datasets and is performed on Scopus\footnote{Scopus: \url{https://www.scopus.com/}}. The same identifying terms for GANs were used, but with a combination of synonyms for outliers (e.g., "anomaly", "novelty", and "abnormal") to redirect the search for the area of anomaly detection (yielded 1400 results).
 
-\section{Inclusion and exclusion criteria}\label{sec:inclusion_exclusion}
+\subsection{Inclusion and exclusion criteria}\label{sec:gan_inclusion_exclusion}
 The query defined in the previous section yielded 1489 results, making the analysis of each one by hand prohibitive. A set of criteria was determined to reduce the number of documents that needed to be studied (see Table \ref{tab:criteria}). Note that E3 only exists because the search question SQ2 failed in instances where the documents did not indicate the use of images in the keywords. These were later used with several steps to exclude non-relevant papers and narrow the state-of-the-art analysis iteratively. 
 
 \begin{table}[ht]
@@ -58,7 +106,7 @@ An illustration of the processing pipeline can be seen in Fig. \ref{fig:slr_pipe
 
 
 
-\section{Results}\label{sec:stoa_results}
+\subsection{Results}\label{sec:gan_sota_results}
 
 \begin{description}
     \item[MAD-GAN \cite{li.etal_MADGANMultivariateAnomaly_2019}] is an architecture intended for anomaly detection in multivariate data with spatio-temporal correlations. The generator and the discriminator are composed of Long-Short-Term Recurrent Neural Networks (LSTM-RNN). As is usual in other GANs, the generator creates fake samples from a vector of latent points and feeds them to the generator, whose goal is to distinguish generated from original samples. However, instead of just using the discriminator to detect abnormal samples in the testing phase, the authors propose employing the generator for the same task. The theory for this is that by generating correct samples, the generator can learn the normal distribution of the dataset. 
