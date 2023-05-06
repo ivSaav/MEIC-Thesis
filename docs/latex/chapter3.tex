@@ -44,9 +44,45 @@ A Systematic Literature Review (SLR) was performed to understand the current tre
 \end{description}
 
 \begin{description}
-    \item[] 
+    \item[Rodriguez et al.]\cite{Rodriguez.Laio_Clusteringfastsearch_2014} propose that cluster centers have a higher density than their neighbors and are at a higher distance from other cluster centers. In addition, the proposed algorithm is resilient to outliers as it identified them and excludes them from the analysis. 
+    
+    The proposed method is capable of detecting non-spherical clusters and identifying the correct number of clusters, like DBSCAN. Cluster centers are determined by selecting the points with the local maxima density values. The algorithm works by calculating the density of each point in the dataset and the distance from that point to other high-density points. After this step, the other points that are not considered centers are assigned to the nearest high-density point. This is done in a single step, making this algorithm more efficient than previous ones. 
+
+    To evaluate the implementation, tests are conducted on synthetic point distributions and compared with other clustering algorithms. The results show that the algorithm is capable of reliantly detecting cluster structures in the different datasets. The authors also conclude that the algorithm is robust to changes in the scale of the dataset (as long as it doesn't affect the distances of the points) and that the approach is more practical than other methods, as it does not require the definition of parameters such as the probability distribution.
 \end{description}
 
+\begin{description}
+    \item[Fahad et al.]\cite{Fahad.Alshatri.ea_SurveyClusteringAlgorithms_2014a} provide a detailed analysis of the application of different classes of clustering methods on big data. The goal of the authors is to overcome the shortcomings of other surveys by systematically categorizing clustering algorithms; presenting the advantages and disadvantages of each class of algorithms; providing several evaluation measures; and finally analyzing the most representative algorithm of each category.
+    
+    The authors identify five different clustering algorithm categories. These are partitioning, hierarchical, density-based, grid-based and model-based. A set of clustering algorithms is identified for each of the categories.
+
+    In the next section, the authors categorize the clustering methods in accordance with three properties of big data. These are volume, velocity and variety. The first refers to the ability of the algorithm to deal with large datasets with high dimensionality and also includes the existence of outliers. Velocity refers to the time complexity of the algorithms. And finally, variety refers to the ability of the algorithm to deal with different types of data, and the cluster shapes that are produced by it.
+
+    The choice of algorithm for each of the categories is done by picking the ones that satisfy most of the above-defined criteria. An explanation of the algorithm is provided for each of the candidates. In the testing phase, eight simulated datasets, ranging from denial of service (DOS) attacks to water treatment operation logs, were used. Each of the candidates is evaluated based on the validity of the generated clusters, the stability\footnote{Some clustering algorithms are based on a random component, which can lead to varying results in different executions.} of the algorithms and the total execution time. The results show that no algorithm is capable of satisfying all the criteria and that the choice of the algorithm depends on the type of data and the desired results.
+\end{description}
+
+\begin{description}
+    \item[Kou et al.]\cite{Kou20141} intend to evaluate several clustering algorithms on financial risk datasets as a multiple criteria decision-making problem (MCDM). The reason for this methodology is the lack of objective measures to determine the quality of clustering algorithms. The authors propose validating clusters in terms of external and internal assessment and a relative test. Internal criteria evaluate the similarity of observations inside a cluster, while external measure the inter-cluster distances. Relative tests take advantage of previous knowledge of the dataset, such as class labels.
+    
+    The process of clustering algorithm evaluation is divided into four steps. The first step is to select three financial risk datasets. Next, six popular clustering algorithms are picked to perform clustering on each of the datasets. In the third step, the authors aggregate eleven performance metrics into a single matrix for each of the datasets. Finally, the resulting matrices are passed through three MCDM methods that rank the clustering methods for each of the datasets.
+
+    The results showed that the K-Means repeated bisection algorithm was the overall best choice for the chosen financial risk datasets, despite some disagreements between the MCDM methods. The authors conclude that more research efforts should be undertaken to find compromised solutions when MCDM methods disagree.
+\end{description}
+
+
+\begin{description}
+    \item[CAN]\cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a} (Clustering with Adaptive Neighbors) is a clustering algorithm that can simultaneously learn data similarity matrix and clustering structure. Its goal is to assign the adaptive and optimal neighbors of each point in the dataset. For this, the authors assume that data points with smaller distances should have larger probabilities of being neighbors. In addition, the algorithm imposes a constraint on the Laplacian of the similarity matrix so that the number of connected components in the data is the same as the number of clusters.
+    
+    Projected Clustering with Adaptive Neighbors (PCAN) for high-dimensionality data is also implemented and is used to attenuate the difficulties in performing clustering on datasets with many features. The main goal of this was to reduce the dimension of the data without hindering the goals of the developed adaptive neighbors' algorithm.
+
+    In the experimentation phase, the authors start by testing the CAN algorithm in a toy dataset consisting of two clusters, in which the algorithm can detect reliably both connected components. Next, a comparison is performed with K-Means on a synthetic clustering dataset, in which CAN outperforms the other method in terms of accuracy. PCAN is tested alongside, two other dimensionality reduction methods, PCA and Locality Preserving Projections (LPP). The projection as well as the clustering abilities after it are evaluated for each of the reduction methods. PCAN can find the correct subspaces for the projection task in contrast with the other methods. In addition, the clustering results after the projection are also more reliable than the other methods. 
+
+    Finally, CAN and PCAN alongside other clustering methods are tested with real-world datasets. The results showed that both methods outperformed the other baselines in every dataset (but one) in terms of accuracy. CAN and PCAN alternated in the different datasets with one outperforming the other in each of them.
+\end{description}
+
+\begin{description}
+    \item[] 
+\end{description}
 
 
 
