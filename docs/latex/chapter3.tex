@@ -166,12 +166,66 @@ A Systematic Literature Review (SLR) was performed to understand the current tre
 \end{description}
 
 \begin{description}
-    \item[] 
+    \item[Behera et al.]\cite{Behera.Panigrahi_CreditCardFraud_2015} devise a new approach for the detection of credit card fraud by combining fuzzy clustering with a neural network. 
+    
+    The fraud detection pipeline is divided into three main steps. First, an initial authentication and verification of the credit card attributes are performed. The expiry date, credit card pin and the amount of credit before each transaction are verified. 
+    
+    The Behaviour and Analysis phase evaluates the consumption patterns of the cardholder and checks if the new transaction is in line with the history of the client. This is done with the help of the Fuzzy c-means (FCM) clustering method. Each client has its cluster based on previous consumption patterns. When a new transaction occurs, the distance between the new transaction point and the cluster's head is calculated. If this distance is above a precalculated upper threshold or below a lower threshold for the current client then the transaction is flagged as being suspicious.
+
+    After the previous steps, the suspicious transactions are passed through a feed-forward neural network in the Learning Phase to determine whether they are fraudulent or not.
+
+    The method is evaluated on a widely used synthetic transactions dataset. The approach yielded results similar to other implementations for fraud detection in terms of true positive rate but resulted in a smaller number of false positives.
+\end{description}
+
+\begin{description}
+    \item[Tang et al.]\cite{Tang.Liu.ea_ImprovedFuzzyNeural_2017} develop an evolved fuzzy neural network (EFNN) that is used for predicting traffic speeds by periodically evaluating the conditions of traffic flow. The main goal of the authors is to improve the accuracy of the predictions by employing a fuzzy neural network with a K-Means clustering algorithm and a Gaussian fuzzy membership function. The data for this study consists of historical data collected on a busy Beijing road section. 
+    
+    EFNNs are an improvement over the previous fuzzy neural networks, as they can continuously evolve structure and functionality, making them more suited for real-life continuous problems. EFFNs have a distinct learning process divided into unsupervised and supervised phases. In the first, the K-Means clustering method is applied to the input samples to determine the cluster centroids. In the supervised step a set of $k$ fuzzy rules (one for each cluster) is generated to define the membership criteria of each cluster. In this study, the authors choose Gaussian-type fuzzy functions to determine memberships.
+
+    In the proposed method the speed data collected in the last 21 days is passed through a regression function to determine a daily periodic pattern for traffic speed. This is based on the assumption that traffic speed periodicity is cyclical. After this step, a speed function based on the current time $t$ is defined with the help of the periodic component from the previous step. The residual part of the regression is used as a training dataset to optimize the parameters of the EFNN and to predict residual errors in the next step. With the combination of the regression component and the residual error, the method is then able to accurately predict values for real-speed data.
+
+    The resulting system is evaluated on three performance metrics, along with multiple traditional prediction statistical models. In the end, the authors conclude that EFNN+CP (EFNN with cyclical periodicity) is better than the other methods, especially when it comes to forecasting multiple steps.
 \end{description}
 
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/aksc_arch.png}
+    \caption{Methodology employing AKSC. Taken from \cite{Cheng.Zhu.ea_MachineHealthMonitoring_2019}}
+    \label{fig:aksc}
+\end{figure}
 
+\begin{description}
+    \item[AKSC]\cite{Cheng.Zhu.ea_MachineHealthMonitoring_2019} (Adaptive Kernal Spectral Clustering) is a novel algorithm used to identify machine anomaly behaviors in machine health monitoring. The goal of the developers is to apply the new algorithm along with a LSMT-RNN network, to improve its accuracy and efficiency in data with high dimensionality. 
+    
+    The authors describe the method in three steps (Fig. \ref{fig:aksc}). The first consists of feature extraction and selection to identify the features that indicate degradation phenomena from measured signals. In the anomaly detection step, the AKSC method is applied to the selected features to adaptively identify anomalies in real-time. The final step is to run a failure prognostic to continuously update and predict the failure time of the machine with the help of an LSTM-RNN network. The results from the failure prognostics and the anomaly detection are used in conjunction to refine the predictions of the LSTM-RNN network and to produce more accurate failure times.
 
+    The proposed clustering algorithm is mainly based on an iterative and adaptive spectral clustering method. It maps original features into a new feature space to find complex non-linear cluster boundaries and identify slight changes in the data. AKSC is divided into three stages. These are initialization, where kernel spectral clustering is applied to the data; the calibration stage, where the parameters of the clustering are updated to improve future identification accuracy; and lastly, the detection stage, where an outlier indicator is defined to identify anomalies in the machine. 
+
+    To evaluate the method, the authors create a real-life bearing test, where they simultaneously measure the vibration and temperature of four bearings with different conditions. At the end of the tests, it was concluded that the developed approach accurately predicted the mean time to failure of the rolling bearings. In addition, the authors also point out that the method could be applied to various other industrial contexts due to its generalizability.
+\end{description}
+
+\begin{description}
+    \item[Jahangir et al.]\cite{Jahangir.Tayarani.ea_DeepLearningBasedForecasting_2021} employ a micro-clustering technique based on K-Means and Gaussian SVM along with a Bi-LSMT to develop a reliable forecasting system for electrical grid parameters. 
+    
+    Micro-clustering is applied to data sequences collected in the last hour, $t$, and creates clusters that will then be used to train Bi-LSMT networks for forecasting three network profiles (variables). In the unsupervised clustering phase, the authors execute several computations of the K-Means algorithm over the data which they are trying to cluster by varying the number of clusters. The most appropriate K-Means model is chosen based on the Davies-Bouldin (DB) index score. In the final stage, a Bi-LSTM network is trained for each of the clusters produce for the given hour. This process is repeated until all 24 hours of the day are covered.
+
+    After having models for each of the variables for each hour, $t$ of the day, the pre-trained models from the previous stage are used to forecast the network profiles for the next days. For each hour $t$ new measures are assigned to the cluster centers from the previous stage with the help of a Gaussian-SVM. Then the Bi-LSMT for that cluster at the time $t$ is fetched to forecast the desired parameter. 
+
+    The resulting method is evaluated on data sequences collected in Ontario due to the prevalence of wind power in the network which tends to cause fluctuations in the grid. The robustness of the approach is compared with other statistical and machine learning techniques, each of which is evaluated based on mean absolute error (MAE), mean absolute percentage error (MAPE) and root mean squared error (RMSE). After an extensive evaluation of the results, the authors conclude that the devised method was more robust when compared to the other baselines, and could be used in real-life situations to forecast conditions in power systems.
+\end{description}
+
+\begin{description}
+    \item[Zhang et al.]\cite{Zhang.Wang.ea_PatientspecificECGclassification_2017} propose a novel patient-specific electrocardiogram (ECG) classification algorithm based on RNNs and density-based clustering techniques. 
+    
+    The framework of the algorithm consists of fetching normal ECG data based on density clustering results that assign types of heartbeats to different classes, and then training a common RNN model to classify these classes. A model is created for each patient based on his history by applying clustering to previous ECGs and then training an RNN classification model, with feedback from the common model. In the end, new patient records can be fed to the patient-specific model to classify the heartbeat type.
+
+    The authors evaluate the method by comparing it with the results of previous state-of-the-art ECG classification methods. The approach consistently outperformed the others in terms of accuracy, specificity, sensitivity and positive predictivity.
+\end{description}
+
+\begin{description}
+    \item[] 
+\end{description}
 
 \section{Adversarial Anomaly Detection}\label{sec:sota_anomaly_detection}
 
