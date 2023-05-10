@@ -223,8 +223,18 @@ A Systematic Literature Review (SLR) was performed to understand the current tre
     The authors evaluate the method by comparing it with the results of previous state-of-the-art ECG classification methods. The approach consistently outperformed the others in terms of accuracy, specificity, sensitivity and positive predictivity.
 \end{description}
 
+% \begin{description}
+%     \item[Mousavi et al.]\cite{Mousavi.Horton.ea_Seismicfeaturesautomatic_2016} propose employing spectral clustering along with logistic regression and ANN models to automatically distinguish between deep and shallow microseismic events (low-amplitude events, attributed to the reduction in effective stress). The authors point out that there already exist several methods capable of distinguishing between the two types of events, but they are not automatic and require human intervention in the form of generating class labels for training purposes. Therefore, the goal of this study is to develop a system that can automatically perform the task.
+    
+%     The feasibility of the method is tested on microearthquakes gathered from a salt mine collapse in Louisiana. The hierarchical clustering algorithm is applied to the data to determine if there was a clear separation between the two types of events. The results showed that there was some concentration of deep events on the edges, but overall the data was not separable. 
+% \end{description}
+
 \begin{description}
-    \item[] 
+    \item[Yan et al.]\cite{Yang.Li.ea_BayesianDeepLearningBased_2020} develop a cluster-based pooling method to reduce the overfitting and increase data diversity in a Bayesian deep learning-based probabilistic load forecasting (PLF) model. 
+    
+    The framework is divided into the initialization, multitask Bayesian deep learning and probabilistic forecasting stages. In the first step, household smart meter data is clustered into $k$ clusters based on their load consumption patterns. In the next stage, a multitask Bayesian neural network (MT-BNN) is trained using load profile pools from the previous step until model performance stabilizes. If equilibrium is not reached, then the algorithm goes back to the first step with an increased number of clusters as long as a maximum number of iterations is not reached. In the forecasting phase, probabilistic forecasting on the selected customers is performed to assess the predictive performance.
+
+    The resulting system is evaluated in terms of MAE and RMSE on a large household smart-grid dataset. The MAE and RMSE scores were identified as the main evaluation criteria. MT-BNN is compared with Global and Separate BNN models according to the data pooling strategy. The results showed that the MT-BNN model outperformed the other two in terms of the defined error measures. Similarly, a benchmark is performed on several other statistical models with the proposed method outperforming every other on the same metrics. 
 \end{description}
 
 \section{Adversarial Anomaly Detection}\label{sec:sota_anomaly_detection}
