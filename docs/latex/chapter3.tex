@@ -133,6 +133,42 @@ A Systematic Literature Review (SLR) was performed to understand the current tre
     In the testing phase, the authors perform experiments on several 2D synthetic datasets, in which DPC-KNN achieved perfect scores. In the next experiments, real-life datasets with high dimensionality are used to test the effectiveness of both DPC-KNN methods with DPC and the other baselines. In the end, the authors conclude that DPC-KNN outperforms every other method in terms of accuracy in low-dimensionality data, with data with more than seven features resulting in better results for DPC-KNN-PCA.
 \end{description}
 
+\begin{description}
+    \item[Malav et al.]\cite{Malav.Kadam.ea_PREDICTIONHEARTDISEASE_2017} employ a K-Means clustering on UCI Heart Disease Data that will be used to train an ANN for the classification of cardiovascular diseases. The goal was to overcome the limitations of previous implementations in this area and to provide a more accurate prediction of the disease. The main issues in the literature for this application are the low accuracy scores obtained by the classifiers and the use of resource and time-intensive algorithms.
+    
+    The authors propose a pipeline where they first identify the main attributes commonly associated with heart disease in the data followed by a preprocessing step, where categorical values are encoded into numeric ones. Attributes that are used in real-life situations to diagnose the disease are converted to binary values. Measurements that have a value higher than the reference are encoded to one, while normal values are encoded to zero. In the next step, the data is clustered with K-Means and the centroids are used to train an ANN. Finally, the trained ANN is used to predict the presence of heart disease in the test set. The results show an increased accuracy when compared to other state-of-the-art approaches.
+\end{description}
+
+\begin{description}
+    \item[ClusterNet]\cite{Chen.Li.ea_ClusterNetDeepHierarchical_2019} is a novel point cloud representation which provides 3D rotation invariance. In addition, a deep hierarchical clustering network is developed to better adapt to the new representation.
+    
+    A novel Rigorous Rotation Invariant (RRI) representation is proposed which maintains all the necessary information of point clouds, except volatile information associated with the rotation of objects. This representation is achieved by projecting the points onto a 2D plane and then applying a series of rotation-invariant transformations. The architecture consists of three modules, the RRI module generates the desired representation; the cluster abstraction module extracts the features from the RRI representation with the help of the aggregate subcluster features from the agglomerative clustering algorithm applied to the same representation; and finally, the classification module that generates classification scores for each object in a cluster.
+
+    Testing was done on several 3D object classification datasets. The authors test the architecture along with other state-of-the-art methods to evaluate the performance of ClusterNet. They also demonstrate the effectiveness of the rotation-invariant representation by comparing the results with and without it. The results showed that ClusterNet coupled with the RRI representation performed better in terms of accuracy than the other methods.
+\end{description}
+
+\begin{description}
+    \item[DEC]\cite{Xie.Girshick.ea_UnsupervisedDeepEmbedding_2016} (Deep Embedded Clustering) is a method that aims to simultaneously learn feature representations and cluster assignments with the help of autoencoders.
+    
+    The algorithm is divided into the parameter initialization and the clustering phases. In the first, the data is passed through and DNN encoder to obtain a preliminary latent representation. This is then passed through the K-Means algorithm to determine the initial cluster centroids. In the clustering phase, the centroids are used to calculate the soft assignments of the data points to the clusters. The centroids are then updated with the new assignments and the process is repeated until convergence. In the end, the authors produce a clear separation of the clusters in the latent space.
+
+    To evaluate the implemented method, the authors experiment on several image and one text datasets with other clustering methods. The performance of each algorithm is evaluated based on the accuracy calculated through the ground truth labels of each category in the dataset. DEC proved to be a better choice than the other methods for the clustering task.
+\end{description}
+
+\begin{description}
+    \item[Fahiman et al.]\cite{Fahiman.Erfani.ea_Improvingloadforecasting_2017} employ the K-Shape clustering technique to improve the accuracy of load forecasting in electrical infrastructures. The clustering algorithm groups clients with similar consumption patterns, making the accuracy of the models better. 
+    
+    The authors intend to work only on a single smart meter dataset with household consumption records. A preprocessing step is done to scale large numbers and to fill in missing values with interpolations from previous records. They also identify three approaches for load forecasting methods. in the literature. These include a completely aggregated method where the data is used to train a single forecasting model $F$; a completely disaggregated method which predicts consumption patterns of single consumers by assigning a model for each consumer; and finally, a clustering-based forecasting approaches where clients are grouped into clusters and a model is trained for each cluster. The authors propose a new approach based on the last one, that normalizes the weights of the clusters based on the number of clients in each cluster. This then allows for the weighted summation of the predictions of each client making it possible to group periods of consumption in different clusters for each client.
+
+    After the delineation of the method, the authors define the mean absolute percentage error (MAPE) to evaluate the results based on the sum of predictions and the total consumption of each cluster. Next, a feature selection step is done to identify the most meaningful attributes for the task. 
+
+    In their implementation, the authors employ the time-series clustering K-Shape algorithm with a Multilayer Perceptron (MLP) and a Restricted Boltzmann Machine (RBM). A K-Means clustering algorithm is also used for comparative reasons. After the comparison of the results, it was concluded that the K-Shape algorithm paired with MLP produced the best results in terms of MAPE. In future work, the authors propose developing dynamic clustering algorithms for real-time clustering and forecasting.
+\end{description}
+
+\begin{description}
+    \item[] 
+\end{description}
+
 
 
 
