@@ -5,24 +5,62 @@
 %To understand the applications and characteristics of GANs, a simple search for "Generative Adversarial Networks" was performed on Google Scholar\footnote{Google Scholar \url{https://scholar.google.com/}}. The most relevant paper was written by Goodfellow et al. \cite{goodfellow.etal_GenerativeAdversarialNets_} where they discussed the architecture of the newly developed generative adversarial network, possible improvements and some applications (refer to sec. \ref{sec:gan_background}). A brief comparison between other generative models is also performed. In the following years, Conditional GANs \cite{goodfellow.etal_GenerativeAdversarialNets_} were proposed to improve the productive performance; Wasserstein GANs \cite{arjovsky.etal_WassersteinGenerativeAdversarial_} introduced a new loss function that provides some stability during the training process; in Radford et al. \cite{radford.etal_UnsupervisedRepresentationLearning_2016} deep convolutional networks were used for both the generator and discriminator which showed a significant performance increase when generating images. Since then, many variations have emerged to tackle different problems.
 
 %Most GANs were designed for problems with image datasets; however, the dataset used in this study consists only of tabular data. With this, the focus of the search shifted from conventional GANs for image applications to ones more focused on tabular data. During this search phase, the previously unknown area of detection of anomalies with GANs surfaced. Because of this, state of the art for this study will be divided into two parts. The first pertains to the more prevalent architectures for tabular generation, and the other focuses on GANs applied to anomaly detection on table datasets.
-
-A Systematic Literature Review (SLR) was performed to understand the current trends of clustering methods and the use of GANs for anomaly detection. This chapter is divided into two parts. The first part will focus on the relevant clustering methods for this work. The second part will focus on the most relevant GAN architectures for anomaly detection. Each part will start with the definition of the search questions and the search queries. Next, the inclusion/exclusion criteria for the obtained results are identified. Finally, the results are presented and discussed.
-
-
-The first part (sec. \ref{sec:gan_background}) will focus on the most relevant GAN architectures for anomaly detection. The second part (sec. \ref{sec:clustering_methods}) will focus on the most relevant clustering methods.
-
-
-A Systematic Literature Review (SLR) was performed to understand the current trends of GANs applied to anomaly detection and clustering methods. This search method allows for the analysis of all the existing research on a defined question. To achieve this, a set of search questions is formulated (sec. \ref{sec:search_questions}) and grouped into two search queries (sec. \ref{sec:search_queries}). Next, the inclusion/exclusion criteria for the obtained results are identified (sec. \ref{sec:inclusion_exclusion}).
+A Systematic Literature Review (SLR) was performed to understand the current trends of clustering methods (sec. \ref{sec:sota_clustering}) and the use of GANs for anomaly detection (sec. \ref{sec:sota_anomaly_detection}). This chapter is divided into two parts. The first part will focus on the relevant clustering methods for this work. The second part will focus on the most relevant GAN architectures for anomaly detection. Each part will start with the definition of the search questions (sec. \ref{sec:cluster_search_questions} and \ref{sec:gan_search_queries}) and the search queries (sec. \ref{sec:cluster_search_queries} and \ref{sec:gan_search_queries}). Next, the inclusion/exclusion criteria (sec. \ref{sec:cluster_inclusion_exclusion} and \ref{sec:gan_inclusion_exclusion}) for the obtained results are identified. Finally, the results are presented and discussed (sec. \ref{sec:clustering_sota_results} and \ref{sec:gan_sota_results}).
 
 
 \section{Clustering}\label{sec:sota_clustering}
-\subsection{Search Questions}\label{sec:cluster_search_questions}
+Several approaches have been proposed for the clustering task. These include partition-based, hierarchical, density-based, grid-based and model-based methods. In this section, the most relevant methods for this study will be discussed. The search for relevant clustering methods was performed on the Scopus\footnote{Scopus \url{https://www.scopus.com/}} and Google Scholar\footnote{Google Scholar \url{https://scholar.google.com/}} databases. As clustering is already a well-developed field of study, the search was limited to the last ten years. The search queries are presented in sec. \ref{sec:cluster_search_queries}. The inclusion/exclusion criteria are presented in Sec. \ref{sec:cluster_inclusion_exclusion}. The results are presented and discussed in sec. \ref{sec:clustering_sota_results}.
 
-\subsection{Search Query}\label{sec:cluster_search_queries}
+\subsection{Search Questions}\label{sec:cluster_search_questions}
+Two search questions were defined to guide the search for relevant clustering methods. These are:
+
+\noindent\textbf{C\_SQ1} \textit{What are the state-of-the-art clustering algorithms?} Throughout the years several clustering algorithms have been proposed. The goal of this question is to identify the most relevant and widely used ones for this study.
+
+\noindent\textbf{C\_SQ2} \textit{Are there any metrics that can be used to evaluate the performance of clustering algorithms?} The goal of this question is to identify the most relevant metrics for the evaluation of clustering algorithms. These metrics will be used to evaluate the performance of the developed clustering algorithm and to choose the most appropriate one for the task at hand.
+
+\noindent\textbf{C\_SQ3} \textit{Are there any clustering approaches applied to enhance the performance of neural networks?} As the goal of this study is to improve the predictive ability of solar wind prediction models, the objective of this question is to identify the methodologies of other studies that have similar goals.
+
+\subsection{Search Queries}\label{sec:cluster_search_queries}
+The search questions of the previous section guide the construction of the search queries. As previously said the search was performed on two search engines. The first query was performed on Scopus and the second on Google Scholar. The first search question is the following:
+\begin{center}
+    \textbf{cluster* AND data* AND (method* OR analy* OR algo*) AND NOT imag*}
+\end{center}
+
+In addition to the search query, several filters were applied to the results meant to limit the results to the last ten years and to exclude other articles that mentioned undesired keywords, such as gene clusters. The first part of the query, \textit{cluster* AND data*}, is used to identify articles that mention the keywords cluster and its variations and data. The second part, \textit{(method* OR analy* OR algo*)}, is used to identify articles related to clustering algorithms and analysis methodologies. The last part, \textit{NOT imag*}, is used to exclude articles that mention the keyword image.
+
+A second search was done on Google Scholar with the following query:
+\begin{center}
+    \textbf{cluster* AND (improve OR enhance) \\AND (neural network OR deep OR learn*) \\AND (performance OR accuracy OR classif* OR predict*) -image}
+\end{center}
+
+With this query, the goal is to retrieve every publication that is related to the application of clustering methods to enhance the performance of neural networks. The first part of the query, \textit{cluster* AND (improve* OR enhance*)}, is used to identify articles that mention the keywords cluster and its variations and its use to improve something in general. The second part, \textit{(neural network OR deep OR learn*)}, is used to narrow the search to the clustering approaches to enhance machine learning approaches. The last part, \textit{(performance OR accuracy OR classif* OR predict*)} narrows the search even more to articles that specifically mention performance, accuracy and other terms related to how well a system behaves. Similar to the first query, the last part, \textit{-image}, is used to exclude articles that mention the keyword image. In addition, the results were filtered to only include articles from the last ten years.
+
 
 \subsection{Inclusion/Exclusion Criteria}\label{sec:cluster_inclusion_exclusion}
+Both queries yielded a large number of results, however, the Scopus platform mostly yielded results based on clustering algorithms and surveys comparing multiple methods. Because of this, an additional search was done on Google Scholar to find more articles related to the clustering methods applied to the improvement of neural networks. An enumeration of the inclusion and exclusion criteria for the papers is presented in table \ref{tab:cluster_criteria}.
 
-\subsection{Results}\label{sec:cluster_results}
+
+\begin{table}[ht]
+    \label{tab:cluster_criteria}
+    \caption{Clustering Inclusion and Exclusion Criteria}
+    \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Criteria}                              & \textbf{ID} & \textbf{Description}                                                                                                                                                                                                                \\ \midrule
+    \multirow{4}{*}{Inclusion}                     & I1          & The document focuses on clustering algorithms, evaluation metrics or methods.                                                                                                                                                       \\
+                                                   & I2          & The results are clear, and the proposed goals are achieved.                                                                                                                                                                         \\
+                                                   & I3          & The authors provide code or an extensive explanation of the approach.                                                                                                                                                               \\
+                                                   & I4          & \begin{tabular}[c]{@{}l@{}}Provides a comparison between the method and other clustering approaches\\  or analyses multiple clustering approaches for a given application.\end{tabular}                                             \\ \midrule
+    \multicolumn{1}{c}{\multirow{4}{*}{Exclusion}} & E1          & \begin{tabular}[c]{@{}l@{}}The article doesn't cover clustering. This can occur due to the ambiguity of the term "cluster", \\ as it can also be used in biology to talk about gene clusters.\end{tabular}                          \\
+    \multicolumn{1}{c}{}                           & E2          & The paper does not clearly evaluate the results of the approach.                                                                                                                                                                    \\
+    \multicolumn{1}{c}{}                           & E3          & \begin{tabular}[c]{@{}l@{}}The number of recorded citations is less than 50. As clustering is a well-developed study, \\ the criteria for the relevancy of the paper can be more restrictive than on other approaches.\end{tabular} \\
+    \multicolumn{1}{c}{}                           & E4          & Was published before 2014.                                                                                                                                                                                                          \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+The result processing pipeline can be seen in fig. \ref{}
+
+
+\subsection{Results}\label{sec:clustering_sota_results}
 \begin{description}
     \item[Jain]\cite{Jain_Dataclustering50_2010} performs an extensive review of the K-Means algorithm. The author defines clusters as representations of $n$ objects separated into $k$ groups based on a similarity measure. The use cases for the application of clustering are also defined. These include the discovery of the underlying data structures, natural classification (degree of similarity between forms) and compression (a method for the organization and summarization of data).
     
