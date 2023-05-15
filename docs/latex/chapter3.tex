@@ -37,27 +37,39 @@ With this query, the goal is to retrieve every publication that is related to th
 
 
 \subsection{Inclusion/Exclusion Criteria}\label{sec:cluster_inclusion_exclusion}
-Both queries yielded a large number of results, however, the Scopus platform mostly yielded results based on clustering algorithms and surveys comparing multiple methods. Because of this, an additional search was done on Google Scholar to find more articles related to the clustering methods applied to the improvement of neural networks. An enumeration of the inclusion and exclusion criteria for the papers is presented in table \ref{tab:cluster_criteria}.
+Both queries yielded a large number of results, however, the Scopus platform mostly gave results based on clustering algorithms and surveys comparing multiple methods. Because of this, an additional search was done on Google Scholar to find more articles related to the clustering methods applied to the improvement of neural networks. An enumeration of the inclusion and exclusion criteria for the papers is presented in table \ref{tab:cluster_criteria}
 
-
-\begin{table}[ht]
+\begin{table}[]
     \label{tab:cluster_criteria}
     \caption{Clustering Inclusion and Exclusion Criteria}
-    \begin{tabular}{@{}lll@{}}
-    \toprule
-    \textbf{Criteria}                              & \textbf{ID} & \textbf{Description}                                                                                                                                                                                                                \\ \midrule
-    \multirow{4}{*}{Inclusion}                     & I1          & The document focuses on clustering algorithms, evaluation metrics or methods.                                                                                                                                                       \\
-                                                   & I2          & The results are clear, and the proposed goals are achieved.                                                                                                                                                                         \\
-                                                   & I3          & The authors provide code or an extensive explanation of the approach.                                                                                                                                                               \\
-                                                   & I4          & \begin{tabular}[c]{@{}l@{}}Provides a comparison between the method and other clustering approaches\\  or analyses multiple clustering approaches for a given application.\end{tabular}                                             \\ \midrule
-    \multicolumn{1}{c}{\multirow{4}{*}{Exclusion}} & E1          & \begin{tabular}[c]{@{}l@{}}The article doesn't cover clustering. This can occur due to the ambiguity of the term "cluster", \\ as it can also be used in biology to talk about gene clusters.\end{tabular}                          \\
-    \multicolumn{1}{c}{}                           & E2          & The paper does not clearly evaluate the results of the approach.                                                                                                                                                                    \\
-    \multicolumn{1}{c}{}                           & E3          & \begin{tabular}[c]{@{}l@{}}The number of recorded citations is less than 50. As clustering is a well-developed study, \\ the criteria for the relevancy of the paper can be more restrictive than on other approaches.\end{tabular} \\
-    \multicolumn{1}{c}{}                           & E4          & Was published before 2014.                                                                                                                                                                                                          \\ \bottomrule
+    \begin{tabular}{lll}
+    \hline
+    \textbf{Criteria}             & \textbf{ID} & \textbf{Description}                                                                                                                                                                                                            \\ \hline
+    \multirow{4}{*}{Inclusion}    & I1          & The document focuses on clustering algorithms, evaluation metrics or methods.                                                                                                                                                   \\
+                                  & I2          & The results are clear, and the proposed goals are achieved.                                                                                                                                                                     \\
+                                  & I3          & The authors provide code or an extensive explanation of the approach.                                                                                                                                                           \\
+                                  & I4          & \begin{tabular}[c]{@{}l@{}}Provides a comparison between the method and other clustering approaches\\  or analyses multiple clustering approaches for a given application.\end{tabular}                                         \\
+                                  & I5          & \begin{tabular}[c]{@{}l@{}}The article focuses on the application of clustering methods to improve\\  the performance of machine learning approaches.\end{tabular}                                                              \\ \hline
+    \multicolumn{1}{c}{Exclusion} & E1          & \begin{tabular}[c]{@{}l@{}}The article doesn't cover clustering. This can occur due to the ambiguity of the term "cluster", \\ as it can also be used in biology to talk about gene clusters.\end{tabular}                      \\
+    \multicolumn{1}{c}{}          & E2          & The paper does not clearly evaluate the results of the approach.                                                                                                                                                                \\
+    \multicolumn{1}{c}{}          & E3          & \begin{tabular}[c]{@{}l@{}}The number of recorded citations is less than 50. As clustering is a well-developed study, \\ the criteria for the relevancy of the paper can be more restrictive than on other fields.\end{tabular} \\
+                                  & E4          & \begin{tabular}[c]{@{}l@{}}The paper covers clustering algorithms for unsuited data types. Articles that pertain \\ to the use of clustering techniques on multi-view data are excluded.\end{tabular}                           \\
+    \multicolumn{1}{c}{}          & E5          & Was published before 2014.                                                                                                                                                                                                      \\ \hline
     \end{tabular}
-\end{table}
+    \end{table}
 
-The result processing pipeline can be seen in fig. \ref{}
+
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/clustering_pipeline.png}
+    \caption{Clustering SLR Pipeline.\\\footnotesize\emph{*} Different sort order for each platform.}
+    \label{fig:clustering_slr}
+\end{figure}
+
+The result processing pipeline can be seen in Fig. \ref{fig:clustering_slr}. The search queries were performed on both Scopus and Google Scholar. For each platform, a relevance filter (E1, E4) was applied to limit the results to the last ten years and to exclude articles that had low recorded citations. Next, the titles of the top 200 results of each of the search engines were analysed. For this step, the results were ordered by the number of citations for Scopus Search and relevancy (best match) for Google Scholar. In addition, all inclusion criteria (I1-I5) were used to determine the relevance of the articles; however, greater importance was given to I5 in the second search, to ensure more results that referenced the improvement of machine learning with clustering approaches. 
+
+After this, the abstracts and the conclusions of the selected papers were read with the same criteria as in the title analysis step. From this, 20 papers were picked for an extensive analysis, presented in Sec. \ref{sec:clustering_sota_results}.
 
 
 \subsection{Results}\label{sec:clustering_sota_results}
@@ -109,7 +121,7 @@ The result processing pipeline can be seen in fig. \ref{}
 
 
 \begin{description}
-    \item[CAN]\cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a} (Clustering with Adaptive Neighbors) is a clustering algorithm that can simultaneously learns data similarity matrix and clustering structure. Its goal is to assign the adaptive and optimal neighbors of each point in the dataset. For this, the authors assume that data points with smaller distances should have larger probabilities of being neighbors. In addition, the algorithm imposes a constraint on the Laplacian of the similarity matrix so that the number of connected components in the data is the same as the number of clusters.
+    \item[CAN]\cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a} (Clustering with Adaptive Neighbors) is a clustering algorithm that simultaneously learns the data similarity matrix and clustering structure. Its goal is to assign the adaptive and optimal neighbors of each point in the dataset. For this, the authors assume that data points with smaller distances should have larger probabilities of being neighbors. In addition, the algorithm imposes a constraint on the Laplacian of the similarity matrix so that the number of connected components in the data is the same as the number of clusters.
     
     Projected Clustering with Adaptive Neighbors (PCAN) for high-dimensionality data is also implemented and is used to attenuate the difficulties in performing clustering on datasets with many features. The main goal of this was to reduce the dimension of the data without hindering the goals of the developed adaptive neighbors' algorithm.
 
@@ -135,7 +147,7 @@ The result processing pipeline can be seen in fig. \ref{}
 
     The authors present two strategies for clustering-based undersampling. In the first, the number of clusters is equal to the number of observations in the minority class. Then KMeans is applied to the majority class, $M$, producing k cluster centers (centroids), which are then used to replace the entire majority class data. In the end, the number of observations will be the same for both the majority and minority classes. In the second strategy, the same method is used to cluster the majority class. However, instead of using cluster centroids to reduce a single cluster into one observation, the authors fetch the sample in the cluster which is closest to the centroid (in terms of Euclidean distance). Both samples produce the same number of clusters, but the results from the latter are slightly different from the former.
 
-    Two studies were conducted to evaluate both of the methods discussed in the previous section. The first to evaluate the performance of the methods in several small datasets and the other in two large datasets. Five classifiers were used to examine the classification performance, along with five state-of-the-art resampling methods. For the first study, results showed that the proposed methods significantly outperformed the baseline in terms of the receiver operator characteristic (ROC) curve. In addition, the nearest neighbor clustering-based undersampling method scored higher than the centroid-based one. The best classifier, in terms of accuracy (from the initial five), was the multilayer perceptron (MLP). In the second, study, the results were mostly the same, with the best classifer (C4.5) being better than the MLP from the previous test.
+    Two studies were conducted to evaluate both of the methods discussed in the previous section. The first evaluates the performance of the methods in several small datasets and the other in two large datasets. Five classifiers were used to examine the classification performance, along with five state-of-the-art resampling methods. For the first study, results showed that the proposed methods significantly outperformed the baseline in terms of the receiver operator characteristic (ROC) curve. In addition, the nearest neighbor clustering-based undersampling method scored higher than the centroid-based one. The best classifier, in terms of accuracy (from the initial five), was the multilayer perceptron (MLP). In the second, study, the results were mostly the same, with the best classifer (C4.5) being better than the MLP from the previous test.
 
     The authors conclude that the design ensembles are well suited as a substitute for the traditional resampling methods and discuss the possibility of employing feature and instance selection to filter out unrepresentative features and data samples. In addition, other state-of-the-art classification algorithms could be combined with the clustering-based undersampling method to try and yield better results.
 \end{description}
@@ -147,6 +159,7 @@ The result processing pipeline can be seen in fig. \ref{}
     The algorithm is divided into three parts: clustering, filtering and oversampling. In the first step the input is clustered into k clusters. Then, during the filtering phase, the clusters that have higher proportions of minority class samples are retained. In the final step, SMOTE is applied to each of the selected clusters to achieve the desired target ratio of minority and majority instances. 
 
     The effectiveness of the algorithm is compared with three classifiers trained on several imbalanced datasets for binary classification problems. Each dataset was subjected to five other oversampling techniques and then used to train the classification models. A model with unaltered data was also trained for each of the datasets. The results showed that models trained with the K-Means SMOTE method outperformed not only the ones trained on the original data but also the models trained with data after the application of the baseline oversampling methods.
+    % TODO falar do SOMOx   
 \end{description}
 
 \begin{description}
@@ -172,7 +185,7 @@ The result processing pipeline can be seen in fig. \ref{}
 \end{description}
 
 \begin{description}
-    \item[Malav et al.]\cite{Malav.Kadam.ea_PREDICTIONHEARTDISEASE_2017} employ a K-Means clustering on UCI Heart Disease Data that will be used to train an ANN for the classification of cardiovascular diseases. The goal was to overcome the limitations of previous implementations in this area and to provide a more accurate prediction of the disease. The main issues in the literature for this application are the low accuracy scores obtained by the classifiers and the use of resource and time-intensive algorithms.
+    \item[Malav et al.]\cite{Malav.Kadam.ea_PREDICTIONHEARTDISEASE_2017} employ a K-Means clustering on UCI Heart Disease Data that is used to train an ANN for the classification of cardiovascular diseases. The goal was to overcome the limitations of previous implementations in this area and to provide a more accurate prediction of the disease. The main issues in the literature for this application are the low accuracy scores obtained by the classifiers and the use of resource and time-intensive algorithms.
     
     The authors propose a pipeline where they first identify the main attributes commonly associated with heart disease in the data followed by a preprocessing step, where categorical values are encoded into numeric ones. Attributes that are used in real-life situations to diagnose the disease are converted to binary values. Measurements that have a value higher than the reference are encoded to one, while normal values are encoded to zero. In the next step, the data is clustered with K-Means and the centroids are used to train an ANN. Finally, the trained ANN is used to predict the presence of heart disease in the test set. The results show an increased accuracy when compared to other state-of-the-art approaches.
 \end{description}
@@ -275,6 +288,64 @@ The result processing pipeline can be seen in fig. \ref{}
     The resulting system is evaluated in terms of MAE and RMSE on a large household smart-grid dataset. The MAE and RMSE scores were identified as the main evaluation criteria. MT-BNN is compared with Global and Separate BNN models according to the data pooling strategy. The results showed that the MT-BNN model outperformed the other two in terms of the defined error measures. Similarly, a benchmark is performed on several other statistical models with the proposed method outperforming every other on the same metrics. 
 \end{description}
 
+\subsection{Analysis}\label{sec:sota_clustering_analysis}
+A brief analysis of the clustering SLR results is presented in this section. The following categories were created for better analysis:
+
+\begin{itemize}
+    \item \textbf{Type:} this category indicates the type of article. This can be either a survey, a review or a primary study.
+    \item \textbf{Application:} this class indicates the application area of the article. This can be either a general application, as is the case for most clustering algorithms, or a specific one.
+    \item \textbf{Objective:} this category indicates the main objective of the article. This can be either the development of a clustering algorithm, a cluster decision method, or the improvement of a machine learning task via clustering.
+    \item \textbf{Dimensionality Reduction (DR):} this category indicates if the article uses DR techniques (can be either "yes" or "no"). Dimensionality reduction techniques may be important for this study, as the data being used is high-dimensional. 
+\end{itemize}
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\bgroup
+\def\arraystretch{1.5}
+\begin{table}[h]
+    \begin{adjustwidth}{-1.5cm}{}
+        \resizebox{0.90\textwidth}{!}{\begin{minipage}{\textwidth}
+    \centering
+    \begin{tabular}{@{}cccccc@{}}
+    \toprule
+    \textbf{Paper}   & \textbf{Year} & \textbf{Type} & \textbf{Application}                   & \textbf{Objective}              & \textbf{DR} \\ \midrule
+    Jain \cite{Jain_Dataclustering50_2010}            & 2010          & Survey        & N/A                                    & Cluster Algo. + Analysis & No          \\ \midrule
+    Rodriguez et al. \cite{Rodriguez.Laio_Clusteringfastsearch_2014} & 2014          & Primary       & General                                & Cluster Algo.                   & No          \\ \midrule
+    Fahad et al. \cite{Fahad.Alshatri.ea_SurveyClusteringAlgorithms_2014a}    & 2014          & Survey        & High Dimension Datasets                & Cluster Algo. + Large Data      & Yes         \\ \midrule
+    Kou et al. \cite{Kou20141}      & 2014          & Primary       & Financial Risk Assessment              & Cluster Decision Method         & No          \\ \midrule
+    CAN \cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a}             & 2014          & Primary       & General                                & Cluster Algo + Large Data       & Yes         \\ \midrule
+    Granato et al. \cite{Granato.Santos.ea_Useprincipalcomponent_2018}  & 2018          & Review        & Bioactive Compound Identification      & Method Assessment               & Yes         \\ \midrule
+    Lin et al. \cite{Lin.Tsai.ea_Clusteringbasedundersamplingclassimbalanced_2017}      & 2017          & Primary       & General                                & Improve ML (Sampling)           & No          \\ \midrule
+    Douzas et al. \cite{Douzas.Bacao.ea_Improvingimbalancedlearning_2018}   & 2018          & Primary       & General                                & Improve ML (Sampling)           & Yes         \\ \midrule
+    K-Shape \cite{Paparrizos.Gravano_kShapeEfficientAccurate_2015a}          & 2015          & Primary       & Time Series Clustering                 & Cluster Algo.                   & No          \\ \midrule
+    DPC-KNN \cite{Du.Ding.ea_Studydensitypeaks_2016}         & 2016          & Primary       & General                                & Cluster Algo. (Improve)         & Yes         \\ \midrule
+    Malav et al. \cite{Malav.Kadam.ea_PREDICTIONHEARTDISEASE_2017}     & 2017          & Primary       & Heart Disease Monitoring               & Improve ML                      & No          \\ \midrule
+    ClusterNet \cite{Chen.Li.ea_ClusterNetDeepHierarchical_2019}      & 2019          & Primary       & Object Classification (3D point cloud) & Improve ML                      & No          \\ \midrule
+    DEC \cite{Xie.Girshick.ea_UnsupervisedDeepEmbedding_2016}             & 2016          & Primary       & General                                & Cluster Algo.                   & Yes         \\ \midrule
+    Fahiman et al. \cite{Fahiman.Erfani.ea_Improvingloadforecasting_2017}   & 2017          & Primary       & Electrical Grid Load Forecasting       & Improve ML                      & No          \\ \midrule
+    Behera et al. \cite{Behera.Panigrahi_CreditCardFraud_2015}    & 2015          & Primary       & Bank Fraud Detection                   & Improve ML                      & No          \\ \midrule
+    Tang et al. \cite{Tang.Liu.ea_ImprovedFuzzyNeural_2017}     & 2017          & Primary       & Road Network Load Forecasting          & Improve ML                      & No          \\ \midrule
+    AKSC \cite{Cheng.Zhu.ea_MachineHealthMonitoring_2019}            & 2019          & Primary       & Machine Health Monitoring              & Improve ML                      & No          \\ \midrule
+    Jahangir et al. \cite{Jahangir.Tayarani.ea_DeepLearningBasedForecasting_2021} & 2021          & Primary       & Electrical Grid Forecasting            & Improve ML                      & No          \\ \midrule
+    Zhang et al. \cite{Zhang.Wang.ea_PatientspecificECGclassification_2017}    & 2017          & Primary       & Eletrocardiogram Monitoring            & Improve ML                      & No          \\ \midrule
+    Yan et al. \cite{Yang.Li.ea_BayesianDeepLearningBased_2020}      & 2020          & Primary       & Electrical Grid Load Forecasting       & Improve ML (Sampling)           & No          \\ \bottomrule
+    \end{tabular}
+\end{minipage}}
+\end{adjustwidth}
+    \end{table}
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Adversarial Anomaly Detection}\label{sec:sota_anomaly_detection}
 
 \subsection{Search Questions}\label{sec:gan_search_questions}
@@ -282,9 +353,9 @@ Two search questions were defined to find out the most relevant articles that wo
 
 %\noindent\textbf{SQ1} \textit{What are the current GAN architectures for anomaly detection?} GANs are a pervasive field of research with many different applications. For this work, we are only interested in the subset that pertains to the use of GANs for anomaly detection.
 
-\noindent\textbf{SQ1} \textit{What are the current GAN-based architectures for anomaly detection in tabular data?} Most GANs are designed for problems with image datasets. However, the dataset used in this study consists only of tabular data. The intent is to include only GANs designed or adapted to anomaly detection in tabular datasets.
+\noindent\textbf{G\_SQ1} \textit{What are the current GAN-based architectures for anomaly detection in tabular data?} Most GANs are designed for problems with image datasets. However, the dataset used in this study consists only of tabular data. The intent is to include only GANs designed or adapted to anomaly detection in tabular datasets.
 
-\noindent\textbf{SQ2} Of the results from the previous question, which ones can generate new samples following the distribution of the dataset and detect out-of-distribution examples? The proposed goals for this thesis are to produce a model that can generate new solar wind profiles and another that can accurately distinguish out-of-distribution samples from normal ones. As so, the generator should be able to generate examples in the same distribution as the original dataset, while the discriminator must distinguish anomalous ones.
+\noindent\textbf{G\_SQ2} Of the results from the previous question, which ones can generate new samples following the distribution of the dataset and detect out-of-distribution examples? The proposed goals for this thesis are to produce a model that can generate new solar wind profiles and another that can accurately distinguish out-of-distribution samples from normal ones. As so, the generator should be able to generate examples in the same distribution as the original dataset, while the discriminator must distinguish anomalous ones.
 
 \subsection{Search Query}\label{sec:gan_search_queries}
 The search questions defined in the previous sections were aggregated into a single search query. The query construction was incremental to narrow the search results to the desired questions. In the end, the search query was the following:
@@ -318,10 +389,10 @@ The query defined in the previous section yielded 1489 results, making the analy
 
 An illustration of the processing pipeline can be seen in Fig. \ref{fig:slr_pipeline}. 1489 results were retrieved from Scopus with the defined query. The first processing setup applies exclusion criteria \textit{E1} to remove papers with little to no citations, which resulted in 168 documents. 61 were left after a preliminary title analysis with the criteria (I1; E2-E3). In the final step, a preliminary analysis of the remaining documents' abstracts and conclusions was undertaken to only select the most relevant to the defined search questions. The inclusion criteria for this step were I1 to I4. In addition, the documents that were surveys or reviews of multiple implementations and articles that did not deal with tabular data were excluded. In the next section, the resulting papers from this last step will be explained.
 
-\begin{figure}[htp]
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=\textwidth]{figures/slr_pipeline.png}
-\caption{Systematic Literature Review Pipeline}
+\caption{GAN Systematic Literature Review Pipeline}
 \label{fig:slr_pipeline}
 \end{figure}
 
