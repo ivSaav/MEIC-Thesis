@@ -37,11 +37,11 @@ With this query, the goal is to retrieve every publication that is related to th
 
 
 \subsection{Inclusion/Exclusion Criteria}\label{sec:cluster_inclusion_exclusion}
-Both queries yielded a large number of results, however, the Scopus platform mostly gave results based on clustering algorithms and surveys comparing multiple methods. Because of this, an additional search was done on Google Scholar to find more articles related to the clustering methods applied to the improvement of neural networks. An enumeration of the inclusion and exclusion criteria for the papers is presented in table \ref{tab:cluster_criteria}
+Both queries yielded a large number of results, however, the Scopus platform mostly gave results based on clustering algorithms and surveys comparing multiple methods. Because of this, an additional search was done on Google Scholar to find more articles related to the clustering methods applied to the improvement of neural networks. An enumeration of the inclusion and exclusion criteria for the papers is presented in table \ref{tab:clustering_criteria}.
 
 \begin{table}[]
-    \label{tab:cluster_criteria}
     \caption{Clustering Inclusion and Exclusion Criteria}
+    \label{tab:clustering_criteria}
     \begin{tabular}{lll}
     \hline
     \textbf{Criteria}             & \textbf{ID} & \textbf{Description}                                                                                                                                                                                                            \\ \hline
@@ -67,9 +67,9 @@ Both queries yielded a large number of results, however, the Scopus platform mos
     \label{fig:clustering_slr}
 \end{figure}
 
-The result processing pipeline can be seen in Fig. \ref{fig:clustering_slr}. The search queries were performed on both Scopus and Google Scholar. For each platform, a relevance filter (E1, E4) was applied to limit the results to the last ten years and to exclude articles that had low recorded citations. Next, the titles of the top 200 results of each of the search engines were analysed. For this step, the results were ordered by the number of citations for Scopus Search and relevancy (best match) for Google Scholar. In addition, all inclusion criteria (I1-I5) were used to determine the relevance of the articles; however, greater importance was given to I5 in the second search, to ensure more results that referenced the improvement of machine learning with clustering approaches. 
+The result processing pipeline can be seen in Fig. \ref{fig:clustering_slr}. The search queries were performed on both Scopus and Google Scholar. For each platform, a relevance filter (E1, E4) was applied to limit the results to the last ten years and to exclude articles that had low recorded citations. Next, the titles of the top 200 results of each of the search engines were analyzed. For this step, the results were ordered by the number of citations for Scopus Search and relevancy (best match) for Google Scholar. In addition, all inclusion criteria (I1-I5) were used to determine the relevance of the articles; however, greater importance was given to I5 in the second search, to ensure more results that referenced the improvement of machine learning with clustering approaches. 
 
-After this, the abstracts and the conclusions of the selected papers were read with the same criteria as in the title analysis step. From this, 20 papers were picked for an extensive analysis, presented in Sec. \ref{sec:clustering_sota_results}.
+After this, the abstracts and the conclusions of the selected papers were read with the same criteria as in the title analysis step. From this, 20 papers were picked for an extensive analysis, presented in Sec. \ref{sec:clustering_sota_results}. Note that one paper violates the exclusion rule E5 (published in 2010), however, it was included in the analysis as it was the only one that provided an extensive explanation of the types of clustering algorithms as well as possible metrics to evaluate them. This paper serves as a baseline by providing an overview of the most popular clustering algorithms and their applications. 
 
 
 \subsection{Results}\label{sec:clustering_sota_results}
@@ -289,7 +289,7 @@ After this, the abstracts and the conclusions of the selected papers were read w
 \end{description}
 
 \subsection{Analysis}\label{sec:sota_clustering_analysis}
-A brief analysis of the clustering SLR results is presented in this section. The following categories were created for better analysis:
+A brief analysis of the clustering SLR results is presented in Table \ref{tab:clustering_slr_results}. The following categories were created for a summarization of the papers that were analysed:
 
 \begin{itemize}
     \item \textbf{Type:} this category indicates the type of article. This can be either a survey, a review or a primary study.
@@ -303,7 +303,9 @@ A brief analysis of the clustering SLR results is presented in this section. The
 % \usepackage{booktabs}
 \bgroup
 \def\arraystretch{1.5}
-\begin{table}[h]
+\begin{table}[!ht]
+    \caption{List of reviewed papers for the clustering SLR.}
+\label{tab:clustering_slr_results}
     \begin{adjustwidth}{-1.5cm}{}
         \resizebox{0.90\textwidth}{!}{\begin{minipage}{\textwidth}
     \centering
@@ -335,15 +337,31 @@ A brief analysis of the clustering SLR results is presented in this section. The
 \end{adjustwidth}
     \end{table}
 
+An analysis of the results shows that most of the papers are primary studies (17 out of 20). The remaining three are two surveys and a review. The surveys include the introductory article for the clustering theme (\cite{Jain_Dataclustering50_2010}) and another one that focuses on clustering algorithms for high-dimensional datasets (\cite{Fahad.Alshatri.ea_SurveyClusteringAlgorithms_2014a}). The review article (\cite{Granato.Santos.ea_Useprincipalcomponent_2018}) focuses on the use of principal component analysis (PCA) for the identification of bioactive compounds.
+
+Most articles that present new clustering methods/algorithms are mostly applied to general cases, as was expected. The only exceptions are the two surveys, which was to be expected as they tend to have a broader scope by discussing several possible approaches to multiple applications. The remaining articles are mostly prediction tasks of some sort, with two of them being applied to the banking sector \cite{Kou20141, Behera.Panigrahi_CreditCardFraud_2015} and several others for forecasting of system/network conditions \cite{Fahiman.Erfani.ea_Improvingloadforecasting_2017, Tang.Liu.ea_ImprovedFuzzyNeural_2017, Jahangir.Tayarani.ea_DeepLearningBasedForecasting_2021, Yang.Li.ea_BayesianDeepLearningBased_2020}.
+
+In terms of the main objective, most of the papers aim to develop a new methodology for improving machine-learning approaches, either by creating sampling methods or by training separate models for each cluster. The remaining articles are either focused on developing a new clustering algorithm or a new cluster decision method. There is only one paper (\cite{Kou20141}) that tries to develop a decision method for the best clustering method based on several validity metrics and MCDM models. On the other hand, Granato et al. \cite{Granato.Santos.ea_Useprincipalcomponent_2018} provides an analysis of the application of hierarchical clustering to bioactive compound identification.
+
+Finally, only six papers directly apply dimensionality techniques to the data. This is mostly seen in approaches where the data is high-dimensional and the authors want to reduce the number of features to improve the performance of the clustering algorithm. The remaining papers do not apply any dimensionality reduction to the data; however, most of them mention the possibility of such methods in the improvement of the results.
 
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/clustering_papers_per_year.png}
+    \caption{Number of papers per year for the clustering SLR. Does not include the above mentioned introductory paper from 2010.}
+    \label{fig:cluster_papers_year}
+\end{figure}
+
+Fig. \ref{fig:cluster_papers_year} shows the distribution of the results through the years. Note that the introductory paper \cite{Jain_Dataclustering50_2010} is not included in the plot as it was added to the results after the SLR. The plot shows that most of the selected papers are from 2014 or 2017. With only two papers from 2020 and upwards and no early publications. A possible explanation for this will be provided in the next section.
+
+\subsection{Threats to SLR Validity}\label{sec:sota_clustering_threats}
+The lackluster results from the first query (see Section \ref{sec:clustering_search_queries}) were unexpected. The search query was designed to retrieve the most relevant articles for the topic. However, the results were not satisfactory. Most relevant articles were older than the rest as the sorting criteria were set to citation count, which inherently gave more relevance to these papers. As a consequence, most papers retrieved from Scopus are older than the ones from Google Scholar. In addition, most of the papers didn't relate to the application of clustering techniques to machine learning tasks. To rectify this, another search similar to the one in Google Scholar was done in Scopus; however, the results were still very similar to the ones from the first query.
+
+The second search, performed in Google Scholar, yielded slightly better results than the previous one with more recent articles about the application of clustering techniques to machine learning tasks. The results were sorted in the function of "relevancy" which for the chosen platform indicates the best match between each document and the search terms. As a consequence, the first results weren't as skewed to older documents as in the first query.
 
 
-
-
-
-
-
+\newpage % ========================================================
 
 
 \section{Adversarial Anomaly Detection}\label{sec:sota_anomaly_detection}
@@ -615,7 +633,7 @@ In the testing phase, two rolling bearing datasets were used. The authors fine-t
 \end{description}
 
 
-\section{Analysis}\label{sec:res_analysis}
+\section{Analysis}\label{sec:gan_res_analysis}
 In Table \ref{tab:slr_results}, a brief analysis of the SLR results will be carried out to study the effectiveness of the chosen methodology. Aside from the paper name and year, four other categories were identified to compare the evaluated solutions:
 
 \begin{itemize}
@@ -632,8 +650,8 @@ In Table \ref{tab:slr_results}, a brief analysis of the SLR results will be carr
 
 \bgroup
 \def\arraystretch{1.5}
-\begin{table}
-\caption{List of reviewed papers.}
+\begin{table}[h]
+\caption{List of reviewed papers for Adversarial Outlier Detection.}
 \label{tab:slr_results}
  \begin{adjustwidth}{-1.8cm}{}
 \resizebox{0.9\textwidth}{!}{\begin{minipage}{\textwidth}
@@ -688,61 +706,8 @@ ATTAIN \cite{xu.etal_DigitalTwinbasedAnomaly_2021}       & 2021 & Normal        
 \end{table}
 \egroup
 
-% \begin{table}[htbp]
-% \caption{List of reviewed papers.}
-% \label{tab:slr_results}
-%  \begin{adjustwidth}{0.5cm}{}
-% \resizebox{0.8\textwidth}{!}{\begin{minipage}{\textwidth}
-% \begin{tabular}{cccccc} 
-% \hline
-% Paper                         & Year                      & Training Objective                                                                  & Anomaly Detection                                                    & Architecture                                                    & Application                                                             \\ 
-% \hline
-% MAD-GAN                       & 2019                      & normal distribution                                                                 & G loss + D loss                                                      & Normal                                                          & Time series                                                             \\ 
-% \hline
-% ALAD                          & 2018                      & normal distribution                                                                 & Reconstruction                                                       & Mixed (E)                                                       & N/A                                                                     \\ 
-% \hline
-% USAD                          & 2020                      & normal distriution                                                                  & Reconstruction                                                       & Autoencoder                                                     & N/A                                                                     \\ 
-% \hline
-% MO-GAAL                       & 2020                      & \begin{tabular}[c]{@{}c@{}}outlier generation\\ division boundary\end{tabular}      & Classifier                                                           & Mixed (C)                                                       & N/A                                                                     \\ 
-% \hline
-% IGAN-IDS                      & 2020                      & outlier oversampling                                                                & Classifier                                                           & Mixed (FE + C)                                                  & Intrusion detection                                                     \\ 
-% \hline
-% Jiang et al.                  & 2019                      & normal distribution                                                                 & Reconstruction                                                       & Autoencoder                                                     & Time series                                                             \\ 
-% \hline
-% TadGAN                        & 2020                      & normal distribution                                                                 & \begin{tabular}[c]{@{}c@{}}Reconstruction \\ and D loss\end{tabular} & Mixed (E)                                                       & Time series                                                             \\ 
-% \hline
-% adVAE                         & 2020                      & normal distribution                                                                 & Reconstruction                                                       & Autoencoder                                                     & N/A                                                                     \\ 
-% \hline
-% Blance et al.                 & 2019                      & outlier oversampling                                                                & Classifier                                                           & Autoencoder                                                     & High energy physics                                                     \\ 
-% \hline
-% FGPAA                         & 2020                      & normal distribution                                                                 & Reconstruction                                                       & \begin{tabular}[c]{@{}c@{}}Autoencoder\\ and G + D\end{tabular} & \begin{tabular}[c]{@{}c@{}}Roll bearing\\ fault detection\end{tabular}  \\ 
-% \hline
-% FGAN                          & 2019                      & \begin{tabular}[c]{@{}c@{}}normal distribution\\ and division boundary\end{tabular} & \begin{tabular}[c]{@{}c@{}}G loss + D loss \\ (adapted)\end{tabular} & Normal                                                          & N/A                                                                     \\ 
-% \hline
-% MENSA                         & 2021                      & normal distribution                                                                 & D (initial layers)                                                   & Autoencoder                                                     & Intrusion detection                                                     \\ 
-% \hline
-% Liu et al.                    & 2022                      & normal distribution                                                                 & Classifier                                                           & \begin{tabular}[c]{@{}c@{}}Mixed\\(C +SA)\end{tabular}          & \begin{tabular}[c]{@{}c@{}}Roll bearing\\fault detection\end{tabular}   \\ 
-% \hline
-% DOPING                        & 2018                      & \begin{tabular}[c]{@{}c@{}}oversampling\\ normal min.\end{tabular}                  & Classifier/Model                                                     & Autencoder                                                      & \begin{tabular}[c]{@{}c@{}}Performance \\ improvement\end{tabular}      \\ 
-% \hline
-% Bot-GAN                       & 2018                      & normal distribution                                                                 & Classifier (D)                                                       & Normal                                                          & Bot detection                                                           \\ 
-% \hline
-% Yuan et al.                   & 2020                      & normal distribution                                                                 & Reconstruction                                                       & Normal                                                          & \begin{tabular}[c]{@{}c@{}}Power outage \\ detection\end{tabular}       \\ 
-% \hline
-% AMBi-GAN                      & 2021                      & normal distribution                                                                 & \begin{tabular}[c]{@{}c@{}}Reconstruction \\ and D loss\end{tabular} & Normal                                                          & \begin{tabular}[c]{@{}c@{}}Industrial time \\ series\end{tabular}       \\ 
-% \hline
-% \multicolumn{1}{|c|}{TAnoGAN} & \multicolumn{1}{c|}{2020} & \multicolumn{1}{c|}{normal distribution}                                            & \multicolumn{1}{c|}{Reconstruction}                                  & \multicolumn{1}{c|}{Normal}                                     & \multicolumn{1}{c|}{Time series}                                        \\ 
-% \hline
-% MinLGAN                       & 2018                      & \begin{tabular}[c]{@{}c@{}}normal and \\ abnormal distributions\end{tabular}        & D                                                                    & Normal                                                          & N/A                                                                     \\ 
-% \hline
-% ATTAIN                        & 2021                      & normal distribution                                                                 & Loss                                                                 & Normal                                                          & \begin{tabular}[c]{@{}c@{}}Cyber-physical \\ systems\end{tabular}       \\
-% \hline
-% \end{tabular}
-% \end{minipage}}
-% \end{adjustwidth}
-% \end{table}
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{figures/slr_result_year_paper.png}
 \caption{Number of reviewed papers per year. \label{fig:slr_results_year}}
@@ -761,7 +726,7 @@ Further analysis can be done with regard to the search questions defined in sec.
 
 As for \textbf{SQ2}, it was shown that most methods (75\%) learn the normal distribution during the training phase and then detect outliers. 20\% generate outliers that are used to train classifiers for detecting anomalies. Only \cite{wang.etal_AnomalyDetectionMinimum_2018} makes use of both abnormal and normal data distribution in the training phase. This indicates that most GAN-based solutions for anomaly detection can generate realistic data with the same distribution as the original data. However, not all use the discriminator to distinguish between normal and abnormal samples, as they employ classifiers.
 
-\section{Threats to SLR}\label{sec:slr_threats}
+\subsection{Threats to SLR Validity}\label{sec:gan_slr_threats}
 The chosen limit for the minimum citations might have been too restrictive, especially for the papers recently published. The adaptation of inclusion criteria I4 (Table \ref{tab:criteria}) to allow for fewer citations in earlier papers was made to try and mitigate this risk. Despite this, the number of analysed papers for 2022 was significantly smaller than the previous years, which introduces the risk that some of the newer published relevant papers might have been overlooked. 
 
 Furthermore, as only one search engine was used for the SLR, there is also the risk that some relevant papers from other platforms were not encountered during this process. 
@@ -771,11 +736,10 @@ Another threat may arise due to the terms used to search for relevant papers. Af
 Similarly, by prohibiting documents that referenced images, or anything other than tabular data, some relevant papers might have been excluded. This can occur, for instance, in architectures that were firstly designed for image anomaly detection but were also suited for tabular datasets.
 
 \section{Summary}\label{sec:summary}
-This chapter explained the methodology used to aggregate the papers relevant to the problem in question. First, a set of search questions were defined (sec. \ref{sec:search_questions} followed by the respective query (sec. \ref{sec:search_queries}) that was used on Scopus. The selection criteria and the processing pipeline were delined in Section \ref{sec:inclusion_exclusion}. A summary of each of the selected papers is provided in Section \ref{sec:stoa_results}. Next, a categorization and summary of the entire process are performed in Section \ref{sec:res_analysis}, followed by the threats to the SLR process (sec. \ref{sec:slr_threats}).
+This chapter explained the methodology used to aggregate the papers relevant to the problem in question. For each part, a set of search questions were defined (sec. \ref{sec:cluster_search_questions} and \ref{sec:gan_search_questions}) followed by the respective queries (sec. \ref{sec:gan_search_queries} and \ref{sec:cluster_search_queries}). The selection criteria and the processing pipeline were defined in Sections \ref{sec:cluster_inclusion_exclusion} and \ref{sec:gan_inclusion_exclusion}. Summaries of each of the selected papers for both parts are provided in Sections \ref{sec:gan_sota_results} and \ref{sec:clustering_sota_results}. Next, a categorization and summary of the processes are performed in Sections \ref{sec:sota_clustering_analysis} and \ref{sec:gan_res_analysis}, followed by the threats to the SLR process (sec. \ref{sec:sota_clustering_threats} and \ref{sec:gan_slr_threats}).
 
+In the clustering part, 20 papers were selected for final evaluation after the aggregation of results from both Scopus and Google Scholar. Several novel clustering algorithms and methods were identified. Furthermore, most articles talked about applying clustering methods to improve machine-learning tasks in some way, which was the main goal of this part.
 
-% TODO rever anomaly method para USAD
-% TODO rever blance et al.
-
+For the second part, the same number of papers were analyzed; however, these were retrieved from only one platform. As the search was more restrictive, the number of papers was significantly smaller than in the previous part. Despite this, several novel GAN-based architectures were identified, and the majority of the papers were published in 2020. This is also due to the novelty of this area, as many solutions were published in the last few years.
 
 
