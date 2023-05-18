@@ -11,11 +11,12 @@ import seaborn as sns
 # sns.set()
 
 def load_original_data(data_path: Path, save_scalers : bool = False, 
-                       val_files : List[str] = []) -> Tuple[pd.DataFrame, pd.DataFrame, QuantileTransformer, QuantileTransformer]:
+                       val_files : List[str] = [], 
+                       in_name = "inputs", out_name = "outputs") -> Tuple[pd.DataFrame, pd.DataFrame, QuantileTransformer, QuantileTransformer]:
     """Load the original data from the file."""
 
-    inputs = pd.read_csv(data_path / 'inputs.csv')
-    outputs = pd.read_csv(data_path / 'outputs_inter.csv')
+    inputs = pd.read_csv(data_path / f'{in_name}.csv')
+    outputs = pd.read_csv(data_path / f'{out_name}.csv')
     
     inputs, outputs = shuffle(inputs, outputs, random_state=1)
 
