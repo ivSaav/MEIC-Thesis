@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parser.add_argument("--data-root", type=Path, default="./data/MULTI_VP_Profiles")
     parser.add_argument("--proc-dir", type=Path, default="./data/processed")
     parser.add_argument("--abs", action="store_true")
-    parser.add_argument("--val_files", type=Path)
+    parser.add_argument("--val-files", type=Path)
     
     opts = vars(parser.parse_args())
     if not opts['proc_dir'].exists():

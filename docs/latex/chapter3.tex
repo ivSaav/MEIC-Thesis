@@ -5,24 +5,74 @@
 %To understand the applications and characteristics of GANs, a simple search for "Generative Adversarial Networks" was performed on Google Scholar\footnote{Google Scholar \url{https://scholar.google.com/}}. The most relevant paper was written by Goodfellow et al. \cite{goodfellow.etal_GenerativeAdversarialNets_} where they discussed the architecture of the newly developed generative adversarial network, possible improvements and some applications (refer to sec. \ref{sec:gan_background}). A brief comparison between other generative models is also performed. In the following years, Conditional GANs \cite{goodfellow.etal_GenerativeAdversarialNets_} were proposed to improve the productive performance; Wasserstein GANs \cite{arjovsky.etal_WassersteinGenerativeAdversarial_} introduced a new loss function that provides some stability during the training process; in Radford et al. \cite{radford.etal_UnsupervisedRepresentationLearning_2016} deep convolutional networks were used for both the generator and discriminator which showed a significant performance increase when generating images. Since then, many variations have emerged to tackle different problems.
 
 %Most GANs were designed for problems with image datasets; however, the dataset used in this study consists only of tabular data. With this, the focus of the search shifted from conventional GANs for image applications to ones more focused on tabular data. During this search phase, the previously unknown area of detection of anomalies with GANs surfaced. Because of this, state of the art for this study will be divided into two parts. The first pertains to the more prevalent architectures for tabular generation, and the other focuses on GANs applied to anomaly detection on table datasets.
-
-A Systematic Literature Review (SLR) was performed to understand the current trends of clustering methods and the use of GANs for anomaly detection. This chapter is divided into two parts. The first part will focus on the relevant clustering methods for this work. The second part will focus on the most relevant GAN architectures for anomaly detection. Each part will start with the definition of the search questions and the search queries. Next, the inclusion/exclusion criteria for the obtained results are identified. Finally, the results are presented and discussed.
-
-
-The first part (sec. \ref{sec:gan_background}) will focus on the most relevant GAN architectures for anomaly detection. The second part (sec. \ref{sec:clustering_methods}) will focus on the most relevant clustering methods.
-
-
-A Systematic Literature Review (SLR) was performed to understand the current trends of GANs applied to anomaly detection and clustering methods. This search method allows for the analysis of all the existing research on a defined question. To achieve this, a set of search questions is formulated (sec. \ref{sec:search_questions}) and grouped into two search queries (sec. \ref{sec:search_queries}). Next, the inclusion/exclusion criteria for the obtained results are identified (sec. \ref{sec:inclusion_exclusion}).
+A Systematic Literature Review (SLR) was performed to understand the current trends of clustering methods (sec. \ref{sec:sota_clustering}) and the use of GANs for anomaly detection (sec. \ref{sec:sota_anomaly_detection}). This chapter is divided into two parts. The first part will focus on the relevant clustering methods for this work. The second part will focus on the most relevant GAN architectures for anomaly detection. Each part will start with the definition of the search questions (sec. \ref{sec:cluster_search_questions} and \ref{sec:gan_search_queries}) and the search queries (sec. \ref{sec:cluster_search_queries} and \ref{sec:gan_search_queries}). Next, the inclusion/exclusion criteria (sec. \ref{sec:cluster_inclusion_exclusion} and \ref{sec:gan_inclusion_exclusion}) for the obtained results are identified. Finally, the results are presented and discussed (sec. \ref{sec:clustering_sota_results} and \ref{sec:gan_sota_results}).
 
 
 \section{Clustering}\label{sec:sota_clustering}
-\subsection{Search Questions}\label{sec:cluster_search_questions}
+Several approaches have been proposed for the clustering task. These include partition-based, hierarchical, density-based, grid-based and model-based methods. In this section, the most relevant methods for this study will be discussed. The search for relevant clustering methods was performed on the Scopus\footnote{Scopus \url{https://www.scopus.com/}} and Google Scholar\footnote{Google Scholar \url{https://scholar.google.com/}} databases. As clustering is already a well-developed field of study, the search was limited to the last ten years. The search queries are presented in sec. \ref{sec:cluster_search_queries}. The inclusion/exclusion criteria are presented in Sec. \ref{sec:cluster_inclusion_exclusion}. The results are presented and discussed in sec. \ref{sec:clustering_sota_results}.
 
-\subsection{Search Query}\label{sec:cluster_search_queries}
+\subsection{Search Questions}\label{sec:cluster_search_questions}
+Two search questions were defined to guide the search for relevant clustering methods. These are:
+
+\noindent\textbf{C\_SQ1} \textit{What are the state-of-the-art clustering algorithms?} Throughout the years several clustering algorithms have been proposed. The goal of this question is to identify the most relevant and widely used ones for this study.
+
+\noindent\textbf{C\_SQ2} \textit{Are there any metrics that can be used to evaluate the performance of clustering algorithms?} The goal of this question is to identify the most relevant metrics for the evaluation of clustering algorithms. These metrics will be used to evaluate the performance of the developed clustering algorithm and to choose the most appropriate one for the task at hand.
+
+\noindent\textbf{C\_SQ3} \textit{Are there any clustering approaches applied to enhance the performance of neural networks?} As the goal of this study is to improve the predictive ability of solar wind prediction models, the objective of this question is to identify the methodologies of other studies that have similar goals.
+
+\subsection{Search Queries}\label{sec:cluster_search_queries}
+The search questions of the previous section guide the construction of the search queries. As previously said the search was performed on two search engines. The first query was performed on Scopus and the second on Google Scholar. The first search question is the following:
+\begin{center}
+    \textbf{cluster* AND data* AND (method* OR analy* OR algo*) AND NOT imag*}
+\end{center}
+
+In addition to the search query, several filters were applied to the results meant to limit the results to the last ten years and to exclude other articles that mentioned undesired keywords, such as gene clusters. The first part of the query, \textit{cluster* AND data*}, is used to identify articles that mention the keywords cluster and its variations and data. The second part, \textit{(method* OR analy* OR algo*)}, is used to identify articles related to clustering algorithms and analysis methodologies. The last part, \textit{NOT imag*}, is used to exclude articles that mention the keyword image.
+
+A second search was done on Google Scholar with the following query:
+\begin{center}
+    \textbf{cluster* AND (improve OR enhance) \\AND (neural network OR deep OR learn*) \\AND (performance OR accuracy OR classif* OR predict*) -image}
+\end{center}
+
+With this query, the goal is to retrieve every publication that is related to the application of clustering methods to enhance the performance of neural networks. The first part of the query, \textit{cluster* AND (improve* OR enhance*)}, is used to identify articles that mention the keywords cluster and its variations and its use to improve something in general. The second part, \textit{(neural network OR deep OR learn*)}, is used to narrow the search to the clustering approaches to enhance machine learning approaches. The last part, \textit{(performance OR accuracy OR classif* OR predict*)} narrows the search even more to articles that specifically mention performance, accuracy and other terms related to how well a system behaves. Similar to the first query, the last part, \textit{-image}, is used to exclude articles that mention the keyword image. In addition, the results were filtered to only include articles from the last ten years.
+
 
 \subsection{Inclusion/Exclusion Criteria}\label{sec:cluster_inclusion_exclusion}
+Both queries yielded a large number of results, however, the Scopus platform mostly gave results based on clustering algorithms and surveys comparing multiple methods. Because of this, an additional search was done on Google Scholar to find more articles related to the clustering methods applied to the improvement of neural networks. An enumeration of the inclusion and exclusion criteria for the papers is presented in table \ref{tab:clustering_criteria}.
 
-\subsection{Results}\label{sec:cluster_results}
+\begin{table}[]
+    \caption{Clustering Inclusion and Exclusion Criteria}
+    \label{tab:clustering_criteria}
+    \begin{tabular}{lll}
+    \hline
+    \textbf{Criteria}             & \textbf{ID} & \textbf{Description}                                                                                                                                                                                                            \\ \hline
+    \multirow{4}{*}{Inclusion}    & I1          & The document focuses on clustering algorithms, evaluation metrics or methods.                                                                                                                                                   \\
+                                  & I2          & The results are clear, and the proposed goals are achieved.                                                                                                                                                                     \\
+                                  & I3          & The authors provide code or an extensive explanation of the approach.                                                                                                                                                           \\
+                                  & I4          & \begin{tabular}[c]{@{}l@{}}Provides a comparison between the method and other clustering approaches\\  or analyses multiple clustering approaches for a given application.\end{tabular}                                         \\
+                                  & I5          & \begin{tabular}[c]{@{}l@{}}The article focuses on the application of clustering methods to improve\\  the performance of machine learning approaches.\end{tabular}                                                              \\ \hline
+    \multicolumn{1}{c}{Exclusion} & E1          & \begin{tabular}[c]{@{}l@{}}The article doesn't cover clustering. This can occur due to the ambiguity of the term "cluster", \\ as it can also be used in biology to talk about gene clusters.\end{tabular}                      \\
+    \multicolumn{1}{c}{}          & E2          & The paper does not clearly evaluate the results of the approach.                                                                                                                                                                \\
+    \multicolumn{1}{c}{}          & E3          & \begin{tabular}[c]{@{}l@{}}The number of recorded citations is less than 50. As clustering is a well-developed study, \\ the criteria for the relevancy of the paper can be more restrictive than on other fields.\end{tabular} \\
+                                  & E4          & \begin{tabular}[c]{@{}l@{}}The paper covers clustering algorithms for unsuited data types. Articles that pertain \\ to the use of clustering techniques on multi-view data are excluded.\end{tabular}                           \\
+    \multicolumn{1}{c}{}          & E5          & Was published before 2014.                                                                                                                                                                                                      \\ \hline
+    \end{tabular}
+    \end{table}
+
+
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/clustering_pipeline.png}
+    \caption{Clustering SLR Pipeline.\\\footnotesize\emph{*} Different sort order for each platform.}
+    \label{fig:clustering_slr}
+\end{figure}
+
+The result processing pipeline can be seen in Fig. \ref{fig:clustering_slr}. The search queries were performed on both Scopus and Google Scholar. For each platform, a relevance filter (E1, E4) was applied to limit the results to the last ten years and to exclude articles that had low recorded citations. Next, the titles of the top 200 results of each of the search engines were analyzed. For this step, the results were ordered by the number of citations for Scopus Search and relevancy (best match) for Google Scholar. In addition, all inclusion criteria (I1-I5) were used to determine the relevance of the articles; however, greater importance was given to I5 in the second search, to ensure more results that referenced the improvement of machine learning with clustering approaches. 
+
+After this, the abstracts and the conclusions of the selected papers were read with the same criteria as in the title analysis step. From this, 20 papers were picked for an extensive analysis, presented in Sec. \ref{sec:clustering_sota_results}. Note that one paper violates the exclusion rule E5 (published in 2010), however, it was included in the analysis as it was the only one that provided an extensive explanation of the types of clustering algorithms as well as possible metrics to evaluate them. This paper serves as a baseline by providing an overview of the most popular clustering algorithms and their applications. 
+
+
+\subsection{Results}\label{sec:clustering_sota_results}
 \begin{description}
     \item[Jain]\cite{Jain_Dataclustering50_2010} performs an extensive review of the K-Means algorithm. The author defines clusters as representations of $n$ objects separated into $k$ groups based on a similarity measure. The use cases for the application of clustering are also defined. These include the discovery of the underlying data structures, natural classification (degree of similarity between forms) and compression (a method for the organization and summarization of data).
     
@@ -35,13 +85,13 @@ A Systematic Literature Review (SLR) was performed to understand the current tre
     Finally, the authors enumerate a set of guidelines that should be taken into account when choosing a clustering algorithm, based on the criteria discussed in the previous sections.
 \end{description}
 
-\begin{description}
-    \item[ConsensusClusterPlus] \cite{Wilkerson.Hayes_ConsensusClusterPlusclassdiscovery_2010} is an unsupervised class discovery method, used in cancer research to discover intrinsic groups sharing the same biological characteristics. The goal of the authors was to determine how many groups were in a dataset and to determine their number with confidence.
+% \begin{description}
+%     \item[ConsensusClusterPlus] \cite{Wilkerson.Hayes_ConsensusClusterPlusclassdiscovery_2010} is an unsupervised class discovery method, used in cancer research to discover intrinsic groups sharing the same biological characteristics. The goal of the authors was to determine how many groups were in a dataset and to determine their number with confidence.
     
-    The implementation is based on the preexisting consensus clustering method, which is a resampling-based approach that assesses the stability of clusters. The authors extended this method by allowing the use of new clustering algorithms and improving the visualization techniques used to infer the number of classes.
+%     The implementation is based on the preexisting consensus clustering method, which is a resampling-based approach that assesses the stability of clusters. The authors extended this method by allowing the use of new clustering algorithms and improving the visualization techniques used to infer the number of classes.
 
-    % TODO rever
-\end{description}
+%     % TODO rever
+% \end{description}
 
 \begin{description}
     \item[Rodriguez et al.]\cite{Rodriguez.Laio_Clusteringfastsearch_2014} propose that cluster centers have a higher density than their neighbors and are at a higher distance from other cluster centers. In addition, the proposed algorithm is resilient to outliers as it identified them and excludes them from the analysis. 
@@ -71,22 +121,247 @@ A Systematic Literature Review (SLR) was performed to understand the current tre
 
 
 \begin{description}
-    \item[CAN]\cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a} (Clustering with Adaptive Neighbors) is a clustering algorithm that can simultaneously learn data similarity matrix and clustering structure. Its goal is to assign the adaptive and optimal neighbors of each point in the dataset. For this, the authors assume that data points with smaller distances should have larger probabilities of being neighbors. In addition, the algorithm imposes a constraint on the Laplacian of the similarity matrix so that the number of connected components in the data is the same as the number of clusters.
+    \item[CAN]\cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a} (Clustering with Adaptive Neighbors) is a clustering algorithm that simultaneously learns the data similarity matrix and clustering structure. Its goal is to assign the adaptive and optimal neighbors of each point in the dataset. For this, the authors assume that data points with smaller distances should have larger probabilities of being neighbors. In addition, the algorithm imposes a constraint on the Laplacian of the similarity matrix so that the number of connected components in the data is the same as the number of clusters.
     
     Projected Clustering with Adaptive Neighbors (PCAN) for high-dimensionality data is also implemented and is used to attenuate the difficulties in performing clustering on datasets with many features. The main goal of this was to reduce the dimension of the data without hindering the goals of the developed adaptive neighbors' algorithm.
 
-    In the experimentation phase, the authors start by testing the CAN algorithm in a toy dataset consisting of two clusters, in which the algorithm can detect reliably both connected components. Next, a comparison is performed with K-Means on a synthetic clustering dataset, in which CAN outperforms the other method in terms of accuracy. PCAN is tested alongside, two other dimensionality reduction methods, PCA and Locality Preserving Projections (LPP). The projection as well as the clustering abilities after it are evaluated for each of the reduction methods. PCAN can find the correct subspaces for the projection task in contrast with the other methods. In addition, the clustering results after the projection are also more reliable than the other methods. 
+    In the experimentation phase, the authors start by testing the CAN algorithm in a toy dataset consisting of two clusters, in which the algorithm can detect reliably both connected components. Next, a comparison is performed with K-Means on a synthetic clustering dataset, in which CAN outperforms the other method in terms of accuracy. PCAN is tested alongside, two other dimensionality reduction methods, PCA and Locality Preserving Projections (LPP). The projection, as well as the clustering abilities, are evaluated for each of the reduction methods. PCAN can find the correct subspaces for the projection task in contrast with the other methods. In addition, the clustering results after the projection are also more reliable than the other methods. 
 
     Finally, CAN and PCAN alongside other clustering methods are tested with real-world datasets. The results showed that both methods outperformed the other baselines in every dataset (but one) in terms of accuracy. CAN and PCAN alternated in the different datasets with one outperforming the other in each of them.
 \end{description}
 
 \begin{description}
-    \item[] 
+    \item[Granato et al.]\cite{Granato.Santos.ea_Useprincipalcomponent_2018} provide a critical analysis on the use of principal Component Analysis (PCA) and Hierarchical Clustering Algorithms (HCA) in the field of bioactive compounds. In this field, the discipline of chemometrics\footnote{Science of extracting information from chemical processes using mathematics and statistics information.} is often used to assess the differences/similarities between observations or to project them into lower dimensions. 
+    
+    First, the authors provide a brief explanation of PCA is presented followed by an example of its application on fruit juices' chemical composition and antioxidant activity. The number of components that explain the most variance is decided by analyzing the cumulative explained variance of the dataset of PCAs with different numbers of components. The results showed that 81\% of the data variation was explained by two components, with the first explaining 50\% and the other 31\%. After this example, an state-of-the-art analysis is provided on the use of PCA in food science studies.
+
+    In the next section, a brief explanation of HCA and the approaches to resolving the grouping problem is provided.  The agglomerative approach considers every data point as a cluster in the beginning of the algorithm and then merges the cluster in pairs. The second method, divisive, starts with a single cluster and then divides it into smaller ones. In addition, the most used metrics of sample distance and linkage methods are enumerated. As in the previous section, an analysis of the state-of-the-art of application of HCA in food science is done. 
+    
+    In the end, the authors provide an example to explain the most common problem faced with the use of PCA and HCA in this field. They start by applying PCA to project the data samples into two dimensions. An analysis of the results showed that in one of the classes, the existence of outliers made it so some of the samples were significantly further away than the others. Then by applying HCA, it was demonstrated that different linkage distances produced varying numbers of clusters and that these would ultimately need to be decided be the user. With this simple example, they conclude that HCA and PCA should be avoided in this field and that the calculation of correlation coefficients would, in most cases, provide a better analysis of the data at hand.
+\end{description}
+
+\begin{description}
+    \item[Lin et al.]\cite{Lin.Tsai.ea_Clusteringbasedundersamplingclassimbalanced_2017}  propose a clustering-based undersampling method for class-imbalanced datasets. The authors propose overcoming the shortcomings of undersampling methods, which come with the risk of excluding important features from the majority class. To achieve this, they intend to replace the random undersampling strategy with clustering methods. By using undersampling to cluster the majority class will yield clusters with a similar size to the minority class. 
+    
+    An analysis of the traditional methods for resampling and classifier ensembles is first introduced. These include methods such as synthetic minority oversampling (SMOTE), random undersampling (RUS) and Underbagging (UB). Next, the main hypothesis of the work is presented in the form of clustering-based undersampling. The process consists of first dividing an imbalanced dataset, $D$, into training and test sets. In the second step, the training data is divided into majority and minority class sets. In the following phase, the clustering-based undersampling method is used to reduce the number of samples in the majority class. Finally, the balanced training set is used to train a classifier, which is then used to classify the test set. 
+
+    The authors present two strategies for clustering-based undersampling. In the first, the number of clusters is equal to the number of observations in the minority class. Then KMeans is applied to the majority class, $M$, producing k cluster centers (centroids), which are then used to replace the entire majority class data. In the end, the number of observations will be the same for both the majority and minority classes. In the second strategy, the same method is used to cluster the majority class. However, instead of using cluster centroids to reduce a single cluster into one observation, the authors fetch the sample in the cluster which is closest to the centroid (in terms of Euclidean distance). Both samples produce the same number of clusters, but the results from the latter are slightly different from the former.
+
+    Two studies were conducted to evaluate both of the methods discussed in the previous section. The first evaluates the performance of the methods in several small datasets and the other in two large datasets. Five classifiers were used to examine the classification performance, along with five state-of-the-art resampling methods. For the first study, results showed that the proposed methods significantly outperformed the baseline in terms of the receiver operator characteristic (ROC) curve. In addition, the nearest neighbor clustering-based undersampling method scored higher than the centroid-based one. The best classifier, in terms of accuracy (from the initial five), was the multilayer perceptron (MLP). In the second, study, the results were mostly the same, with the best classifer (C4.5) being better than the MLP from the previous test.
+
+    The authors conclude that the design ensembles are well suited as a substitute for the traditional resampling methods and discuss the possibility of employing feature and instance selection to filter out unrepresentative features and data samples. In addition, other state-of-the-art classification algorithms could be combined with the clustering-based undersampling method to try and yield better results.
 \end{description}
 
 
+\begin{description}
+    \item[Douzas et al.]\cite{Douzas.Bacao.ea_Improvingimbalancedlearning_2018} developed a novel heuristic oversampling method based on KMeans and SMOTE. The main goal is to overcome the common issues of SMOTE, such as the overfitting of the training data and the generation of noisy samples. Clustering allows for the oversampler to target areas of input where the generation of artificial data is safer by ignoring noisy regions. 
+    
+    The algorithm is divided into three parts: clustering, filtering and oversampling. In the first step the input is clustered into k clusters. Then, during the filtering phase, the clusters that have higher proportions of minority class samples are retained. In the final step, SMOTE is applied to each of the selected clusters to achieve the desired target ratio of minority and majority instances. 
+
+    The effectiveness of the algorithm is compared with three classifiers trained on several imbalanced datasets for binary classification problems. Each dataset was subjected to five other oversampling techniques and then used to train the classification models. A model with unaltered data was also trained for each of the datasets. The results showed that models trained with the K-Means SMOTE method outperformed not only the ones trained on the original data but also the models trained with data after the application of the baseline oversampling methods.
+    % TODO falar do SOMOx   
+\end{description}
+
+\begin{description}
+    \item[K-Shape]\cite{Paparrizos.Gravano_kShapeEfficientAccurate_2015a} is a highly accurate and efficient clustering algorithm for time-series data. In this paper, the authors propose a scale/translate/shift-invariant distance measure derived from a cross-correlation measure; present a new way of calculating cluster centroids with the new distance measure; and develop a new algorithm for time-series data based on the previous two.
+    
+    An enumeration and explanation of five possible time-series invariances is provided. These include scaling and translation invariances, shift, uniform scaling, occlusion and complexity invariances. The authors conclude that some of these problems, like scale and translation invariances, can be attenuated by normalizing the input data beforehand. However, the less straightforward ones can be resolved by choosing a proper distance metric. Following this, the Euclidean Distance and Dynamic Time Warping (DTW) metrics are point out as the most prevalent distance measures for time-series data. Further details are provided for the state-of-the-art clustering algorithms and time-series averaging techniques, after which the hypothesis is formulated. In it, the authors set out to solve the scaling and shifting invariance problems.
+
+    The method is based on the calculation of time-series centroids with the cross-correlation metric. This measure captures the shape of similar signals by ignoring the shifts in phase and amplitude, making it possible to determine the similarity of two sequences even if they are not aligned. In addition, it is concluded that a normalization of the input data is necessary to achieve the best possible comparisons. After this, a new shape-based distance measure (SBD) is formulated around the cross-correlation statistic and data normalization techniques.
+
+    In the following sections, a detailed explanation of the algorithm is provided based on the application of the newly defined distance measure and possible optimizations. The algorithm starts by randomly assigning time-series sequences to clusters and then computes the centroids of each cluster with the \textit{ShapeExtraction} algorithm based on the SBD distance measure. Finally, the algorithm refines the memberships of the clusters with the help of the same distance algorithm. This process is repeated up to 100 times or until the centroids do not change (convergence).
+
+    In the testing phase, the authors compare the SBD measure with the Euclidean Distance and two variations of the DTW measure. Six clustering baselines are selected to compare with the developed algorithm. At the end of the experiments, it was concluded that cross-correlation measures are as competitive as other distance metrics such as DTW, but are significantly faster. The authors note that the choice of clustering method is as important as the distance measure and that the K-Means with Euclidean distance is the clustering method for time-series data. However, K-Shape outperformed every other state-of-the-art and was significantly faster than K-Means with Euclidean distance.
+\end{description}
+
+\begin{description}
+    \item[DPC-KNN]\cite{Du.Ding.ea_Studydensitypeaks_2016} is a density peak-based clustering algorithm developed to overcome the shortcomings of the original density peaks clustering (DPC) algorithm \cite{Rodriguez.Laio_Clusteringfastsearch_2014}, which is not capable of detecting clusters with different densities. The authors propose a new method for determining the density of each point based on the KNN algorithm. 
+    
+    In addition to the main problem regarding the density of the clusters, the authors also identify other issues with the original algorithm. These include the difficulty in handling high dimensional data which tends to confuse DPC by hiding clusters in noisy data; and the inability of the algorithm to take into account local geometries of clusters. 
+    
+    To solve this last issue, the authors propose changing the way the density of each point is calculated. In the original algorithm, the density of a point is calculated as the distance between that point and every other point in the data. In the new method, the density of a point is calculated as the mean distance between that point and its k nearest neighbors. This change allows the algorithm to take into account the local geometry of the clusters. The dimensionality problem is solved by applying PCA, on the previous DPC-KNN, resulting in the DPC-KNN-PCA method.
+
+    In the testing phase, the authors perform experiments on several 2D synthetic datasets, in which DPC-KNN achieved perfect scores. In the next experiments, real-life datasets with high dimensionality are used to test the effectiveness of both DPC-KNN methods with DPC and the other baselines. In the end, the authors conclude that DPC-KNN outperforms every other method in terms of accuracy in low-dimensionality data, with data with more than seven features resulting in better results for DPC-KNN-PCA.
+\end{description}
+
+\begin{description}
+    \item[Malav et al.]\cite{Malav.Kadam.ea_PREDICTIONHEARTDISEASE_2017} employ a K-Means clustering on UCI Heart Disease Data that is used to train an ANN for the classification of cardiovascular diseases. The goal was to overcome the limitations of previous implementations in this area and to provide a more accurate prediction of the disease. The main issues in the literature for this application are the low accuracy scores obtained by the classifiers and the use of resource and time-intensive algorithms.
+    
+    The authors propose a pipeline where they first identify the main attributes commonly associated with heart disease in the data followed by a preprocessing step, where categorical values are encoded into numeric ones. Attributes that are used in real-life situations to diagnose the disease are converted to binary values. Measurements that have a value higher than the reference are encoded to one, while normal values are encoded to zero. In the next step, the data is clustered with K-Means and the centroids are used to train an ANN. Finally, the trained ANN is used to predict the presence of heart disease in the test set. The results show an increased accuracy when compared to other state-of-the-art approaches.
+\end{description}
+
+\begin{description}
+    \item[ClusterNet]\cite{Chen.Li.ea_ClusterNetDeepHierarchical_2019} is a novel point cloud representation which provides 3D rotation invariance. In addition, a deep hierarchical clustering network is developed to better adapt to the new representation.
+    
+    A novel Rigorous Rotation Invariant (RRI) representation is proposed which maintains all the necessary information of point clouds, except volatile information associated with the rotation of objects. This representation is achieved by projecting the points onto a 2D plane and then applying a series of rotation-invariant transformations. The architecture consists of three modules, the RRI module generates the desired representation; the cluster abstraction module extracts the features from the RRI representation with the help of the aggregate subcluster features from the agglomerative clustering algorithm applied to the same representation; and finally, the classification module that generates classification scores for each object in a cluster.
+
+    Testing was done on several 3D object classification datasets. The authors test the architecture along with other state-of-the-art methods to evaluate the performance of ClusterNet. They also demonstrate the effectiveness of the rotation-invariant representation by comparing the results with and without it. The results showed that ClusterNet coupled with the RRI representation performed better in terms of accuracy than the other methods.
+\end{description}
+
+\begin{description}
+    \item[DEC]\cite{Xie.Girshick.ea_UnsupervisedDeepEmbedding_2016} (Deep Embedded Clustering) is a method that aims to simultaneously learn feature representations and cluster assignments with the help of autoencoders.
+    
+    The algorithm is divided into the parameter initialization and the clustering phases. In the first, the data is passed through and DNN encoder to obtain a preliminary latent representation. This is then passed through the K-Means algorithm to determine the initial cluster centroids. In the clustering phase, the centroids are used to calculate the soft assignments of the data points to the clusters. The centroids are then updated with the new assignments and the process is repeated until convergence. In the end, the authors produce a clear separation of the clusters in the latent space.
+
+    To evaluate the implemented method, the authors experiment on several image and one text datasets with other clustering methods. The performance of each algorithm is evaluated based on the accuracy calculated through the ground truth labels of each category in the dataset. DEC proved to be a better choice than the other methods for the clustering task.
+\end{description}
+
+\begin{description}
+    \item[Fahiman et al.]\cite{Fahiman.Erfani.ea_Improvingloadforecasting_2017} employ the K-Shape clustering technique to improve the accuracy of load forecasting in electrical infrastructures. The clustering algorithm groups clients with similar consumption patterns, making the accuracy of the models better. 
+    
+    The authors intend to work only on a single smart meter dataset with household consumption records. A preprocessing step is done to scale large numbers and to fill in missing values with interpolations from previous records. They also identify three approaches for load forecasting methods. in the literature. These include a completely aggregated method where the data is used to train a single forecasting model $F$; a completely disaggregated method which predicts consumption patterns of single consumers by assigning a model for each consumer; and finally, a clustering-based forecasting approaches where clients are grouped into clusters and a model is trained for each cluster. The authors propose a new approach based on the last one, that normalizes the weights of the clusters based on the number of clients in each cluster. This then allows for the weighted summation of the predictions of each client making it possible to group periods of consumption in different clusters for each client.
+
+    After the delineation of the method, the authors define the mean absolute percentage error (MAPE) to evaluate the results based on the sum of predictions and the total consumption of each cluster. Next, a feature selection step is done to identify the most meaningful attributes for the task. 
+
+    In their implementation, the authors employ the time-series clustering K-Shape algorithm with a Multilayer Perceptron (MLP) and a Restricted Boltzmann Machine (RBM). A K-Means clustering algorithm is also used for comparative reasons. After the comparison of the results, it was concluded that the K-Shape algorithm paired with MLP produced the best results in terms of MAPE. In future work, the authors propose developing dynamic clustering algorithms for real-time clustering and forecasting.
+\end{description}
+
+\begin{description}
+    \item[Behera et al.]\cite{Behera.Panigrahi_CreditCardFraud_2015} devise a new approach for the detection of credit card fraud by combining fuzzy clustering with a neural network. 
+    
+    The fraud detection pipeline is divided into three main steps. First, an initial authentication and verification of the credit card attributes are performed. The expiry date, credit card pin and the amount of credit before each transaction are verified. 
+    
+    The Behaviour and Analysis phase evaluates the consumption patterns of the cardholder and checks if the new transaction is in line with the history of the client. This is done with the help of the Fuzzy c-means (FCM) clustering method. Each client has its cluster based on previous consumption patterns. When a new transaction occurs, the distance between the new transaction point and the cluster's head is calculated. If this distance is above a precalculated upper threshold or below a lower threshold for the current client then the transaction is flagged as being suspicious.
+
+    After the previous steps, the suspicious transactions are passed through a feed-forward neural network in the Learning Phase to determine whether they are fraudulent or not.
+
+    The method is evaluated on a widely used synthetic transactions dataset. The approach yielded results similar to other implementations for fraud detection in terms of true positive rate but resulted in a smaller number of false positives.
+\end{description}
+
+\begin{description}
+    \item[Tang et al.]\cite{Tang.Liu.ea_ImprovedFuzzyNeural_2017} develop an evolved fuzzy neural network (EFNN) that is used for predicting traffic speeds by periodically evaluating the conditions of traffic flow. The main goal of the authors is to improve the accuracy of the predictions by employing a fuzzy neural network with a K-Means clustering algorithm and a Gaussian fuzzy membership function. The data for this study consists of historical data collected on a busy Beijing road section. 
+    
+    EFNNs are an improvement over the previous fuzzy neural networks, as they can continuously evolve structure and functionality, making them more suited for real-life continuous problems. EFFNs have a distinct learning process divided into unsupervised and supervised phases. In the first, the K-Means clustering method is applied to the input samples to determine the cluster centroids. In the supervised step a set of $k$ fuzzy rules (one for each cluster) is generated to define the membership criteria of each cluster. In this study, the authors choose Gaussian-type fuzzy functions to determine memberships.
+
+    In the proposed method the speed data collected in the last 21 days is passed through a regression function to determine a daily periodic pattern for traffic speed. This is based on the assumption that traffic speed periodicity is cyclical. After this step, a speed function based on the current time $t$ is defined with the help of the periodic component from the previous step. The residual part of the regression is used as a training dataset to optimize the parameters of the EFNN and to predict residual errors in the next step. With the combination of the regression component and the residual error, the method is then able to accurately predict values for real-speed data.
+
+    The resulting system is evaluated on three performance metrics, along with multiple traditional prediction statistical models. In the end, the authors conclude that EFNN+CP (EFNN with cyclical periodicity) is better than the other methods, especially when it comes to forecasting multiple steps.
+\end{description}
 
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/aksc_arch.png}
+    \caption{Methodology employing AKSC. Taken from \cite{Cheng.Zhu.ea_MachineHealthMonitoring_2019}}
+    \label{fig:aksc}
+\end{figure}
+
+\begin{description}
+    \item[AKSC]\cite{Cheng.Zhu.ea_MachineHealthMonitoring_2019} (Adaptive Kernal Spectral Clustering) is a novel algorithm used to identify machine anomaly behaviors in machine health monitoring. The goal of the developers is to apply the new algorithm along with a LSMT-RNN network, to improve its accuracy and efficiency in data with high dimensionality. 
+    
+    The authors describe the method in three steps (Fig. \ref{fig:aksc}). The first consists of feature extraction and selection to identify the features that indicate degradation phenomena from measured signals. In the anomaly detection step, the AKSC method is applied to the selected features to adaptively identify anomalies in real-time. The final step is to run a failure prognostic to continuously update and predict the failure time of the machine with the help of an LSTM-RNN network. The results from the failure prognostics and the anomaly detection are used in conjunction to refine the predictions of the LSTM-RNN network and to produce more accurate failure times.
+
+    The proposed clustering algorithm is mainly based on an iterative and adaptive spectral clustering method. It maps original features into a new feature space to find complex non-linear cluster boundaries and identify slight changes in the data. AKSC is divided into three stages. These are initialization, where kernel spectral clustering is applied to the data; the calibration stage, where the parameters of the clustering are updated to improve future identification accuracy; and lastly, the detection stage, where an outlier indicator is defined to identify anomalies in the machine. 
+
+    To evaluate the method, the authors create a real-life bearing test, where they simultaneously measure the vibration and temperature of four bearings with different conditions. At the end of the tests, it was concluded that the developed approach accurately predicted the mean time to failure of the rolling bearings. In addition, the authors also point out that the method could be applied to various other industrial contexts due to its generalizability.
+\end{description}
+
+\begin{description}
+    \item[Jahangir et al.]\cite{Jahangir.Tayarani.ea_DeepLearningBasedForecasting_2021} employ a micro-clustering technique based on K-Means and Gaussian SVM along with a Bi-LSMT to develop a reliable forecasting system for electrical grid parameters. 
+    
+    Micro-clustering is applied to data sequences collected in the last hour, $t$, and creates clusters that will then be used to train Bi-LSMT networks for forecasting three network profiles (variables). In the unsupervised clustering phase, the authors execute several computations of the K-Means algorithm over the data which they are trying to cluster by varying the number of clusters. The most appropriate K-Means model is chosen based on the Davies-Bouldin (DB) index score. In the final stage, a Bi-LSTM network is trained for each of the clusters produce for the given hour. This process is repeated until all 24 hours of the day are covered.
+
+    After having models for each of the variables for each hour, $t$ of the day, the pre-trained models from the previous stage are used to forecast the network profiles for the next days. For each hour $t$ new measures are assigned to the cluster centers from the previous stage with the help of a Gaussian-SVM. Then the Bi-LSMT for that cluster at the time $t$ is fetched to forecast the desired parameter. 
+
+    The resulting method is evaluated on data sequences collected in Ontario due to the prevalence of wind power in the network which tends to cause fluctuations in the grid. The robustness of the approach is compared with other statistical and machine learning techniques, each of which is evaluated based on mean absolute error (MAE), mean absolute percentage error (MAPE) and root mean squared error (RMSE). After an extensive evaluation of the results, the authors conclude that the devised method was more robust when compared to the other baselines, and could be used in real-life situations to forecast conditions in power systems.
+\end{description}
+
+\begin{description}
+    \item[Zhang et al.]\cite{Zhang.Wang.ea_PatientspecificECGclassification_2017} propose a novel patient-specific electrocardiogram (ECG) classification algorithm based on RNNs and density-based clustering techniques. 
+    
+    The framework of the algorithm consists of fetching normal ECG data based on density clustering results that assign types of heartbeats to different classes, and then training a common RNN model to classify these classes. A model is created for each patient based on his history by applying clustering to previous ECGs and then training an RNN classification model, with feedback from the common model. In the end, new patient records can be fed to the patient-specific model to classify the heartbeat type.
+
+    The authors evaluate the method by comparing it with the results of previous state-of-the-art ECG classification methods. The approach consistently outperformed the others in terms of accuracy, specificity, sensitivity and positive predictivity.
+\end{description}
+
+% \begin{description}
+%     \item[Mousavi et al.]\cite{Mousavi.Horton.ea_Seismicfeaturesautomatic_2016} propose employing spectral clustering along with logistic regression and ANN models to automatically distinguish between deep and shallow microseismic events (low-amplitude events, attributed to the reduction in effective stress). The authors point out that there already exist several methods capable of distinguishing between the two types of events, but they are not automatic and require human intervention in the form of generating class labels for training purposes. Therefore, the goal of this study is to develop a system that can automatically perform the task.
+    
+%     The feasibility of the method is tested on microearthquakes gathered from a salt mine collapse in Louisiana. The hierarchical clustering algorithm is applied to the data to determine if there was a clear separation between the two types of events. The results showed that there was some concentration of deep events on the edges, but overall the data was not separable. 
+% \end{description}
+
+\begin{description}
+    \item[Yan et al.]\cite{Yang.Li.ea_BayesianDeepLearningBased_2020} develop a cluster-based pooling method to reduce the overfitting and increase data diversity in a Bayesian deep learning-based probabilistic load forecasting (PLF) model. 
+    
+    The framework is divided into the initialization, multitask Bayesian deep learning and probabilistic forecasting stages. In the first step, household smart meter data is clustered into $k$ clusters based on their load consumption patterns. In the next stage, a multitask Bayesian neural network (MT-BNN) is trained using load profile pools from the previous step until model performance stabilizes. If equilibrium is not reached, then the algorithm goes back to the first step with an increased number of clusters as long as a maximum number of iterations is not reached. In the forecasting phase, probabilistic forecasting on the selected customers is performed to assess the predictive performance.
+
+    The resulting system is evaluated in terms of MAE and RMSE on a large household smart-grid dataset. The MAE and RMSE scores were identified as the main evaluation criteria. MT-BNN is compared with Global and Separate BNN models according to the data pooling strategy. The results showed that the MT-BNN model outperformed the other two in terms of the defined error measures. Similarly, a benchmark is performed on several other statistical models with the proposed method outperforming every other on the same metrics. 
+\end{description}
+
+\subsection{Analysis}\label{sec:sota_clustering_analysis}
+A brief analysis of the clustering SLR results is presented in Table \ref{tab:clustering_slr_results}. The following categories were created for a summarization of the papers that were analysed:
+
+\begin{itemize}
+    \item \textbf{Type:} this category indicates the type of article. This can be either a survey, a review or a primary study.
+    \item \textbf{Application:} this class indicates the application area of the article. This can be either a general application, as is the case for most clustering algorithms, or a specific one.
+    \item \textbf{Objective:} this category indicates the main objective of the article. This can be either the development of a clustering algorithm, a cluster decision method, or the improvement of a machine learning task via clustering.
+    \item \textbf{Dimensionality Reduction (DR):} this category indicates if the article uses DR techniques (can be either "yes" or "no"). Dimensionality reduction techniques may be important for this study, as the data being used is high-dimensional. 
+\end{itemize}
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\bgroup
+\def\arraystretch{1.5}
+\begin{table}[!ht]
+    \caption{List of reviewed papers for the clustering SLR.}
+\label{tab:clustering_slr_results}
+    \begin{adjustwidth}{-1.5cm}{}
+        \resizebox{0.90\textwidth}{!}{\begin{minipage}{\textwidth}
+    \centering
+    \begin{tabular}{@{}cccccc@{}}
+    \toprule
+    \textbf{Paper}   & \textbf{Year} & \textbf{Type} & \textbf{Application}                   & \textbf{Objective}              & \textbf{DR} \\ \midrule
+    Jain \cite{Jain_Dataclustering50_2010}            & 2010          & Survey        & N/A                                    & Cluster Algo. + Analysis & No          \\ \midrule
+    Rodriguez et al. \cite{Rodriguez.Laio_Clusteringfastsearch_2014} & 2014          & Primary       & General                                & Cluster Algo.                   & No          \\ \midrule
+    Fahad et al. \cite{Fahad.Alshatri.ea_SurveyClusteringAlgorithms_2014a}    & 2014          & Survey        & High Dimension Datasets                & Cluster Algo. + Large Data      & Yes         \\ \midrule
+    Kou et al. \cite{Kou20141}      & 2014          & Primary       & Financial Risk Assessment              & Cluster Decision Method         & No          \\ \midrule
+    CAN \cite{Nie.Wang.ea_Clusteringprojectedclustering_2014a}             & 2014          & Primary       & General                                & Cluster Algo + Large Data       & Yes         \\ \midrule
+    Granato et al. \cite{Granato.Santos.ea_Useprincipalcomponent_2018}  & 2018          & Review        & Bioactive Compound Identification      & Method Assessment               & Yes         \\ \midrule
+    Lin et al. \cite{Lin.Tsai.ea_Clusteringbasedundersamplingclassimbalanced_2017}      & 2017          & Primary       & General                                & Improve ML (Sampling)           & No          \\ \midrule
+    Douzas et al. \cite{Douzas.Bacao.ea_Improvingimbalancedlearning_2018}   & 2018          & Primary       & General                                & Improve ML (Sampling)           & Yes         \\ \midrule
+    K-Shape \cite{Paparrizos.Gravano_kShapeEfficientAccurate_2015a}          & 2015          & Primary       & Time Series Clustering                 & Cluster Algo.                   & No          \\ \midrule
+    DPC-KNN \cite{Du.Ding.ea_Studydensitypeaks_2016}         & 2016          & Primary       & General                                & Cluster Algo. (Improve)         & Yes         \\ \midrule
+    Malav et al. \cite{Malav.Kadam.ea_PREDICTIONHEARTDISEASE_2017}     & 2017          & Primary       & Heart Disease Monitoring               & Improve ML                      & No          \\ \midrule
+    ClusterNet \cite{Chen.Li.ea_ClusterNetDeepHierarchical_2019}      & 2019          & Primary       & Object Classification (3D point cloud) & Improve ML                      & No          \\ \midrule
+    DEC \cite{Xie.Girshick.ea_UnsupervisedDeepEmbedding_2016}             & 2016          & Primary       & General                                & Cluster Algo.                   & Yes         \\ \midrule
+    Fahiman et al. \cite{Fahiman.Erfani.ea_Improvingloadforecasting_2017}   & 2017          & Primary       & Electrical Grid Load Forecasting       & Improve ML                      & No          \\ \midrule
+    Behera et al. \cite{Behera.Panigrahi_CreditCardFraud_2015}    & 2015          & Primary       & Bank Fraud Detection                   & Improve ML                      & No          \\ \midrule
+    Tang et al. \cite{Tang.Liu.ea_ImprovedFuzzyNeural_2017}     & 2017          & Primary       & Road Network Load Forecasting          & Improve ML                      & No          \\ \midrule
+    AKSC \cite{Cheng.Zhu.ea_MachineHealthMonitoring_2019}            & 2019          & Primary       & Machine Health Monitoring              & Improve ML                      & No          \\ \midrule
+    Jahangir et al. \cite{Jahangir.Tayarani.ea_DeepLearningBasedForecasting_2021} & 2021          & Primary       & Electrical Grid Forecasting            & Improve ML                      & No          \\ \midrule
+    Zhang et al. \cite{Zhang.Wang.ea_PatientspecificECGclassification_2017}    & 2017          & Primary       & Eletrocardiogram Monitoring            & Improve ML                      & No          \\ \midrule
+    Yan et al. \cite{Yang.Li.ea_BayesianDeepLearningBased_2020}      & 2020          & Primary       & Electrical Grid Load Forecasting       & Improve ML (Sampling)           & No          \\ \bottomrule
+    \end{tabular}
+\end{minipage}}
+\end{adjustwidth}
+    \end{table}
+
+An analysis of the results shows that most of the papers are primary studies (17 out of 20). The remaining three are two surveys and a review. The surveys include the introductory article for the clustering theme (\cite{Jain_Dataclustering50_2010}) and another one that focuses on clustering algorithms for high-dimensional datasets (\cite{Fahad.Alshatri.ea_SurveyClusteringAlgorithms_2014a}). The review article (\cite{Granato.Santos.ea_Useprincipalcomponent_2018}) focuses on the use of principal component analysis (PCA) for the identification of bioactive compounds.
+
+Most articles that present new clustering methods/algorithms are mostly applied to general cases, as was expected. The only exceptions are the two surveys, which was to be expected as they tend to have a broader scope by discussing several possible approaches to multiple applications. The remaining articles are mostly prediction tasks of some sort, with two of them being applied to the banking sector \cite{Kou20141, Behera.Panigrahi_CreditCardFraud_2015} and several others for forecasting of system/network conditions \cite{Fahiman.Erfani.ea_Improvingloadforecasting_2017, Tang.Liu.ea_ImprovedFuzzyNeural_2017, Jahangir.Tayarani.ea_DeepLearningBasedForecasting_2021, Yang.Li.ea_BayesianDeepLearningBased_2020}.
+
+In terms of the main objective, most of the papers aim to develop a new methodology for improving machine-learning approaches, either by creating sampling methods or by training separate models for each cluster. The remaining articles are either focused on developing a new clustering algorithm or a new cluster decision method. There is only one paper (\cite{Kou20141}) that tries to develop a decision method for the best clustering method based on several validity metrics and MCDM models. On the other hand, Granato et al. \cite{Granato.Santos.ea_Useprincipalcomponent_2018} provides an analysis of the application of hierarchical clustering to bioactive compound identification.
+
+Finally, only six papers directly apply dimensionality techniques to the data. This is mostly seen in approaches where the data is high-dimensional and the authors want to reduce the number of features to improve the performance of the clustering algorithm. The remaining papers do not apply any dimensionality reduction to the data; however, most of them mention the possibility of such methods in the improvement of the results.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/clustering_papers_per_year.png}
+    \caption{Number of papers per year for the clustering SLR. Does not include the above mentioned introductory paper from 2010.}
+    \label{fig:cluster_papers_year}
+\end{figure}
+
+Fig. \ref{fig:cluster_papers_year} shows the distribution of the results through the years. Note that the introductory paper \cite{Jain_Dataclustering50_2010} is not included in the plot as it was added to the results after the SLR. The plot shows that most of the selected papers are from 2014 or 2017. With only two papers from 2020 and upwards and no early publications. A possible explanation for this will be provided in the next section.
+
+\subsection{Threats to SLR Validity}\label{sec:sota_clustering_threats}
+The lackluster results from the first query (see Section \ref{sec:clustering_search_queries}) were unexpected. The search query was designed to retrieve the most relevant articles for the topic. However, the results were not satisfactory. Most relevant articles were older than the rest as the sorting criteria were set to citation count, which inherently gave more relevance to these papers. As a consequence, most papers retrieved from Scopus are older than the ones from Google Scholar. In addition, most of the papers didn't relate to the application of clustering techniques to machine learning tasks. To rectify this, another search similar to the one in Google Scholar was done in Scopus; however, the results were still very similar to the ones from the first query.
+
+The second search, performed in Google Scholar, yielded slightly better results than the previous one with more recent articles about the application of clustering techniques to machine learning tasks. The results were sorted in the function of "relevancy" which for the chosen platform indicates the best match between each document and the search terms. As a consequence, the first results weren't as skewed to older documents as in the first query.
+
+
+\newpage % ========================================================
 
 
 \section{Adversarial Anomaly Detection}\label{sec:sota_anomaly_detection}
@@ -96,9 +371,9 @@ Two search questions were defined to find out the most relevant articles that wo
 
 %\noindent\textbf{SQ1} \textit{What are the current GAN architectures for anomaly detection?} GANs are a pervasive field of research with many different applications. For this work, we are only interested in the subset that pertains to the use of GANs for anomaly detection.
 
-\noindent\textbf{SQ1} \textit{What are the current GAN-based architectures for anomaly detection in tabular data?} Most GANs are designed for problems with image datasets. However, the dataset used in this study consists only of tabular data. The intent is to include only GANs designed or adapted to anomaly detection in tabular datasets.
+\noindent\textbf{G\_SQ1} \textit{What are the current GAN-based architectures for anomaly detection in tabular data?} Most GANs are designed for problems with image datasets. However, the dataset used in this study consists only of tabular data. The intent is to include only GANs designed or adapted to anomaly detection in tabular datasets.
 
-\noindent\textbf{SQ2} Of the results from the previous question, which ones can generate new samples following the distribution of the dataset and detect out-of-distribution examples? The proposed goals for this thesis are to produce a model that can generate new solar wind profiles and another that can accurately distinguish out-of-distribution samples from normal ones. As so, the generator should be able to generate examples in the same distribution as the original dataset, while the discriminator must distinguish anomalous ones.
+\noindent\textbf{G\_SQ2} Of the results from the previous question, which ones can generate new samples following the distribution of the dataset and detect out-of-distribution examples? The proposed goals for this thesis are to produce a model that can generate new solar wind profiles and another that can accurately distinguish out-of-distribution samples from normal ones. As so, the generator should be able to generate examples in the same distribution as the original dataset, while the discriminator must distinguish anomalous ones.
 
 \subsection{Search Query}\label{sec:gan_search_queries}
 The search questions defined in the previous sections were aggregated into a single search query. The query construction was incremental to narrow the search results to the desired questions. In the end, the search query was the following:
@@ -132,10 +407,10 @@ The query defined in the previous section yielded 1489 results, making the analy
 
 An illustration of the processing pipeline can be seen in Fig. \ref{fig:slr_pipeline}. 1489 results were retrieved from Scopus with the defined query. The first processing setup applies exclusion criteria \textit{E1} to remove papers with little to no citations, which resulted in 168 documents. 61 were left after a preliminary title analysis with the criteria (I1; E2-E3). In the final step, a preliminary analysis of the remaining documents' abstracts and conclusions was undertaken to only select the most relevant to the defined search questions. The inclusion criteria for this step were I1 to I4. In addition, the documents that were surveys or reviews of multiple implementations and articles that did not deal with tabular data were excluded. In the next section, the resulting papers from this last step will be explained.
 
-\begin{figure}[htp]
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=\textwidth]{figures/slr_pipeline.png}
-\caption{Systematic Literature Review Pipeline}
+\caption{GAN Systematic Literature Review Pipeline}
 \label{fig:slr_pipeline}
 \end{figure}
 
@@ -214,9 +489,9 @@ In the testing phase, two rolling bearing datasets were used. The authors fine-t
 \begin{description}
     \item[TadGAN \cite{geiger.etal_TadGANTimeSeries_2020}] aims to solve the problem of scalability and portability in state-of-the-art unsupervised methods for anomaly detection. Its goal is to detect anomalies in time series datasets. The authors used LSMT Recurrent Neural networks for both the generator and the critic. Two types of anomalies are identified single point (abnormal data point) and collective (sequence of abnormal data points) anomalies. 
     
-    The proposed architecture is a reconstruction-based anomaly detector with a generator $G$ which receives encoded samples in the form of latent points $z$ and reconstructs them back to the original sample distribution; an encoder that takes samples in the normal distribution and encodes them into latent point vectors; and two critics, one to distinguish real data points from synthesized ones ($C_x$) and the other ($C_z$) to evaluate between the distribution of real $z$ and the ones that were encoded by $E$ ($E(x)$). To cope with the mode collapse problem, common in most GANs, the authors adopt the Wasserstein loss function (for critics) and a cycle consistency loss function (for the generator and encoder). For the reconstruction errors, the point-wise difference (distance between the real and synthesized point)  and area difference (distance between "windows" of the same area in the real and synthesized data) were defined. Furthermore, the authors also chose a \textit{Dynamic Time Warp} (DWT) measure, which, similarly to area difference, can identify minor differences over long periods but can also handle time shift issues. 
+    The proposed architecture is a reconstruction-based anomaly detector with a generator $G$ which receives encoded samples in the form of latent points $z$ and reconstructs them back to the original sample distribution; an encoder that takes samples in the normal distribution and encodes them into latent point vectors; and two critics, one to distinguish real data points from synthesized ones ($C_x$) and the other ($C_z$) to evaluate between the distribution of real $z$ and the ones that were encoded by $E$ ($E(x)$). To cope with the mode collapse problem, common in most GANs, the authors adopt the Wasserstein loss function (for critics) and a cycle consistency loss function (for the generator and encoder). For the reconstruction errors, the point-wise difference (distance between the real and synthesized point)  and area difference (distance between "windows" of the same area in the real and synthesized data) were defined. Furthermore, the authors also chose a \textit{Dynamic Time Warp} (DTW) measure, which, similarly to area difference, can identify minor differences over long periods but can also handle time shift issues. 
     
-    Two methods of combining the critic outputs with the reconstruction errors were devised. For the first, a weighted sum of the reconstruction error and the critic output is done; in the other method, both values are directly multiplied. Several baselines are chosen to compare with the developed model in the testing phase. TadGAN and the baselines were tested on eleven datasets for anomaly detection (two of which were from NASA). The developed network outperformed every other baseline on six of the eleven datasets (based on the F1-score). Despite this, the mean, standard deviation and average of the F1-score in all datasets showed that TadGAN was more reliable than the other methods. Finally, the authors defined ten iterations of TadGAN, each with a different anomaly score with either one reconstruction function, one critic output or a combination of the two. The worst result was with the anomaly function consisting only of the critic output, and the best was the one in which the critic score and DWT were multiplied.
+    Two methods of combining the critic outputs with the reconstruction errors were devised. For the first, a weighted sum of the reconstruction error and the critic output is done; in the other method, both values are directly multiplied. Several baselines are chosen to compare with the developed model in the testing phase. TadGAN and the baselines were tested on eleven datasets for anomaly detection (two of which were from NASA). The developed network outperformed every other baseline on six of the eleven datasets (based on the F1-score). Despite this, the mean, standard deviation and average of the F1-score in all datasets showed that TadGAN was more reliable than the other methods. Finally, the authors defined ten iterations of TadGAN, each with a different anomaly score with either one reconstruction function, one critic output or a combination of the two. The worst result was with the anomaly function consisting only of the critic output, and the best was the one in which the critic score and DTW were multiplied.
 \end{description}
 
 \begin{description}
@@ -358,7 +633,7 @@ In the testing phase, two rolling bearing datasets were used. The authors fine-t
 \end{description}
 
 
-\section{Analysis}\label{sec:res_analysis}
+\section{Analysis}\label{sec:gan_res_analysis}
 In Table \ref{tab:slr_results}, a brief analysis of the SLR results will be carried out to study the effectiveness of the chosen methodology. Aside from the paper name and year, four other categories were identified to compare the evaluated solutions:
 
 \begin{itemize}
@@ -375,8 +650,8 @@ In Table \ref{tab:slr_results}, a brief analysis of the SLR results will be carr
 
 \bgroup
 \def\arraystretch{1.5}
-\begin{table}
-\caption{List of reviewed papers.}
+\begin{table}[h]
+\caption{List of reviewed papers for Adversarial Outlier Detection.}
 \label{tab:slr_results}
  \begin{adjustwidth}{-1.8cm}{}
 \resizebox{0.9\textwidth}{!}{\begin{minipage}{\textwidth}
@@ -431,61 +706,8 @@ ATTAIN \cite{xu.etal_DigitalTwinbasedAnomaly_2021}       & 2021 & Normal        
 \end{table}
 \egroup
 
-% \begin{table}[htbp]
-% \caption{List of reviewed papers.}
-% \label{tab:slr_results}
-%  \begin{adjustwidth}{0.5cm}{}
-% \resizebox{0.8\textwidth}{!}{\begin{minipage}{\textwidth}
-% \begin{tabular}{cccccc} 
-% \hline
-% Paper                         & Year                      & Training Objective                                                                  & Anomaly Detection                                                    & Architecture                                                    & Application                                                             \\ 
-% \hline
-% MAD-GAN                       & 2019                      & normal distribution                                                                 & G loss + D loss                                                      & Normal                                                          & Time series                                                             \\ 
-% \hline
-% ALAD                          & 2018                      & normal distribution                                                                 & Reconstruction                                                       & Mixed (E)                                                       & N/A                                                                     \\ 
-% \hline
-% USAD                          & 2020                      & normal distriution                                                                  & Reconstruction                                                       & Autoencoder                                                     & N/A                                                                     \\ 
-% \hline
-% MO-GAAL                       & 2020                      & \begin{tabular}[c]{@{}c@{}}outlier generation\\ division boundary\end{tabular}      & Classifier                                                           & Mixed (C)                                                       & N/A                                                                     \\ 
-% \hline
-% IGAN-IDS                      & 2020                      & outlier oversampling                                                                & Classifier                                                           & Mixed (FE + C)                                                  & Intrusion detection                                                     \\ 
-% \hline
-% Jiang et al.                  & 2019                      & normal distribution                                                                 & Reconstruction                                                       & Autoencoder                                                     & Time series                                                             \\ 
-% \hline
-% TadGAN                        & 2020                      & normal distribution                                                                 & \begin{tabular}[c]{@{}c@{}}Reconstruction \\ and D loss\end{tabular} & Mixed (E)                                                       & Time series                                                             \\ 
-% \hline
-% adVAE                         & 2020                      & normal distribution                                                                 & Reconstruction                                                       & Autoencoder                                                     & N/A                                                                     \\ 
-% \hline
-% Blance et al.                 & 2019                      & outlier oversampling                                                                & Classifier                                                           & Autoencoder                                                     & High energy physics                                                     \\ 
-% \hline
-% FGPAA                         & 2020                      & normal distribution                                                                 & Reconstruction                                                       & \begin{tabular}[c]{@{}c@{}}Autoencoder\\ and G + D\end{tabular} & \begin{tabular}[c]{@{}c@{}}Roll bearing\\ fault detection\end{tabular}  \\ 
-% \hline
-% FGAN                          & 2019                      & \begin{tabular}[c]{@{}c@{}}normal distribution\\ and division boundary\end{tabular} & \begin{tabular}[c]{@{}c@{}}G loss + D loss \\ (adapted)\end{tabular} & Normal                                                          & N/A                                                                     \\ 
-% \hline
-% MENSA                         & 2021                      & normal distribution                                                                 & D (initial layers)                                                   & Autoencoder                                                     & Intrusion detection                                                     \\ 
-% \hline
-% Liu et al.                    & 2022                      & normal distribution                                                                 & Classifier                                                           & \begin{tabular}[c]{@{}c@{}}Mixed\\(C +SA)\end{tabular}          & \begin{tabular}[c]{@{}c@{}}Roll bearing\\fault detection\end{tabular}   \\ 
-% \hline
-% DOPING                        & 2018                      & \begin{tabular}[c]{@{}c@{}}oversampling\\ normal min.\end{tabular}                  & Classifier/Model                                                     & Autencoder                                                      & \begin{tabular}[c]{@{}c@{}}Performance \\ improvement\end{tabular}      \\ 
-% \hline
-% Bot-GAN                       & 2018                      & normal distribution                                                                 & Classifier (D)                                                       & Normal                                                          & Bot detection                                                           \\ 
-% \hline
-% Yuan et al.                   & 2020                      & normal distribution                                                                 & Reconstruction                                                       & Normal                                                          & \begin{tabular}[c]{@{}c@{}}Power outage \\ detection\end{tabular}       \\ 
-% \hline
-% AMBi-GAN                      & 2021                      & normal distribution                                                                 & \begin{tabular}[c]{@{}c@{}}Reconstruction \\ and D loss\end{tabular} & Normal                                                          & \begin{tabular}[c]{@{}c@{}}Industrial time \\ series\end{tabular}       \\ 
-% \hline
-% \multicolumn{1}{|c|}{TAnoGAN} & \multicolumn{1}{c|}{2020} & \multicolumn{1}{c|}{normal distribution}                                            & \multicolumn{1}{c|}{Reconstruction}                                  & \multicolumn{1}{c|}{Normal}                                     & \multicolumn{1}{c|}{Time series}                                        \\ 
-% \hline
-% MinLGAN                       & 2018                      & \begin{tabular}[c]{@{}c@{}}normal and \\ abnormal distributions\end{tabular}        & D                                                                    & Normal                                                          & N/A                                                                     \\ 
-% \hline
-% ATTAIN                        & 2021                      & normal distribution                                                                 & Loss                                                                 & Normal                                                          & \begin{tabular}[c]{@{}c@{}}Cyber-physical \\ systems\end{tabular}       \\
-% \hline
-% \end{tabular}
-% \end{minipage}}
-% \end{adjustwidth}
-% \end{table}
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{figures/slr_result_year_paper.png}
 \caption{Number of reviewed papers per year. \label{fig:slr_results_year}}
@@ -504,7 +726,7 @@ Further analysis can be done with regard to the search questions defined in sec.
 
 As for \textbf{SQ2}, it was shown that most methods (75\%) learn the normal distribution during the training phase and then detect outliers. 20\% generate outliers that are used to train classifiers for detecting anomalies. Only \cite{wang.etal_AnomalyDetectionMinimum_2018} makes use of both abnormal and normal data distribution in the training phase. This indicates that most GAN-based solutions for anomaly detection can generate realistic data with the same distribution as the original data. However, not all use the discriminator to distinguish between normal and abnormal samples, as they employ classifiers.
 
-\section{Threats to SLR}\label{sec:slr_threats}
+\subsection{Threats to SLR Validity}\label{sec:gan_slr_threats}
 The chosen limit for the minimum citations might have been too restrictive, especially for the papers recently published. The adaptation of inclusion criteria I4 (Table \ref{tab:criteria}) to allow for fewer citations in earlier papers was made to try and mitigate this risk. Despite this, the number of analysed papers for 2022 was significantly smaller than the previous years, which introduces the risk that some of the newer published relevant papers might have been overlooked. 
 
 Furthermore, as only one search engine was used for the SLR, there is also the risk that some relevant papers from other platforms were not encountered during this process. 
@@ -514,11 +736,10 @@ Another threat may arise due to the terms used to search for relevant papers. Af
 Similarly, by prohibiting documents that referenced images, or anything other than tabular data, some relevant papers might have been excluded. This can occur, for instance, in architectures that were firstly designed for image anomaly detection but were also suited for tabular datasets.
 
 \section{Summary}\label{sec:summary}
-This chapter explained the methodology used to aggregate the papers relevant to the problem in question. First, a set of search questions were defined (sec. \ref{sec:search_questions} followed by the respective query (sec. \ref{sec:search_queries}) that was used on Scopus. The selection criteria and the processing pipeline were delined in Section \ref{sec:inclusion_exclusion}. A summary of each of the selected papers is provided in Section \ref{sec:stoa_results}. Next, a categorization and summary of the entire process are performed in Section \ref{sec:res_analysis}, followed by the threats to the SLR process (sec. \ref{sec:slr_threats}).
+This chapter explained the methodology used to aggregate the papers relevant to the problem in question. For each part, a set of search questions were defined (sec. \ref{sec:cluster_search_questions} and \ref{sec:gan_search_questions}) followed by the respective queries (sec. \ref{sec:gan_search_queries} and \ref{sec:cluster_search_queries}). The selection criteria and the processing pipeline were defined in Sections \ref{sec:cluster_inclusion_exclusion} and \ref{sec:gan_inclusion_exclusion}. Summaries of each of the selected papers for both parts are provided in Sections \ref{sec:gan_sota_results} and \ref{sec:clustering_sota_results}. Next, a categorization and summary of the processes are performed in Sections \ref{sec:sota_clustering_analysis} and \ref{sec:gan_res_analysis}, followed by the threats to the SLR process (sec. \ref{sec:sota_clustering_threats} and \ref{sec:gan_slr_threats}).
 
+In the clustering part, 20 papers were selected for final evaluation after the aggregation of results from both Scopus and Google Scholar. Several novel clustering algorithms and methods were identified. Furthermore, most articles talked about applying clustering methods to improve machine-learning tasks in some way, which was the main goal of this part.
 
-% TODO rever anomaly method para USAD
-% TODO rever blance et al.
-
+For the second part, the same number of papers were analyzed; however, these were retrieved from only one platform. As the search was more restrictive, the number of papers was significantly smaller than in the previous part. Despite this, several novel GAN-based architectures were identified, and the majority of the papers were published in 2020. This is also due to the novelty of this area, as many solutions were published in the last few years.
 
 

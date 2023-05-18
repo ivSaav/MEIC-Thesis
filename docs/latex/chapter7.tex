@@ -43,6 +43,19 @@ The points that are not reachable from any core point are assigned "noise" label
 
 The algorithm is advantageous because it doesn't require the determination of the number of clusters beforehand, as it can find clusters of any size and is also robust to the existence of outliers. Despite this, it is sensitive to the parameters $minPts$ and $eps$, with slight changes in these parameters having a significant impact on the results.
 
+\section{Validity Measures\label{sec:validity_measures}}
+As previously stated, one of the main difficulties in clustering is deciding the right number of clusters to ensure a clear division of the data. This is a subjective process that can be aided by the use of validity measures. These measures, often called indices, are used to evaluate the quality of the clustering and can be used to determine the optimal number of clusters. In this section, the validity measures that were used in this work will be presented.
+
+Cluster validity indices can be divided into three categories: external, internal and relative. External validity indices are used to compare the results of the clustering with the ground truth (labels). On the other hand, internal validity indices serve to evaluate the quality of the clustering without the use of external information. Relative validity evaluates the clustering structure by varying different parameters of the algorithm, such as the number of clusters.
+
+External validity criteria will not be considered for this study as there is no ground truth information available. Instead, internal and relative validity approaches will be used to evaluate the quality of the clustering. The internal validity indices that were used are the following:
+
+\noindent\textbf{Silhouette Score (S).} This score is one of the most widely used to evaluate clustering goodness. It is also referred to as the mean Silhouette Coefficient for all clusters and is calculated with the mean intra-cluster distance and the mean nearest-cluster distance. Observations with a score close to 1 are well clustered, while observations with a score close to -1 are likely to be assigned to the wrong cluster. Scores around 0 indicate overlapping clusters.
+
+\noindent\textbf{Calinski-Harabasz Index (CH).} This index is also known as the Variance Ratio Criterion. It is calculated by dividing the between-cluster or inter-cluster dispersion by the within-cluster or intra-cluster dispersion. The higher the value of the index, the better the clustering. Like the silhouette score, it evaluates the goodness of the clustering structure, with higher values indicating better clustering; but, contrary to the previous score, it has no reasonable bound and can take any value. Because of this, it is difficult to use this metric to compare clusterings generated with different methods.
+
+\noindent\textbf{Davies-Bouldin Index (DB).} This index is calculated by taking the average similarity measure of each cluster with its most similar cluster. This is done by calculating intra-cluster dispersion for each cluster, $i$, followed by the separation measure of each cluster with every other cluster, $j$. Then the similarity of a cluster is obtained by dividing the sum of the intra-cluster dispersions of $i$ and $j$ by the distance between the centroids of the two. Next for each cluster, the maximum similarity measure is selected and the average of these values is calculated. Unlike the previous measures, the lower the value of the index, the better the clustering, as this indicates less similarity between clusters.
+
 \section{Dimensionality Reduction}\label{sec:dim_reduction}
 In Data Science and Machine Learning, dimensionality refers to the number of features of the dataset. The dimensionality of a dataset can be reduced by removing features that are not relevant to the problem at hand. This can be done by using feature selection methods, which are methods that select the most relevant features for the task at hand. However, this can also be done by using dimensionality reduction methods, which are methods that transform the data into a lower-dimensional space, while preserving the most important information.
 
@@ -63,14 +76,78 @@ For this work, we will be using the following dimensionality reduction methods:
 \section{Experiments}\label{sec:clustering_experiments}
 After the identification of the most common clustering and dimensionality reduction methods, the next step is to apply them to the dataset and evaluate their performance. This section will describe the experiments that were carried out to try to better understand the dataset.
 
-\subsection{Time Series Methods}\label{sec:time_series_methods}
+\subsection{Time Series KMeans}\label{sec:time_series_methods}
 The first method to be tested was the \textit{TimeSeriesKmeans} clustering algorithm from \textit{tslearn}\footnote{TimeSeriesKMeans \url{https://tslearn.readthedocs.io/en/stable/gen_modules/clustering/tslearn.clustering.TimeSeriesKMeans.html}}. As the name indicates, this algorithm is a variation of the K-means algorithm that is used for time series data. It is advantageous as it can cluster time series data without the need to transform it into a vector, which can be problematic because it can lead to the loss of information. Despite this, the method is still based on the K-Means algorithm presented in Section \ref{sec:kmeans} and presents the same disadvantages as the original algorithm. 
 
-Clustering was conducted on the $B$ and $\alpha$ variables of the dataset ranging from 2 to 6 clusters. It is difficult to determine the number of appropriate clusters for the dataset beforehand as this method has no technique for their determination, unlike the regular K-Means. Therefore, the number of clusters was determined by looking at the results and trying to find the number of clusters that best represented the data.
+Clustering was conducted first on the magnetic field ($B$) and then on the flux tube inclination ($\alpha$) variable. For each one an elbow test was conducted to try and determine the most appropriate number of clusters. 
 
-% TODO adidcionar imagem de um dos clustres de alpha e campo magnético
-In Figure \ref{}
+\begin{figure}[h]
+    \caption{TimeSeriesKMeans Elbow Tests}
+    \begin{subfigure}[h]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/tskmeans_elbow_b.png}
+        \caption{Magnetic Field ($B$).}
+        \label{fig:elbow_b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[h]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/tskmeans_elbow_alpha.png}
+        \caption{Flux-tube inclination ($\alpha$).}
+        \label{fig:elbow_alpha}
+    \end{subfigure}
+\end{figure}
+
+\begin{table}[h]
+    \caption[Validity Scores for TimeSeriesKmeans]{Validity metrics for different TimeSeriesKMeans models obtained by varying the number of clusters.}
+    \begin{subtable}[h]{0.48\textwidth}
+        \centering
+        \begin{tabular}{@{}cccc@{}}
+            \toprule
+            \textbf{K} & \textbf{S score} & \textbf{DB} & \textbf{CH} \\ \midrule
+            2          & 0.524               & 0.669                   & 20376                  \\
+            3          & 0.511               & 0.628                   & 25585                  \\
+            4          & 0.498               & 0.606                   & 30677                  \\
+            5          & 0.458               & 0.648                   & 31995                  \\
+            6          & 0.449               & 0.671                   & 34394                  \\
+            7          & 0.431               & 0.695                   & 35462                  \\
+            8          & 0.422               & 0.712                   & 36070                  \\
+            9          & 0.403               & 0.738                   & 36368                  \\ \bottomrule
+        \end{tabular}
+        \caption{Magnetic Field ($B$)}
+        \label{tab:tskmeans_b}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.48\textwidth}
+        \centering
+        \begin{tabular}{@{}cccc@{}}
+            \toprule
+            \textbf{K} & \textbf{S score} & \textbf{DB} & \textbf{CH} \\ \midrule
+            2          & 0.865               & 0.190                   & 263222                 \\
+            3          & 0.499               & 1.078                   & 160481                 \\
+            4          & 0.493               & 1.089                   & 120114                 \\
+            5          & 0.463               & 1.123                   & 93537                  \\
+            6          & 0.480               & 1.104                   & 82431                  \\
+            7          & 0.259               & 1.312                   & 82038                  \\
+            8          & 0.257               & 1.306                   & 76633                  \\
+            9          & 0.252               & 1.374                   & 70313                  \\ \bottomrule
+            \end{tabular}
+        \caption{Flux-tube inclination ($\alpha$)}
+        \label{tab:tskmeans_alpha}
+    \end{subtable}
+\end{table}
 
 
+The elbow test for the magnetic field variable can be seen in Figure \ref{fig:elbow_b}. From this plot, it can be seen that the elbow is at $k=4$, which indicates that the optimal number of clusters is 4. However, this is not a clear elbow, as the curve is not smooth and the elbow is not very pronounced. This indicates that the optimal number of clusters is not very clear and that the results might not be very good.
+
+To get a more precise number of clusters the validity metrics discussed in Section \ref{sec:validity_measures} were calculated for different KMeans models obtained by varying the number of clusters. The results of these tests can be seen in Table \ref{tab:tskmeans_b}. From the first three entries, it can be seen that the highest silhouette score is obtained with $K=2$, but the lowest Davies-Bouldin index is obtained with $k=4$, which also has the highest Calinski-Harabasz index of the three. This can serve as a possible indication that the correct number of clusters for this variable is 4.
+
+Following the same procedure as for the magnetic field, an elbow test was conducted on the flux tube inclination variable, $\alpha$. The results of this test can be seen in Figure \ref{fig:elbow_alpha}. In contrast with the results of the previous test, this elbow is much clearer, with the elbow being at $k=2$. This indicates that the optimal number of clusters is 2.
+
+The validity metrics (table \ref{tab:tskmeans_alpha}) also provide a clear indication that the correct number of clusters for this variable is 2, with the highest Silhouette and Calinski-Harabasz scores being obtained with $k=2$. The Davies-Bouldin index is also the lowest for this value.
+
+
+\subsection{SOM}\label{sec:som_experiments}
+Following the experiments with TimeSeriesKmeans, the SOM algorithm was tested, which is also seen as a useful method for clustering high-dimension data. This algorithm was tested on the same variables as the previous algorithm, $B$ and $\alpha$. The elbow tests for these variables can be seen in Figure \ref{fig:som_elbow}. From these plots, it can be seen that the elbow for the magnetic field variable is at $k=4$, while the elbow for the flux tube inclination variable is at $k=2$. This indicates that the optimal number of clusters for the magnetic field variable is 4, while the optimal number of clusters for the flux tube inclination variable is 2.
 
 \section{Results}\label{sec:clustering_results}
