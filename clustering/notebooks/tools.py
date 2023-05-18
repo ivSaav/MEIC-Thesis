@@ -10,6 +10,9 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_har
 import seaborn as sns
 import pandas as pd
 
+from pickle import dump
+from typing import List
+from pathlib import Path
 def plot_km_results(cluster_count, labels, series, save_path=None, scale="log"):
     plot_count = math.ceil(math.sqrt(cluster_count))
     fig, axs = plt.subplots(plot_count,plot_count,figsize=(10,10), sharey="all")
@@ -206,4 +209,19 @@ def silhouette_plot(X, nclusters, model, params):
         ax1.set_yticks([])  # Clear the yaxis labels / ticks
         ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
-        
+def save_cluster_info(labels : List[int], filenames : List[str], run_id : int, method_name : str, save_path : Path):
+
+    clusters = {i : [] for i in set(labels)}
+    for f, c in zip(filenames, labels):
+        clusters.get(c, [])
+        clusters[c].append(f)
+    run_dict = {
+                'run_id': run_id,
+                'method': method_name,
+                'clusters': clusters,
+                'small_clusters': [],
+    }
+    
+    run = {run_id : run_dict}
+
+    dump(run, open(save_path / f"{method_name}.pkl", "wb"))
