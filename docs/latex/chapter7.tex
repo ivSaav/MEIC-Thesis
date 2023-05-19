@@ -74,10 +74,12 @@ For this work, we will be using the following dimensionality reduction methods:
 % TODO falar da distributição dos dados para cada variável e como quaase todas as linhas de R têm sempre o mesmo valor no início e no fim
 
 \section{Experiments}\label{sec:clustering_experiments}
-After the identification of the most common clustering and dimensionality reduction methods, the next step is to apply them to the dataset and evaluate their performance. This section will describe the experiments that were carried out to try to better understand the dataset.
+After the identification of the most common clustering and dimensionality reduction methods, the next step is to apply them to the dataset and evaluate their performance. This section will describe the experiments that were carried out to try to better understand the dataset. 
+
+In every experiment, the data was scaled with the QuantileTransformer module from the \textit{sklearn} \cite{scikit-learn} library. This module transforms the data to follow a uniform or a normal distribution. This is done to avoid the influence of outliers in the results of the clustering algorithms. This scaling method was also chosen out of consistency, as it will be later used to scale the data for the machine learning algorithms. Additionally, every algorithm and method that depends on random initialization was set to the same seed to ensure reproducibility.
 
 \subsection{Time Series KMeans}\label{sec:time_series_methods}
-The first method to be tested was the \textit{TimeSeriesKmeans} clustering algorithm from \textit{tslearn}\footnote{TimeSeriesKMeans \url{https://tslearn.readthedocs.io/en/stable/gen_modules/clustering/tslearn.clustering.TimeSeriesKMeans.html}}. As the name indicates, this algorithm is a variation of the K-means algorithm that is used for time series data. It is advantageous as it can cluster time series data without the need to transform it into a vector, which can be problematic because it can lead to the loss of information. Despite this, the method is still based on the K-Means algorithm presented in Section \ref{sec:kmeans} and presents the same disadvantages as the original algorithm. 
+The first method to be tested was the \textit{TimeSeriesKmeans}\footnote{TimeSeriesKMeans \url{https://tslearn.readthedocs.io/en/stable/gen_modules/clustering/tslearn.clustering.TimeSeriesKMeans.html}} clustering algorithm from \textit{tslearn} \cite{tslearn}. As the name indicates, this algorithm is a variation of the K-means algorithm that is used for time series data. It is advantageous as it can cluster time series data without the need to transform it into a vector, which can be problematic because it can lead to the loss of information. Despite this, the method is still based on the K-Means algorithm presented in Section \ref{sec:kmeans} and presents the same disadvantages as the original algorithm. 
 
 Clustering was conducted first on the magnetic field ($B$) and then on the flux tube inclination ($\alpha$) variable. For each one an elbow test was conducted to try and determine the most appropriate number of clusters. 
 
@@ -148,6 +150,153 @@ The validity metrics (table \ref{tab:tskmeans_alpha}) also provide a clear indic
 
 
 \subsection{SOM}\label{sec:som_experiments}
-Following the experiments with TimeSeriesKmeans, the SOM algorithm was tested, which is also seen as a useful method for clustering high-dimension data. This algorithm was tested on the same variables as the previous algorithm, $B$ and $\alpha$. The elbow tests for these variables can be seen in Figure \ref{fig:som_elbow}. From these plots, it can be seen that the elbow for the magnetic field variable is at $k=4$, while the elbow for the flux tube inclination variable is at $k=2$. This indicates that the optimal number of clusters for the magnetic field variable is 4, while the optimal number of clusters for the flux tube inclination variable is 2.
+Following the experiments with TimeSeriesKmeans, the SOM algorithm was tested, which is also seen as a useful method for clustering high-dimension data. A Python implementation of the algorithm \cite{vettigliminisom} was tested on the same variables as the previous algorithm, $B$ and $\alpha$. Unlike KMeans, this algorithm does not have any tests to visually determine the number of clusters. Because of this, the number of clusters was determined by trial and error, by varying the number of clusters and evaluating the results of the validity metrics (table \ref{tab:validity_som}). The first two columns of each subtable indicate the $x$ and $y$ dimensions of the SOM map used for the clustering task. The number of clusters is obtained by multiplying these two values.
+
+\begin{table}[h]
+    \caption[Validity Scores for SOM]{Validity metrics for different SOM models obtained by varying sizes of the maps ($x$ and $y$ variables).}\label{tab:validity_som}
+    \begin{subtable}[h]{0.48\textwidth}
+        \centering
+        \begin{tabular}{@{}ccccc@{}}
+            \toprule
+            \textbf{x} & \textbf{y} & \textbf{S score} & \textbf{DB} & \textbf{CH} \\ \midrule
+            2          & 2          & 0.500            & 0.602       & 30962   \\
+            2          & 3          & 0.281            & 5.228       & 3429    \\
+            3          & 2          & 0.454            & 0.660       & 35001   \\
+            3          & 3          & 0.407            & 0.727       & 37133   \\ \bottomrule
+            \end{tabular}
+        \caption{Magnetic Field ($B$)}
+        \label{tab:som_b}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[h]{0.48\textwidth}
+        \centering
+        \begin{tabular}{@{}ccccc@{}}
+            \toprule
+            \textbf{x} & \textbf{y} & \textbf{S score} & \textbf{DB} & \textbf{CH} \\ \midrule
+            2          & 2          & 0.269            & 1.479       & 122195 \\
+            2          & 3          & 0.004            & 1.325       & 5254    \\
+            3          & 2          & 0.269            & 1.326       & 89759   \\
+            3          & 3          & 0.231            & 1.426       & 66878   \\ \bottomrule
+            \end{tabular}
+        \caption{Flux-tube inclination ($\alpha$)}
+        \label{tab:som_alpha}
+    \end{subtable}
+\end{table}
+
+From looking at the results of the validity metrics for the magnetic field variable (table \ref{tab:som_b}), it can be concluded that the highest Silhouette score and DB index are obtained with $x=2$ and $y=2$, which translate to 4 clusters. For a map size of $x=2$ and $y=3$, the algorithm completely failed to generate a proper separation. The Calinski-Harabasz index is the highest for $x=3$ and $y=3$, which translates to 9 clusters. However, this is not a clear indication that this is the correct number of clusters, as the DB index is higher than the first clustering.
+
+The results of the validity metrics for the flux tube inclination variable (table \ref{tab:som_alpha}) are even less clear than the previous ones. The highest Silhouette score is obtained with the first and third models. The best CH index was by far the first one. The DB index is very high for every model that was generated, which indicates that clustering in this variable may not be a good idea.
+
+Overall the results from this experiment indicate that the SOM algorithm is not a good choice for clustering this dataset, as it is not able to generate a clear separation between the clusters. This is especially true for the flux tube inclination variable, where the algorithm completely failed to generate a proper separation. The only variable where the algorithm was able to generate a somewhat clear separation was the magnetic field with a map of 2x2 neurons.
+
+
+\subsection{PCA Clustering Approach}\label{sec:pca_clustering}
+The next approach that was tested was to apply PCA to the dataset and then apply the clustering algorithms to the reduced dataset. This approach was tested on the magnetic field variable, $B[G]$, the flux tube inclination, $\alpha [deg]$, and lastly on a combination of all the input variables. 
+
+Tests were conducted to try and find the optimal number of components that would explain the dataset. This was done by analyzing the cumulative explained variance of PCA models with different \textit{n\_components}. For $B$ and $\alpha$ about 99\% of the variance was explained by just 2 components. As for the combined dataset, 98\% was explained by also 2 components. With this, it can be concluded that it is valid to reduce the dimensionality of this dataset to just two components. This is useful because it provides a simplified representation of the data while preserving most of the information. 
+
+The representations for each of the approaches can be seen in Figure \ref{fig:pca_mag_2d}. Note that the representation generated for the flux-tube indication and the joint inputs are very similar. This indicates that the flux-tube inclination variable is the one that contributes the most to the PCA.
+
+For the clustering part, the KMeans and the AgglomerativeClustering methods of the \textit{sklearn} library were applied to each of the representations to determine the correct number of clusters with the same methodology as in the previous sections. 
+
+\begin{figure}[h]
+    \caption[PCA applied to the different variables]{PCA applied to the different variables. (a) and (b) represent the PCAs of the magnetic field variable ($B[G]$) and the flux-tube inclination variable ($\alpha [deg]$), respectively; (c) is the PCA of all input variables combined.}
+    \label{fig:pca_mag_2d}
+    \begin{subfigure}[h]{0.329\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/mag_pca_2d.png}
+        \caption{Magnetic Field ($B$).}
+        \label{fig:pca_mag_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[h]{0.329\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/alpha_pca_2d.png}
+        \caption{Flux-tube inclination ($\alpha$).}
+        \label{fig:pca_alpha_2d}
+    \end{subfigure}
+    \begin{subfigure}[h]{0.329\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/pca_joint_2d.png}
+        \caption{Joint Inputs ($R$, $B$ and $\alpha$).}
+        \label{fig:pca_joint_2d}
+    \end{subfigure}
+\end{figure}
+
+% \begin{figure}
+%     \includegraphics{figures/pca_mag_explained_variance.png}
+%     \caption{Explained variance for the PCA of the magnetic field variable.}
+% \end{figure}
+
+\subsubsection{PCA of the Magnetic Field}\label{sec:pca_b}
+
+The KMeans and the AgglomerativeClustering methods were applied to the PCA of the magnetic field variable. The results of the elbow tests for KMeans can be seen in Figure \ref{fig:pca_b_elbow}. From this plot, it can be seen that the elbow is at $k=4$, which is an indication that the optimal number of clusters might be 4. 
+
+\begin{figure}
+    \caption{KMeans Elbow test for the PCA of the magnetic field variable.}
+    \label{fig:pca_b_elbow}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/pca_mag_elbow_test.png}
+\end{figure}
+
+To get a more concrete outlook, the validity measures from the previous sections were calculated for each of the methods. The results of these tests can be seen in Table \ref{tab:pca_b}. For the KMeans algorithm, the highest Silhouette score is obtained with $K=2$, but the lowest Davies-Bouldin index is obtained with $K=4$, which also has the highest Calinski-Harabasz index of the first three results. This further confirms the results of the elbow test. 
+
+The results of the Agglomerative method are not as clear as the previous ones. The highest silhouette score is also with $K=2$, but as in Kmeans, the lowest DB index was with $K=4$. In addition, the CH score is much higher for the model with 4 clusters than for the $K=2$ model.
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[h]
+    \caption[Validity metrics for PCA of the Magnetic Field]{Validity metrics obtained by different clustering methods on the PCA of the magnetic field variable. Various models were created for each method by varying the number of clusters, $K$.}\label{tab:pca_b}
+    \begin{tabular}{@{}rrrrccc@{}}
+        \toprule
+    \multicolumn{1}{c}{\textbf{}}   & \multicolumn{3}{c}{\textbf{KMeans}}                                                                       & \multicolumn{3}{c}{\textbf{Agglomerative}}   \\ \midrule
+    \multicolumn{1}{c|}{\textbf{K}} & \multicolumn{1}{c}{\textbf{S score}} & \multicolumn{1}{c}{\textbf{DB}} & \multicolumn{1}{c|}{\textbf{CH}} & \textbf{S score} & \textbf{DB} & \textbf{CH} \\ \midrule
+    \multicolumn{1}{r|}{2}          & 0.538                                & 0.645                           & \multicolumn{1}{r|}{21224}   & 0.507            & 0.669       & 17899   \\
+    \multicolumn{1}{r|}{3}          & 0.534                                & 0.586                           & \multicolumn{1}{r|}{28086}   & 0.496            & 0.622       & 23868   \\
+    \multicolumn{1}{r|}{4}          & 0.531                                & 0.549                           & \multicolumn{1}{r|}{35942}   & 0.502            & 0.550       & 30612   \\
+    \multicolumn{1}{r|}{5}          & 0.502                                & 0.579                           & \multicolumn{1}{r|}{39762}   & 0.484            & 0.593       & 37737   \\
+    \multicolumn{1}{r|}{6}          & 0.494                                & 0.592                           & \multicolumn{1}{r|}{44986}   & 0.477            & 0.585       & 40121   \\
+    \multicolumn{1}{r|}{7}          & 0.486                                & 0.600                           & \multicolumn{1}{r|}{49233}   & 0.460            & 0.598       & 44158   \\
+    \multicolumn{1}{r|}{8}          & 0.454                                & 0.637                           & \multicolumn{1}{r|}{49757}   & 0.436            & 0.638       & 45487   \\
+    \multicolumn{1}{r|}{9}          & 0.457                                & 0.636                           & \multicolumn{1}{r|}{53265}   & 0.427            & 0.630       & 47528   \\ \bottomrule
+    \end{tabular}
+    \end{table}
+
+With the consensus of both clustering methods, it can be concluded that the optimal number of clusters for the PCA of the magnetic field variable is 4. Interestingly, this is the same number of clusters that were obtained with the TimeSeriesKMeans algorithm in Section \ref{sec:time_series_methods} and the SOM algorithm in Section \ref{sec:som_experiments} for the magnetic field.
+
+\subsubsection{PCA of the Flux-tube Inclination}\label{sec:pca_a}
+Following the same procedure as in the approach, an elbow test was conducted for the KMeans model of the PCA of the flux-tube inclination variable. The results of this test can be seen in Figure \ref{fig:pca_a_elbow}. The plot indicates that the most appropriate number of clusters is 2.
+
+
+\begin{figure}[h]
+    \caption{KMeans Elbow test for the PCA of the flux-tube inclination variable.}
+    \label{fig:pca_a_elbow}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/pca_alpha_elbow_test.png}
+\end{figure}
+
+These results are further corroborated by the validity metrics in Table \ref{tab:pca_a}. The highest Silhouette score and DB index are obtained with $K=2$, which also has the highest Calinski-Harabasz index of all the results. This indicates that the optimal number of clusters is 2, for both of the tested methods. This division occurs because the $\alpha$ variable may take negative or positive values.
+
+\begin{table}[h]
+    \caption[Validity metrics for PCA of the Flux-tube Inclination]{Validity metrics obtained by different clustering methods on the PCA of the flux-tube inclination variable. Various models were created for each method by varying the number of clusters, $K$.}\label{tab:pca_a}
+    \begin{tabular}{@{}cccc|ccc@{}}
+    \toprule
+    \multicolumn{1}{l}{}            & \multicolumn{3}{c|}{\textbf{KMeans}}         & \multicolumn{3}{c}{\textbf{Agglomerative}}   \\ \midrule
+    \multicolumn{1}{c|}{\textbf{K}} & \textbf{S score} & \textbf{DB} & \textbf{CH} & \textbf{S score} & \textbf{DB} & \textbf{CH} \\ \midrule
+    \multicolumn{1}{c|}{2}          & 0.898            & 0.145       & 428761  & 0.898            & 0.145       & 428761  \\
+    \multicolumn{1}{c|}{3}          & 0.586            & 0.757       & 294424  & 0.574            & 0.782       & 287595  \\
+    \multicolumn{1}{c|}{4}          & 0.593            & 0.662       & 243422  & 0.378            & 1.022       & 239082  \\
+    \multicolumn{1}{c|}{5}          & 0.583            & 0.713       & 207238  & 0.354            & 0.955       & 219099  \\
+    \multicolumn{1}{c|}{6}          & 0.400            & 0.887       & 237197  & 0.359            & 0.924       & 215351  \\
+    \multicolumn{1}{c|}{7}          & 0.392            & 0.917       & 216689  & 0.360            & 0.900       & 211272  \\
+    \multicolumn{1}{c|}{8}          & 0.391            & 0.875       & 225758  & 0.338            & 0.906       & 199083  \\
+    \multicolumn{1}{c|}{9}          & 0.381            & 0.901       & 223637  & 0.336            & 0.890       & 189224  \\ \bottomrule
+    \end{tabular}
+    \end{table}
+
+\subsubsection{PCA of the Joint Inputs}\label{sec:pca_joint}
+
+
 
 \section{Results}\label{sec:clustering_results}

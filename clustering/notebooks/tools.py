@@ -127,15 +127,15 @@ def plot_cluster_file_group(filenames, labels, nclusters):
 
 
 def clustering_metrics(model, data, params) -> pd.DataFrame:
-    scores = {"n_clusters" : [], "silhouette" : [], "davies_bouldin" : [], "calinski_harabasz" : [],}
+    scores = {"K" : [], "S score" : [], "DB" : [], "CH" : [],}
     for i in range(2, 10):
         kmeans = model(n_clusters=i, **params)
         labels = kmeans.fit_predict(data)
-        scores["n_clusters"].append(i)
-        scores["silhouette"].append(silhouette_score(data, labels))
-        scores["davies_bouldin"].append(davies_bouldin_score(data, labels))
+        scores["K"].append(i)
+        scores["S score"].append(silhouette_score(data, labels))
+        scores["DB"].append(davies_bouldin_score(data, labels))
         # scores["rand"].append(rand_score(data, labels))
-        scores["calinski_harabasz"].append(calinski_harabasz_score(data, labels))
+        scores["CH"].append(calinski_harabasz_score(data, labels))
         # scores["fowlkes_mallows"].append(fowlkes_mallows_score(data, labels))
     return pd.DataFrame(scores, index=None)  
 
