@@ -14,6 +14,8 @@ from model import RegressionHyperModel
 from keras.callbacks import EarlyStopping
 from keras_tuner import RandomSearch
 
+from tools.data import plot_data_values
+
 from tools.data import load_original_data, join_files_in_cluster, plot_data_values, scale_data
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -49,6 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--save-scalers', '-s', action='store_true', default=False)
     parser.add_argument('--ignore-outlier-runs', action="store_true")    
     parser.add_argument('--run-id', '-r', type=int, default=None)
+    parser.add_argument('--anomaly-files', '-af', nargs='+', default=[])
     
     opts = vars(parser.parse_args())
     
@@ -64,9 +67,33 @@ if __name__ == '__main__':
     val_files = []
     with open("../data/testing_profiles.txt", "r") as f:
         val_files = f.readlines()
-        val_files = [f.split('.')[0] for f in val_files]    
+        val_files = [vf.split('.')[0] for vf in val_files]    
+
+    exclusion_files = []
+    if len(opts['anomaly_files']) > 0:
+        anomaly_files = []
+        for af in opts['anomaly_files']:
+            with open(af, "r") as f:
+                exclusion_files.extend([a.split('.')[0].replace('\n', '') for a in f.readlines()]) 
+    print("Excluding ", len(exclusion_files), " anomaly files from training.")
+    print("Excluding ", len(val_files), " validation files from training.")
     
-    inputs, outputs, valX, valY, scaler_in, scaler_out = load_original_data(opts['data'], opts['save_scalers'], val_files)
+    inputs, outputs, valX, valY, scaler_in, scaler_out = load_original_data(opts['data'], opts['save_scalers'], val_files, exclusion_files)
+
+    def verify_values():
+        ins = inputs.copy()
+        ins.columns = ins.columns.astype(str)
+        ins =scaler_in.inverse_transform(ins.iloc[:, 1:])
+        plot_data_values(ins, "Inputs")
+        plt.show()
+        outs = outputs.copy()
+        outs.columns = outs.columns.astype(str)
+        outs = scaler_out.inverse_transform(outs.iloc[:, 1:])
+        ns,vs,ts = outs[:, ::3], outs[:, 1::3], outs[:, 2::3]
+        outs = np.concatenate((ns, vs, ts), axis=1)
+        plot_data_values(outs, "Outputs")
+        plt.show()
+    verify_values()
     
     print("Inputs shape: ", inputs.shape)
     print("Outputs shape: ", outputs.shape)

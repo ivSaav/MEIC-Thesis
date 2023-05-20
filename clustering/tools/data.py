@@ -11,8 +11,8 @@ import seaborn as sns
 # sns.set()
 
 def load_original_data(data_path: Path, save_scalers : bool = False, 
-                       val_files : List[str] = [], 
-                       in_name = "inputs", out_name = "outputs") -> Tuple[pd.DataFrame, pd.DataFrame, QuantileTransformer, QuantileTransformer]:
+                       val_files : List[str] = [], exclusion : List[str] = [],
+                       in_name = "inputs", out_name = "outputs_inter") -> Tuple[pd.DataFrame, pd.DataFrame, QuantileTransformer, QuantileTransformer]:
     """Load the original data from the file."""
 
     inputs = pd.read_csv(data_path / f'{in_name}.csv')
@@ -20,28 +20,33 @@ def load_original_data(data_path: Path, save_scalers : bool = False,
     
     inputs, outputs = shuffle(inputs, outputs, random_state=1)
 
+    # exclude anomalies and validation files
+    exclusion.extend(val_files)
+    exclusion = set(exclusion)
+
     # inputs and outputs
-    inputs = [inputs.loc[inputs['filename'] == f]
-              for f in inputs["filename"].values if f not in val_files]
+    train_inputs = [inputs.loc[inputs['filename'] == f]
+              for f in inputs["filename"].values if f not in exclusion]
     
-    outputs = [outputs.loc[outputs['filename'] == f]
-               for f in outputs["filename"].values if f not in val_files]
+    print("train inputs", len(train_inputs), len(inputs))
     
-    inputs = pd.concat(inputs, axis=0, ignore_index=True)
-    outputs = pd.concat(outputs, axis=0, ignore_index=True)
+    train_outputs = [outputs.loc[outputs['filename'] == f]
+               for f in outputs["filename"].values if f not in exclusion]
     
-    input_filenames = inputs[['filename']]
-    output_filenames = outputs[['filename']]
-    scaler_inputs = QuantileTransformer()
-    scaler_outputs = QuantileTransformer()
-    inputs = scaler_inputs.fit_transform(inputs.iloc[:, 1:])
-    outputs = scaler_outputs.fit_transform(outputs.iloc[:, 1:])
-    inputs = pd.DataFrame(inputs)
-    inputs = pd.concat([input_filenames, inputs], axis=1)
+    train_inputs = pd.concat(train_inputs, axis=0, ignore_index=True)
+    train_outputs = pd.concat(train_outputs, axis=0, ignore_index=True)
     
-    outputs = pd.DataFrame(outputs)
-    outputs = pd.concat([output_filenames, outputs], axis=1)
+    train_inputs_filenames = train_inputs[['filename']]
+    train_outputs_filenames = train_outputs[['filename']]
+    scaler_inputs = QuantileTransformer(random_state=1)
+    scaler_outputs = QuantileTransformer(random_state=1)
+    train_inputs = scaler_inputs.fit_transform(train_inputs.iloc[:, 1:])
+    train_outputs = scaler_outputs.fit_transform(train_outputs.iloc[:, 1:])
+    train_inputs = pd.DataFrame(train_inputs)
+    train_inputs = pd.concat([train_inputs_filenames, train_inputs], axis=1)
     
+    train_outputs = pd.DataFrame(train_outputs)
+    train_outputs = pd.concat([train_outputs_filenames, train_outputs], axis=1)
     
     # select validation files
     if len(val_files) > 0:
@@ -61,8 +66,8 @@ def load_original_data(data_path: Path, save_scalers : bool = False,
         val_outputs = pd.DataFrame(val_outputs)
         val_outputs = pd.concat([val_output_filenames, val_outputs], axis=1)
         
-        return inputs, outputs, val_inputs, val_outputs, scaler_inputs, scaler_outputs
-    return inputs, outputs, scaler_inputs, scaler_outputs
+        return train_inputs, train_outputs, val_inputs, val_outputs, scaler_inputs, scaler_outputs
+    return train_inputs, train_outputs, scaler_inputs, scaler_outputs
 
 def scale_data(data : pd.DataFrame, scaler : QuantileTransformer) -> pd.DataFrame:
     """Scale the data using the given scaler."""
