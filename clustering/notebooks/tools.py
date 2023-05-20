@@ -128,7 +128,7 @@ def plot_cluster_file_group(filenames, labels, nclusters):
 
 def clustering_metrics(model, data, params) -> pd.DataFrame:
     scores = {"K" : [], "S score" : [], "DB" : [], "CH" : [],}
-    for i in range(2, 10):
+    for i in range(2, 11):
         kmeans = model(n_clusters=i, **params)
         labels = kmeans.fit_predict(data)
         scores["K"].append(i)
