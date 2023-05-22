@@ -446,9 +446,75 @@ Following the mostly exploratory clustering experiments, the next step was to ap
 
 The reasoning behind this is that by grouping similar data points together, the models would be able to learn more specific patterns for each cluster. This is especially useful in this context as the data is very dispersed and the resulting models would converge to the mean of the dataset. % TODO referenciar Filipa
 
-Due to the difficulty in selecting the most appropriate clustering, a grid-search-based approach was followed for this task. Several clusterings, $C$, were generated for each of the methods described in the previous sections, by varying the number of clusters, $K$. For every clustering $C$ an ML model, $M_i$, was trained for each $C_{i}$ cluster, where $i$ is the ith cluster in the current clustering $C$.
+Due to the difficulty in selecting the most appropriate clustering, a grid-search-based approach was followed for this task. Several clusterings, $C$, were generated for each of the methods described in the previous sections, by varying the number of clusters, $K$. For consistency, the same clustering parameters from the previous experiments were used, also because they were chosen to be the most appropriate for each method and the dataset at hand.
 
-For consistency, the same clustering parameters from the previous experiments were used, also because they were chosen to be the most appropriate for each method. 
+Then, an ML model, $M_i$, was trained for each of the generated clusterings, $C_i$, was trained for each cluster, $C_{ij}$, where $i$ is the ith clustering and $j$ is the jth cluster of $C$. Each model, $M_i$, is trained with the same methodology as in \cite{barros_InitialConditionEstimation_}. Only this time instead of training a single model for the entire dataset, a model was trained for each cluster, $C_{ij}$. 
 
+Following the methodology of \cite{barros_InitialConditionEstimation_}, the same validation files were extracted from the training dataset to later be used in the MULTI-VP tests. For each cluster, $C_{ij}$ a train test split of 85/15\% was done to obtain training and testing datasets. The training dataset was then used to train the models $M_{ij}$, and the testing dataset was later used to evaluate the models in terms of performance. In the next step, a hyper-tuning random search model from the \textit{keras} \cite{chollet2015keras} library was employed to find the best hyper-parameters for $M_{ij}$, based on the best test MSE loss. Finally, the best model was saved to later be used in the MULTI-VP experiments. 
+
+All of the generated models were saved along with their statistics and the hyper-parameters used. The results of the MULTI-VP experiments can be seen in Section \ref{sec:clustering_ml_results}.
+
+\subsection{Clustering ML Results}\label{sec:clustering_ml_results}
+The results from the above mentioned experiments are presented in Table \ref{tab:clustering_ml_results}. Only the top 10 results based on MSE loss measured on the testing dataset are shown. The models are sorted based on the average MSE loss each experiment. This is obtained by averaging the MSE loss of each model, $M_{ij}$, for each cluster, $C_{ij}$, of each clustering, $C_i$. The models are sorted from lowest to highest average loss. The first column shows the model ID which briefly characterizes the model, the dimensionality reduction method, the variables used in the clustering, the clustering method, number of clusters, $K$, and the average loss and standard deviation of the models.
+
+
+\begin{table}[h]
+    \caption[Results of the Clustering ML Experiments]{Results of the Clustering ML Experiments. The table shows the 10 best models, based on the average MSE loss. The models are sorted by the average loss, from lowest to highest. The columns show the model ID, the dimensionality reduction method, the variables used, the clustering method, the number of clusters, $K$, the average loss of the models, the standard deviation of the loss and the sum of the loss and the standard deviation.}\label{tab:clustering_ml_results}
+    \begin{tabular}{@{}cccccrr@{}}
+    \toprule
+    \textbf{Model ID}     & \textbf{Dim. Reduct.} & \textbf{Variable} & \textbf{Method} & \textbf{K} & \multicolumn{1}{c}{\textbf{Avg. Loss}} & \multicolumn{1}{c}{\textbf{std Loss}} \\ \midrule
+    tsne\_agg\_2          & TSNE                  & Joint             & Agglom.         & 2          & 0.0108                                 & 0.0058                                \\
+    pca\_kmeans\_2        & PCA                   & Joint             & KMeans          & 2          & 0.0113                                 & 0.0016                                \\
+    pca\_kmeans\_3        & PCA                   & Joint             & KMeans          & 3          & 0.0119                                 & 0.0037                                \\
+    pca\_agg\_2           & PCA                   & Joint             & Agglom.         & 2          & 0.0125                                 & 0.0012                                \\
+    tsne\_kmeans\_mag\_3  & TSNE                  & Mag. Field        & KMeans          & 3          & 0.0125                                 & 0.0085                                \\
+    tsne\_agg\_8          & TSNE                  & Joint             & Agglom.         & 8          & 0.0127                                 & 0.0077                                \\
+    tsne\_agg\_alpha\_2   & TSNE                  & Alpha             & Agglom.         & 2          & 0.0129                                 & 0.0003                                \\
+    pca\_kmeans\_alpha\_2 & PCA                   & Alpha             & KMeans          & 2          & 0.0130                                 & 0.0009                                \\
+    tsne\_agg\_3          & TSNE                  & Joint             & Agglom.         & 3          & 0.0132                                 & 0.0093                                \\
+    tsne\_agg\_mag\_3     & TSNE                  & Joint             & Agglom.         & 3          & 0.0132                                 & 0.0090                                \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+
+The experimental results (table \ref{tab:clustering_ml_results}) show that the best models were obtained with the clusterings of the TSNE joint inputs. These divisions were obtained by running the Agglomerative Clustering method with $K=2$. A closer look at the standard deviation of this model shows that it is the highest of the top 3 models, which indicates that there is a large disparity between the losses of both models. 
+
+\begin{figure}
+    \caption{Visualization of the clusters obtained with the TSNE of the joint inputs.}
+    \label{fig:tsne_joint_kmeans_2}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/tsne_joint_kmeans_2.png}
+\end{figure}
+
+A more in-depth analysis of this outcome with the validity methods from table \ref{tab:tsne_joint} contradicts the results from this experiment. Despite it having the lowest loss of all the entries, the clustering quality was subpar for this instance. The inappropriate clustering of the dataset might be the reason for the high standard deviation of the models, as the data was not grouped correctly. A visualization of the clusters further corroborates this hypothesis. Figure \ref{fig:tsne_joint_kmeans_2} shows the clusters obtained with the TSNE of the joint inputs. It is clear that the clusters are not well defined and that the data is not grouped correctly. 
+
+\begin{figure}[h]
+    \caption[Top clustering results for the KMeans applied to the PCA of the joint inputs.]{Top clustering results for the KMeans applied to the PCA of the joint inputs. Clusters were obtained with the KMeans algorithm on the PCA of the joint inputs with $K=2$ on the left and $K=3$ on the right.}
+    \label{fig:pca_joint_kmeans_results}
+    \begin{subfigure}[h]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/pca_joint_kmeans_2.png}
+        \caption{2 clusters}
+        \label{fig:pca_joint_kmeans_2}
+        % \label{fig:tsne_mag_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[h]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/pca_joint_kmeans_3.png}
+        \caption{3 clusters}
+        \label{fig:pca_joint_kmeans_3}
+    \end{subfigure}
+\end{figure}
+
+The second-best results were obtained with the KMeans clustering of the PCA of the joint inputs. The standard deviation of this model is the lowest of the top three models, which indicates that the losses of the models are very similar. Despite the average loss not being as low as with the first method, it is still not far off. An analysis of the clustering results from the previous section (table \ref{tab:pca_joint}) shows that the clustering quality was also very good. This indicates that the models were able to learn the patterns of the clusters and that the clustering was appropriate for the dataset. A visualization of the clusters in Fig. \ref{fig:pca_joint_kmeans_2} also corroborates this, by showing a clear division of the dataset into two clusters.
+
+The next best model was obtained by training a model for each of the clusterings of the same representation as the previous one but with $K=3$. Although the average loss is higher than the previous two, the standard deviation is also very low, which indicates that the losses of the models are similar, in contrast with the disparity of the models from the second experiment. The clusters for this experiment can be seen in Fig. \ref{fig:pca_joint_kmeans_3}.
+
+These two experiments serve as the principal contenders for the best models. To disambiguate the results, the results from the previous section were further analyzed. As was already concluded, in section \ref{sec:pca_joint}, the elbow test (fig. \ref{fig:pca_joint_elbow}) produced a clear spike at $K=2$, however, the elbow might be at $K=3$. The validity metrics (table \ref{tab:pca_joint}) for the KMeans clustering indicate that the best separation is with two clusters just from the silhouette and DH scores. Despite this, the CH score is slightly lower than with $K=3$. 
+
+Taking all these factors into consideration the models that were selected were the ones obtained with the KMeans clustering with $K=3$. In addition to the reasons mentioned before, this clustering provides a more equal division of the dataset, in contrast with the other clustering with $K=2$ which has a very large cluster and a small one.
+
+An analysis of the remaining results shows that no model trained on other clustering algorithms produced better results than the ones obtained with the PCA and TSNE. Most of the top results (7 out of 10) were obtained with the clusterings of the joint input variables. In addition, every clustering was obtained by dimensionality reductions of the original dataset. This might indicate that the clustering methods trained on the original dataset were not able to find the best clusters for the dataset. 
 
 \section{Results}\label{sec:clustering_results}
