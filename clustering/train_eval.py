@@ -14,6 +14,8 @@ from model import RegressionHyperModel
 from keras.callbacks import EarlyStopping
 from keras_tuner import RandomSearch
 
+from tools.data import plot_data_values
+
 from tools.data import load_original_data, join_files_in_cluster, plot_data_values, scale_data
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -49,24 +51,51 @@ if __name__ == '__main__':
     parser.add_argument('--save-scalers', '-s', action='store_true', default=False)
     parser.add_argument('--ignore-outlier-runs', action="store_true")    
     parser.add_argument('--run-id', '-r', type=int, default=None)
+    parser.add_argument('--anomaly-files', '-af', nargs='+', default=[])
     
     opts = vars(parser.parse_args())
     
-    if opts['cluster_file'] is not None:
+    if opts['cluster_file']: # test on signle configuration file
         conf_files = [opts['cluster_file']]
-    else:
-        conf_files = [f for f in Path(opts['clusters_files_dir']).iterdir() if f.is_file()]
+    elif opts['cluster_files_dir']: # test on all configuration files in directory
+        conf_files = [f for f in Path(opts['cluster_files_dir']).iterdir() if f.is_file()]
     
     if not opts['model_output'].exists():
         opts['model_output'].mkdir(parents=True, exist_ok=False)
     
     print('Preparing data...')
+    # get validation files
     val_files = []
     with open("../data/testing_profiles.txt", "r") as f:
         val_files = f.readlines()
-        val_files = [f.split('.')[0] for f in val_files]    
+        val_files = [vf.split('.')[0] for vf in val_files]    
+
+    # load anomaly files to be excluded from training
+    exclusion_files = []
+    if len(opts['anomaly_files']) > 0:
+        for af in opts['anomaly_files']:
+            with open(af, "r") as f:
+                exclusion_files.extend([a.split('.')[0].replace('\n', '') for a in f.readlines()]) 
+    print("Excluding ", len(exclusion_files), " anomaly files from training.")
+    print("Excluding ", len(val_files), " validation files from training.")
     
-    inputs, outputs, valX, valY, scaler_in, scaler_out = load_original_data(opts['data'], opts['save_scalers'], val_files)
+    # load original data and scale - split into train and validation
+    inputs, outputs, valX, valY, scaler_in, scaler_out = load_original_data(opts['data'], opts['save_scalers'], val_files, exclusion_files)
+
+    def verify_values():
+        ins = inputs.copy()
+        ins.columns = ins.columns.astype(str)
+        ins =scaler_in.inverse_transform(ins.iloc[:, 1:])
+        plot_data_values(ins, "Inputs")
+        plt.show()
+        outs = outputs.copy()
+        outs.columns = outs.columns.astype(str)
+        outs = scaler_out.inverse_transform(outs.iloc[:, 1:])
+        ns,vs,ts = outs[:, ::3], outs[:, 1::3], outs[:, 2::3]
+        outs = np.concatenate((ns, vs, ts), axis=1)
+        plot_data_values(outs, "Outputs")
+        plt.show()
+    # verify_values()
     
     print("Inputs shape: ", inputs.shape)
     print("Outputs shape: ", outputs.shape)
@@ -76,6 +105,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename=opts['model_output'] / 'train.log', format='%(asctime)s - %(levelname)s - %(message)s')
     logging.captureWarnings(True)
     
+    # test every cluster config file
     for f in conf_files:
         with open(f, 'rb') as cf:
             all_runs = load(cf)
@@ -90,10 +120,10 @@ if __name__ == '__main__':
             # do not train on runs with outliers (values joined into -1)
             if opts['ignore_outlier_runs'] and len(run_dict['small_clusters']) > 0:
                 continue
-            
-            if opts['run_id'] is not None and run_dict['run_id'] != opts['run_id']:
+            # skip unspecified runs
+            if opts['run_id'] and run_dict['run_id'] != opts['run_id']:
                 continue
-            
+            # skip runs with small clusters
             if any(len(cluster) < 1000 for cluster in run_dict['clusters'].values()):
                 print("Cluster size too small, skipping...")
                 continue
@@ -106,8 +136,8 @@ if __name__ == '__main__':
                 print(f'Running {f.stem} run {run_dict["run_id"]} cluster {cluster_id}')
                 try:
                     
-                    cluster_inputs, cluster_outputs = join_files_in_cluster(cluster, inputs, outputs)
-                    trainX, testX, trainY, testY = train_test_split(cluster_inputs, cluster_outputs, test_size=0.15, shuffle=True)
+                    cluster_inputs, cluster_outputs, _ = join_files_in_cluster(cluster, inputs, outputs)
+                    trainX, testX, trainY, testY = train_test_split(cluster_inputs, cluster_outputs, test_size=0.15, shuffle=True, random_state=2)
 
                     hypermodel = RegressionHyperModel((trainX.shape[1],))
                     tuner_rs = RandomSearch(
@@ -122,7 +152,8 @@ if __name__ == '__main__':
 
                     tuner_rs.search(trainX, trainY, epochs=500, validation_split=0.2, verbose=1, callbacks=[early_stop])
                     
-                    for idx, model in enumerate(tuner_rs.get_best_models(num_models=10)):
+                    # save top 5 best models for the current cluster
+                    for idx, model in enumerate(tuner_rs.get_best_models(num_models=5)):
                         loss, mse = model.evaluate(testX, testY)
                         
                         val_cluster = list(set(cluster).intersection(set(val_files)))
@@ -174,7 +205,7 @@ if __name__ == '__main__':
                         K.clear_session()
                         gc.collect()
                         sh.rmtree('./tmp/', ignore_errors=True)
-                        print("Cleared session")
+                        print("Cleared session.")
                 
                 except Exception as e:
                     logging.error(f'Error in {f.stem}_run{run_dict["run_id"]}_c{cluster_id}', exc_info=True)
