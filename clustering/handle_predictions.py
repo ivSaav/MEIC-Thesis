@@ -49,27 +49,41 @@ if __name__ == '__main__':
     argparser.add_argument('--anomaly-files', '-af', type=str, nargs='+', default=[])
     opts = vars(argparser.parse_args())
     
+    
+
+    # load validation filenames
+    val_files = [] 
+    with open(opts["data_path"].parent / "testing_profiles.txt", 'r') as f:
+        val_files = f.readlines()
+        val_files = [f.split(".")[0] for f in val_files]
+    val_files = set(val_files)
+
+    # load exclusion files to be ignored in the predictions
     exclusion_files = []
     if len(opts['anomaly_files']) > 0:
         for af in opts['anomaly_files']:
             with open(af, "r") as f:
                 exclusion_files.extend([a.replace('\n', '') for a in f.readlines()]) 
+    
+    # exclude validation files if generating predictions for training data
+    if not opts['val']:
+        exclusion_files.extend(list(val_files))
 
     original_in, original_out, _scaler_in, scaler_out =\
-          load_original_data(opts['data_path'], exclusion=exclusion_files,
+          load_original_data(opts['data_path'],
+                             exclusion=exclusion_files,
                              in_name="inputs" if not opts['val'] else "inputs_val",
                              out_name="outputs_inter" if not opts['val'] else "outputs_inter_val")
     
-    
     print(original_in.shape, original_out.shape)
-    
+
     if opts["all_data"]:
         out_dir = opts['hist_path'] / 'predictions' / f"all_data_t{opts['run_id']}"
         clusters = {
             0: list(original_in["filename"].values)
         }
     else:
-        out_dir = opts['hist_path'] / 'predictions' / f"{opts['model_file']}_{opts['run_id']}_t{opts['top']}"
+        out_dir = opts['hist_path'] / 'predictions_final' / f"{opts['model_file']}_{opts['run_id']}_t{opts['top']}"
         clusters_path = opts['hist_path'] / 'clusters'
         clusters_path = Path(clusters_path / f"{opts['cluster_file']}.pkl")
         cluster_conf = load(open(clusters_path, 'rb'))
@@ -83,19 +97,16 @@ if __name__ == '__main__':
     all_predictions = []
     cluster_filenames = []
     for cluster_id, cluster in clusters.items():
-        # print(cluster)
         if opts['all_data']:
             model_file = f"{opts['model_file']}/top{opts['top']}.h5"
         else:
             model_file = f"{opts['model_file']}/run{opts['run_id']}_c{cluster_id}/top{opts['top']}.h5"
-        print("Loading model: ", model_file)
-        model = load_model(opts['hist_path'] / "models" / model_file)
+        model = load_model(opts['hist_path'] / "models_2" / model_file)
         
-        c = set(cluster).difference(set(exclusion_files))
-        inputs, outputs = join_files_in_cluster(c, original_in, original_out)
+        inputs, _outputs, filenames = join_files_in_cluster(cluster, original_in, original_out)
         
         predictions = model.predict(inputs)
-        cluster_filenames.extend(list(c))
+        cluster_filenames.extend(filenames)
         all_predictions.append(pd.DataFrame(predictions))
     all_predictions = pd.concat(all_predictions, ignore_index=True)
     
@@ -106,37 +117,19 @@ if __name__ == '__main__':
     print("Preds shape: ", all_predictions.shape)
     print(all_predictions)
   
-    # load validation filenames
-    val_files = [] 
-    with open(opts["data_path"].parent / "testing_profiles.txt", 'r') as f:
-        val_files = f.readlines()
-        val_files = [f.split(".")[0] for f in val_files]
-    val_files = set(val_files)
-    
     
     # save predictions in separate files
     if not opts['no_write']:
         print("Saving Predictions...")
-        save_predictions(opts, out_dir, cluster_filenames, all_predictions, val_files, in_name="inputs" if not opts['val'] else "inputs_val")
+        save_predictions(opts, out_dir, cluster_filenames, all_predictions, 
+                         val_files if opts["val"] else [], in_name="inputs" if not opts['val'] else "inputs_val")
     
     # plot predictions
     if opts['plots']:
         print("Plotting Predictions...")
-        if not opts["val"]:
-            # final_files, final_preds = [], []
-            # exclusion_files.extend(list(val_files))
-            # for cf, pred in zip(cluster_filenames, all_predictions):
-            #     if cf in exclusion_files: continue
-            #     final_files.append(cf)
-            #     final_preds.append(pred)
-            
-
-            fig = plot_predictions(cluster_filenames, predictions, "Predictions", opts['data_path'] / "outputs.csv")
+        if not opts["val"]: # plot train predictions
+            fig = plot_predictions(cluster_filenames, all_predictions, "Predictions", opts['data_path'] / "outputs.csv")
             plt.savefig(out_dir / 'predictions.png', dpi=200)
-            plt.close(fig)
-        else:
-            val_files = val_files.difference(set(exclusion_files))
+        else: # plot validation predictions
             fig = plot_predictions(cluster_filenames, all_predictions, "Predictions - Validation", opts['data_path'] / "outputs_val.csv", val_files)
             plt.savefig(out_dir / 'predictions_val.png', dpi=200)
-        
-    

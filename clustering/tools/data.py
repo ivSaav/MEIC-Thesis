@@ -83,11 +83,15 @@ def join_files_in_cluster(cluster_files: List[Path], input_data : pd.DataFrame, 
     cluster_inputs, cluster_outputs = pd.DataFrame(), pd.DataFrame()
     
     # exclude validation files in training
-    cluster_files = set(cluster_files) - set(val_files)
-    inputs = [input_data.loc[input_data['filename'] == f].iloc[:, 1:]
+    # print("Previous cluster files:", len(cluster_files))
+    cluster_files = [f for f in cluster_files if f not in val_files]
+    # print("Cluster files:", len(cluster_files))
+    inputs = [input_data.loc[input_data['filename'] == f]
               for f in cluster_files]
     
     cluster_inputs = pd.concat(inputs, axis=0, ignore_index=True)
+    filenames = list(cluster_inputs['filename'].values)
+    cluster_inputs = cluster_inputs.iloc[:, 1:]
     
     outputs = [output_data.loc[output_data['filename'] == f].iloc[:, 1:]
                for f in cluster_files]
@@ -99,7 +103,7 @@ def join_files_in_cluster(cluster_files: List[Path], input_data : pd.DataFrame, 
     # print(cluster_df.shape)
     # print(cluster_df.columns)
     print("Cluster shape:", cluster_inputs.shape)
-    return cluster_inputs, cluster_outputs
+    return cluster_inputs, cluster_outputs, filenames
 
 
 def plot_cluster_preds(pred_df : pd.DataFrame, model_name : str, out_dir : Path):
