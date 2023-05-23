@@ -10,3 +10,10 @@
 \newcommand{\scada}{\class{SCADA}}
 \newcommand{\scadadms}{\class{SCADA/DMS}}
 
+% subsubsection as letter
+\renewcommand{\thesubsubsection}{\alph{subsubsection})}
+\makeatletter
+\renewcommand{\p@subsubsection}{\thesubsection.\protect\eatbracket}
+\makeatother
+\def\eatbracket#1#2{#1\ifx)#2\else#2\fi}
+
