@@ -128,7 +128,40 @@ The algorithm for the reconstruction process with the discriminator input is sho
     \end{algorithm}
 \end{minipage}}
 
-\section{Experiment 1: Linear GAN}\label{sec:gan_experiment_1}
+\section{Linear GAN}\label{sec:gan_experiment_1}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/linearGAN.png}
+    \caption{Linear GAN Architecture}
+    \label{fig:linear_gan_architecture}
+\end{figure}
+
+
+The first architecture was a linear GAN, which is a simple GAN with a linear generator and discriminator. Several experiments were performed with different configurations of the architecture. The use of BatchNorm in either module was tested, to try and stabilize the training process. This proved to be ineffective as it made it difficult for $G$ and $D$ to converge. Because of this, it was not included in the final implementation. In addition to this, the number of intermediate stacked linear layers was varied during the tests to try and find a configuration that worked best for this problem. 
+
+Besides these changes, different activation functions were also tested. The activation functions used were ReLU, LeakyReLU, and Tanh, with a combination of them in the intermediate as well as in the output and input layers. Similar to other GAN architectures, the LeakyReLU activation function was chosen to prevent the gradient from vanishing, and to improve the overall stability of the learning process. Most configurations that included the Tanh activation function in the output layer of the generator were discarded, as it proved to not be effective during the anomaly detection phase.
+
+The final architecture is shown in Fig. \ref{fig:linear_gan_architecture}. Both the generator and discriminator are built with linear layers. The generator, $G$, consists of an input layer that takes as input a latent space variable, $Z$ with size $N$, and outputs a sample with the same dimension as the input. The first layer performs a linear transformation on the input noise vector and projects $Z$ into lower dimensional space with 640 dimensions. The output of this layer is then passed through a LeakyReLU activation function. Next, the resulting features from this step are passed through two stacked linear layers, each with 630 dimensions. In the last layer, the features from the previous step undergo a linear transformation to project them into the same dimension as the input sample. As was previously said, no activation function is used in the output layer of the generator, because it proved to not be effective during the detection phase.
+
+The discriminator, $D$, consists of an input layer that takes as input a sample with size $N$ and outputs a scalar value. The objective of $D$ is to progressively learn the most important features of the data to perform binary classification of the input sample as being real or fake. The first and subsequent layers perform linear transformations of the input data into increasingly smaller dimensions. In the output layer, the features from the previous step are projected into a single scalar value. This value is then passed through a sigmoid activation function to obtain the final classification score of each sample.
+
+Both modules were trained with the Adam optimizer with a learning rate of 0.0001 for the generator and 0.0002 for the discriminator. This was done to prevent the discriminator from overpowering the generator during the training process. The weights of each of the linear layers were initialized with the He initialization function from \cite{He.Zhang.ea_DelvingDeepRectifiers_2015}.
+
+Two models were trained, one with the purpose of detecting anomalies in the inputs of the MULTI-VP dataset (refer to Chapter \ref{chap:eda}) and the other in the outputs. Both models were trained over 300 epochs with a batch size of 128. In both approaches the training data was scaled with the \textit{MinMaxScaler} to preserve the variation of extreme values in the data.
+
+In the first model, the input data, $Xi$, consists of the concatenation of the $B [G]$ and $\alpha [deg]$ input variables for each profile. The radial coordinate radius, $R [R_{sun}]$ was excluded from the process, to reduce the number of features the networks needed to learn. In addition to this, several extreme variations in the input data were removed for both $D$ and $G$ to learn the normal distributions of the data. 
+
+In the outputs model, all of the three MULTI-VP outputs were selected and concatenated in
+
+
+
+
+
+
+
+
 \section{Experiment 2: LSTM-RNN GAN}\label{sec:gan_experiment_2}
+\section{Experiment 4: VAE}\label{sec:mad-gan}
 \section{Experiment 3: AAE}\label{sec:gan_experiment_3}
 
