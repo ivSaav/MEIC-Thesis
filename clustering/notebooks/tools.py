@@ -10,6 +10,8 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_har
 import seaborn as sns
 import pandas as pd
 
+import json
+
 from pickle import dump
 from typing import List
 from pathlib import Path
@@ -221,6 +223,10 @@ def save_cluster_info(labels : List[int], filenames : List[str], run_id : int, m
                 'clusters': clusters,
                 'small_clusters': [],
     }
+    
+    
+    clusters = {int(k) : v for k, v in clusters.items()}
+    json.dump(clusters, open(save_path / f"{method_name}.json", "w"))
     
     run = {run_id : run_dict}
 

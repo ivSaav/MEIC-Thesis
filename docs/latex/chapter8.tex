@@ -68,7 +68,7 @@ The reconstruction process described above is in Algorithm \ref{alg:mse_reconstr
         \caption{MSE Reconstruction}\label{alg:mse_reconstruction}
     \begin{algorithmic}
         \Input
-            \Desc{$X^i$}{Input Batch}
+            \Desc{$x^i$}{Input Batch}
             \Desc{$n$}{Number of iterations}
         \EndInput
         \Output
@@ -82,7 +82,7 @@ The reconstruction process described above is in Algorithm \ref{alg:mse_reconstr
     $Z^k = random\_sample()$\;
     \For{$j = 0$ \KwTo $n$}{
         \emph{Reconstruct batch from $Z^k$ and calculate loss}\;
-        $R_{err} = MSE(X^i, G(Z^k))$\;
+        $R_{err} = MSE(x^i, G(Z^k))$\;
         \emph{Update latent representation based on $R_{err}$}\;
         $Z^k = update(Z^k, R_{err}$)\;
         }
@@ -104,7 +104,7 @@ The algorithm for the reconstruction process with the discriminator input is sho
         \caption{MSE-Discriminator Reconstruction}\label{alg:mse_discr_reconstruction}
         \begin{algorithmic}
             \Input
-                \Desc{$X^i$}{Input Batch}
+                \Desc{$x^i$}{Input Batch}
                 \Desc{$n$}{Number of iterations}
             \EndInput
             \Output
@@ -121,7 +121,7 @@ The algorithm for the reconstruction process with the discriminator input is sho
             $D_s = 1 - D(G(Z^k))$\;
 
             \emph{Reconstruct batch from $Z^k$ and calculate loss}\;
-            $RD_{err} = MSE(X^i, G(Z^k)) \times D_s$\;
+            $RD_{err} = MSE(x^i, G(Z^k)) \times D_s$\;
             \emph{Update latent representation based on $RD_{err}$}\;
             $Z^k = update(Z^k, RD_{err}$)\;
         }
@@ -144,15 +144,47 @@ Besides these changes, different activation functions were also tested. The acti
 
 The final architecture is shown in Fig. \ref{fig:linear_gan_architecture}. Both the generator and discriminator are built with linear layers. The generator, $G$, consists of an input layer that takes as input a latent space variable, $Z$ with size $N$, and outputs a sample with the same dimension as the input. The first layer performs a linear transformation on the input noise vector and projects $Z$ into lower dimensional space with 640 dimensions. The output of this layer is then passed through a LeakyReLU activation function. Next, the resulting features from this step are passed through two stacked linear layers, each with 630 dimensions. In the last layer, the features from the previous step undergo a linear transformation to project them into the same dimension as the input sample. As was previously said, no activation function is used in the output layer of the generator, because it proved to not be effective during the detection phase.
 
-The discriminator, $D$, consists of an input layer that takes as input a sample with size $N$ and outputs a scalar value. The objective of $D$ is to progressively learn the most important features of the data to perform binary classification of the input sample as being real or fake. The first and subsequent layers perform linear transformations of the input data into increasingly smaller dimensions. In the output layer, the features from the previous step are projected into a single scalar value. This value is then passed through a sigmoid activation function to obtain the final classification score of each sample.
+The discriminator, $D$, consists of an input layer that takes as input a sample with $N$ features and outputs a scalar value. The objective of $D$ is to progressively learn the most important features of the data to perform binary classification of the input sample as being real or fake. The first and subsequent layers perform linear transformations of the input data into increasingly smaller dimensions. In the output layer, the features from the previous step are projected into a single scalar value. This value is then passed through a sigmoid activation function to obtain the final classification score of each sample.
 
 Both modules were trained with the Adam optimizer with a learning rate of 0.0001 for the generator and 0.0002 for the discriminator. This was done to prevent the discriminator from overpowering the generator during the training process. The weights of each of the linear layers were initialized with the He initialization function from \cite{He.Zhang.ea_DelvingDeepRectifiers_2015}.
 
-Two models were trained, one with the purpose of detecting anomalies in the inputs of the MULTI-VP dataset (refer to Chapter \ref{chap:eda}) and the other in the outputs. Both models were trained over 300 epochs with a batch size of 128. In both approaches the training data was scaled with the \textit{MinMaxScaler} to preserve the variation of extreme values in the data.
+Two models were trained, one to detect anomalies in the inputs of the MULTI-VP dataset and the other in the outputs (refer to Chapter \ref{chap:eda}). Both models were trained over 300 epochs with a batch size of 128. In both approaches the training data was scaled with the \textit{MinMaxScaler} to preserve the variation of extreme values in the data. The training data consisted of a matrix with $M\times N$ dimension, where $M$ is the number of training samples and $N$ is the number of features per sample. The same validation files from the clustering experiments were excluded from the training process in both approaches.
 
-In the first model, the input data, $Xi$, consists of the concatenation of the $B [G]$ and $\alpha [deg]$ input variables for each profile. The radial coordinate radius, $R [R_{sun}]$ was excluded from the process, to reduce the number of features the networks needed to learn. In addition to this, several extreme variations in the input data were removed for both $D$ and $G$ to learn the normal distributions of the data. 
+In the first model, the input data, $X_i$, consists of the concatenation of the $B [G]$ and $\alpha [deg]$ input variables for each profile. The radial coordinate radius, $R [R_{sun}]$ was excluded from the process, to reduce the number of features the networks needed to learn. In addition to this, extreme variations in the input data were removed to prevent both modules from learning noisy features that would hinder the detection process. The number of features, $N_i$, for each of the input samples is 1280.
 
-In the outputs model, all of the three MULTI-VP outputs were selected and concatenated in
+In the outputs model, every output variable of MULTI-VP is used in the training phase. Each sample consists of the concatenation of the density, $n [10^{10}cm^{-3}]$,  the velocity, $v [km/s]$, and temperature, $T [MK]$, with a combined number of features per sample, $N_o$, of 1920. Contrary to the input model, no extreme variations were removed from the data, as it performed well without this step.
+
+The detection step was carried out for each of the models with all three anomaly score functions of Sec. \ref{sec:gan_anomaly_scores}. Due to the lack of validation metrics, the choice of method was based on the visual inspection of the results. The stability of the anomaly scores as well as the quality of the dataset without anomalies were taken into account.
+
+Having these factors into consideration, the best results were obtained with the reconstruction error, $R_{err}$. The other two functions, $D_{err}$ and $D_{err} + RD_{err}$, were very unstable and were not able to detect the anomalies as well as $R_{err}$. The filtered input and output variables can be seen in Image \ref{fig:linear_gan_clean_in} and \ref{fig:linear_gan_clean_out} respectively.
+
+
+\begin{figure}[]
+    \caption[Linear GAN filtered datasets]{Resulting datasets after the anomaly detection step with the linear GAN architecture on the inputs and outputs of the MULTI-VP dataset.}
+    \label{fig:linear_gan_clean_data}
+    \begin{subfigure}[h]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/linearGAN_clean_in.png}
+        \caption{Input Variables}
+        \label{fig:linear_gan_clean_in}
+        % \label{fig:tsne_mag_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[h]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/linearGAN_clean_out.png}
+        \caption{Output Variables}
+        \label{fig:linear_gan_clean_out}
+    \end{subfigure}
+\end{figure}
+
+The first image (Fig. \ref{fig:linear_gan_clean_in}) resulted from removing 10\% of the files from the original dataset based on anomaly scores. As was previously said, the anomaly scores were obtained by training the GAN model in the input variables and then using the $G$ to calculate the noamly scores oof each sample in the testing dataset. The results show that the data is moslty clean, with some anomalies still remaining in the magnetic field, $B [G]$, variable.
+
+For the output variables (Fig. \ref{fig:linear_gan_clean_out}) only 8\% of the files were excluded based on anomaly scores. The resulting output variables are mostly clean, with some abnormalities in the density, $n [cm^3]$, variable.
+
+Overall, the experiments with this architecture prove that it can detect anomalies in the input and output variables of MULTI-VP. However, the percentage of files that need to be removed (i.e. the False Positive rate) is still very high. This might indicate that the current architecture might not be the most ideal for the task, as seamingly "normal" profiles might be excluded from the prediction step.
+
+
 
 
 
