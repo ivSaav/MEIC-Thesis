@@ -178,22 +178,54 @@ Having these factors into consideration, the best results were obtained with the
     \end{subfigure}
 \end{figure}
 
-The first image (Fig. \ref{fig:linear_gan_clean_in}) resulted from removing 10\% of the files from the original dataset based on anomaly scores. As was previously said, the anomaly scores were obtained by training the GAN model in the input variables and then using the $G$ to calculate the noamly scores oof each sample in the testing dataset. The results show that the data is moslty clean, with some anomalies still remaining in the magnetic field, $B [G]$, variable.
+The first image (Fig. \ref{fig:linear_gan_clean_in}) resulted from removing 10\% of the files from the original dataset based on anomaly scores. As was previously said, the anomaly scores were obtained by training the GAN model in the input variables and then using the $G$ to calculate the anomaly scores of each sample in the testing dataset. The results show that the data is mostly clean, with some anomalies still remaining in the magnetic field, $B [G]$, variable.
 
 For the output variables (Fig. \ref{fig:linear_gan_clean_out}) only 8\% of the files were excluded based on anomaly scores. The resulting output variables are mostly clean, with some abnormalities in the density, $n [cm^3]$, variable.
 
-Overall, the experiments with this architecture prove that it can detect anomalies in the input and output variables of MULTI-VP. However, the percentage of files that need to be removed (i.e. the False Positive rate) is still very high. This might indicate that the current architecture might not be the most ideal for the task, as seamingly "normal" profiles might be excluded from the prediction step.
+Overall, the experiments with this architecture prove that it can detect anomalies in the input and output variables of MULTI-VP. However, the percentage of files that need to be removed (i.e. the False Positive rate) is still very high. This might indicate that the current architecture might not be the most ideal for the task, as seemingly "normal" profiles might be excluded from the prediction step.
+
+
+\section{RNN-based GANs}\label{sec:gan_experiment_lstm}
+
+The next experiments were with RNN-based GANs. These experiments are based on the assumption that consecutive profiles in the MULTI-VP dataset are somewhat similar but have small variances. This can be closely associated with other studies for the detection of anomalies in time-series data (refer to Section \ref{sec:sota_anomaly_detection}). 
+
+Several architectures were designed and tested first with the RNN-based GANs. These failed to produce any meaningful results as the GANs were very unstable during training and the anomaly scores were not able to detect any anomalies in the data. This might be due to the issues associated with traditional RNN-based architectures, such as the vanishing gradient problem \cite{Schmidt_RecurrentNeuralNetworks_2019}.
+
+Having this into consideration, the next batch of tests was carried out with GRU-based GANs. GRU NNs, like LSTM NNs, can learn long-term dependencies in the data sequences. However, they are lighter and faster to train than LSTM NNs as they require fewer parameters. The results obtained with the GRU architectures were tested with LSTM ones, to ensure that the results were not biased by the choice of architecture. The performance of both architectures was similar, with the GRU-based GANs being slightly faster to train. Because of this, the results presented in this section are from GRU GAN architectures, as they are more efficient than LSTM ones, and reach similar outcomes.
+
+Unlike the previous architecture, the data is aggregated into windows with consecutive profiles. The size of each window, $W$, is a hyperparameter that needs to be tuned. The size of the window, $N_P$ determines the number of consecutive profiles, $P$, that are fed into the GANs. Each window varies in size according to the number of variables that are used for anomaly detection. Each variable in the dataset has the same number of features (refer to Section, $M$ \ref{sec:data_prelim_analysis}); therefore, the number of features for a single profile can be expressed as $k\times M$, where $k$ is the number of variables being used for the task. From this, the dimensions of the ith window, $W_i$, can be defined as $(N_P, k\times M)$.
+
+As in the previous experiments, two models were designed to detect anomalies in both the input and output variables of MULTI-VP. In the model of the inputs only the magnetic field, $B [G]$ variable was used for the task at hand. This was due to the problems that were encountered in the experiments due to the high dimensionality of the dataset. Additionally, the magnetic field is the variable in the dataset that seems to be most affected by the presence of anomalies. Following the notation adopted in the last paragraph, the dimensions of the ith window, $W_{i}$, in the dataset is set to $(N_P, 640)$, where 640 is the number of features $M$ of the $B [G]$ variable and $N_P$ is the window size.
+
+In line with the previous experiments, the most extreme values from the input variables were removed from the training process to ensure the best performance of the GAN models. These were then used during the detection phase.
+
+
+% TODO confuso - se calhar falar disto depois de mostrar o melhor modelo
+The architectures were chosen based on the performance of the models trained on the input variables. In a later stage, only the best-performing architecture was used on the predictions of MULTI-VP. All three prediction variables were employed for this task.
+
+
+\subsection{Stacked GRU GAN}
+The first attempts consisted of employing multilayer GRUs for both $G$ and $D$. Several attempts were tried with a different number of recurrent layers and hidden sizes. Due to the high number of features, $M$ of the input data, several tests were carried out with deep multilayer GRUs. However, the results were not satisfactory as the GANs were very unstable during training. $D$ would always outperform $G$ in this phase, causing the latter to collapse and produce meaningless results. This occurred even when $D$ had significantly fewer layers than $G$. In addition, reducing the learning rate of the discriminator didn't seem to affect the instability of the GANs. 
+
+Having these issues into consideration, other configurations of the network were tested by reducing the number of features that were given to the stacked GRU layers. This was done by applying a linear transformation on the input data that significantly reduced the dimensionality of the data. With this layer, in theory, only the most important attributes of the inputs would be retained and passed to the subsequent layers. This approach managed to improve the stability of the GANs during training, but the results of the detection phase were still subpar with the ones from the linear GAN.
+
+\subsection{Pyramid GRU GAN}\label{sec:pyramid_gru_gan}
+
+As a way of circumventing the dimensionality issues of the stacked GRU GAN, a pyramid GRU GAN was designed. This architecture consisted of a simple generator with three GRU layers and an output linear layer for activation.
+The first wot layers would narrow the input size to smaller dimensions, to make sure that only the most meaningful features would be retained. Then the last GRU layer would upscale the outputs from the previous layers into a higher dimension. In the output layer, the resulting features would suffer from a linear transformation that transformed the data into the desired output dimension of the generator. This would then be passed through the Tanh activation function.
+
+The first attempts consisted of using a simple Generator with four GRU layers. The first two layers would narrow the input size to smaller dimensions and then, the last layer would upscale the features into a higher dimension. Then, in the output layer, the features from the previous GRU layers would be passed through a Linear layer that would transform the data into the desired output dimension of the generator. The transformed data was then passed through the Tanh activation function. 
+
+The discriminator consisted of only two GRU and a linear output layer. Following the same logic as the generator, the first two layers, progressively reduced the number of features of the input data. The output layer would reduce the features from the last layer to just one, which would then be passed through the sigmoid activation function for binary classification.
+
+As in the previous experiments, the training process of the GAN became more stable; however, the results of the anomaly detection still weren't as good as the ones obtained by the linear GAN.
+
+\subsection{MAD-GAN}\label{sec:mad-gan}
 
 
 
 
 
-
-
-
-
-
-\section{Experiment 2: LSTM-RNN GAN}\label{sec:gan_experiment_2}
 \section{Experiment 4: VAE}\label{sec:mad-gan}
 \section{Experiment 3: AAE}\label{sec:gan_experiment_3}
 

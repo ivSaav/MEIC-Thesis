@@ -84,7 +84,7 @@ def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str 
     else:
         # select the rows with the filenames in anomalies
         df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
-    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'symlog'}, **figkwargs)
+    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
                     scales : Dict[str, str] = {'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs):
