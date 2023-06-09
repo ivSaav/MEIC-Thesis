@@ -40,8 +40,10 @@ More recently, the use of adversarial autoencoders (AAE) has been proposed \cite
 These methods will be employed in the experiments of this thesis. The next section explains the different approaches used to detect anomalies in solar wind profiles with the help of adversarial learning.
 
 \section{Experiments}\label{sec:gan_experiments}
-\subsection{Anomaly Scores}\label{sec:gan_anomaly_scores}
-In this section, the anomaly scores and methods are used throughout every experiment to detect anomalies in solar wind profiles. At the end of each experiment, the most suitable anomaly detection method was chosen based on the results.
+This section explains the experiments performed to detect anomalies in solar wind profiles. In total, five different architectures were used for this task. One linear GAN, three RNN-based GANs (two of which are failed experiments), and one adversarial autoencoder. Only the results of the most successful experiments are presented in this section.
+
+% \subsection{Anomaly Scores}\label{sec:gan_anomaly_scores}
+Three anomaly detection methods are used in each experiment to detect anomalies in solar wind profiles. At the end of each experiment, the most suitable anomaly detection method was chosen based on a qualitative analysis of the results. Each approach results generates a different normality score for a given sample. The scores are then used to determine a threshold of normality based on the percentage of anomalies in the dataset. This is a hyperparameter that must be determined by the user.
 
 The first, and simplest score is the classification of the discriminator, $D$. The values of the classification can range from 0 to 1, where values equal to 0 indicate a real sample and values closer to 1 indicate a fake label. The classification score is calculated by feeding the sample to the discriminator and obtaining the classification value. The classification score is calculated as follows:
 
@@ -128,7 +130,7 @@ The algorithm for the reconstruction process with the discriminator input is sho
     \end{algorithm}
 \end{minipage}}
 
-\section{Linear GAN}\label{sec:gan_experiment_1}
+\subsection{Linear GAN}\label{sec:linear_gan}
 
 \begin{figure}
     \centering
@@ -185,7 +187,7 @@ For the output variables (Fig. \ref{fig:linear_gan_clean_out}) only 8\% of the f
 Overall, the experiments with this architecture prove that it can detect anomalies in the input and output variables of MULTI-VP. However, the percentage of files that need to be removed (i.e. the False Positive rate) is still very high. This might indicate that the current architecture might not be the most ideal for the task, as seemingly "normal" profiles might be excluded from the prediction step.
 
 
-\section{RNN-based GANs}\label{sec:gan_experiment_lstm}
+\subsection{RNN-based GANs}\label{sec:gan_experiment_lstm}
 
 The next experiments were with RNN-based GANs. These experiments are based on the assumption that consecutive profiles in the MULTI-VP dataset are somewhat similar but have small variances. This can be closely associated with other studies for the detection of anomalies in time-series data (refer to Section \ref{sec:sota_anomaly_detection}). 
 
@@ -193,15 +195,16 @@ Several architectures were designed and tested first with the RNN-based GANs. Th
 
 Having this into consideration, the next batch of tests was carried out with GRU-based GANs. GRU NNs, like LSTM NNs, can learn long-term dependencies in the data sequences. However, they are lighter and faster to train than LSTM NNs as they require fewer parameters. The results obtained with the GRU architectures were tested with LSTM ones, to ensure that the results were not biased by the choice of architecture. The performance of both architectures was similar, with the GRU-based GANs being slightly faster to train. Because of this, the results presented in this section are from GRU GAN architectures, as they are more efficient than LSTM ones, and reach similar outcomes.
 
-Unlike the previous architecture, the data is aggregated into windows with consecutive profiles. The size of each window, $W$, is a hyperparameter that needs to be tuned. The size of the window, $N_P$ determines the number of consecutive profiles, $P$, that are fed into the GANs. Each window varies in size according to the number of variables that are used for anomaly detection. Each variable in the dataset has the same number of features (refer to Section, $M$ \ref{sec:data_prelim_analysis}); therefore, the number of features for a single profile can be expressed as $k\times M$, where $k$ is the number of variables being used for the task. From this, the dimensions of the ith window, $W_i$, can be defined as $(N_P, k\times M)$.
+Unlike the previous architecture, the data is aggregated into windows, $W$, with consecutive profiles. The size of each window, $N_P$, is a hyperparameter that needs to be tuned. and determines the number of consecutive profiles, $P$, that are fed into the GANs. With this formulation, the ith window, $W_i$, is defined as the set of the $P$ consecutive profiles of the ith profile, $P_i$, in the dataset, such that $W_i = \{P_i, P_{i+1}, ..., P_{i+N_P-1}\}$.
 
-As in the previous experiments, two models were designed to detect anomalies in both the input and output variables of MULTI-VP. In the model of the inputs only the magnetic field, $B [G]$ variable was used for the task at hand. This was due to the problems that were encountered in the experiments due to the high dimensionality of the dataset. Additionally, the magnetic field is the variable in the dataset that seems to be most affected by the presence of anomalies. Following the notation adopted in the last paragraph, the dimensions of the ith window, $W_{i}$, in the dataset is set to $(N_P, 640)$, where 640 is the number of features $M$ of the $B [G]$ variable and $N_P$ is the window size.
+Each window varies in length, $L_P$, according to the number of variables that are used for anomaly detection. Each variable in the dataset has an equal number of features (refer to Section \ref{sec:data_prelim_analysis}); therefore, the number of features for a single profile can be expressed as $L_P=k\times M$, where $k$ is the number of variables being used for the task. From this, the dimensions of the ith window, $W_i$, can be defined as $(N_P, L_P)$.
+
+As in the previous experiments, two models were designed to detect anomalies in both the input and output variables used by MULTI-VP. In the model of the inputs only the magnetic field, $B [G]$ variable was used for the task at hand. This was due to the problems that were encountered in the experiments due to the high dimensionality of the dataset. Additionally, the magnetic field is the variable in the dataset that seems to be most affected by the presence of anomalies. Following the notation adopted in the last paragraph, the dimensions of the ith window, $W_{i}$, in the dataset is set to $(N_P, 640)$, where 640 is the number of features $L_P$ of the $B [G]$ variable and $N_P$ is the window size.
 
 In line with the previous experiments, the most extreme values from the input variables were removed from the training process to ensure the best performance of the GAN models. These were then used during the detection phase.
 
-
 % TODO confuso - se calhar falar disto depois de mostrar o melhor modelo
-The architectures were chosen based on the performance of the models trained on the input variables. In a later stage, only the best-performing architecture was used on the predictions of MULTI-VP. All three prediction variables were employed for this task.
+The final method was chosen based on the performance of the models trained on the input variables. In a later stage, only this method was used to detect anomalies in the predictions of MULTI-VP. For more details on the model for the output variables, refer to Section \ref{sec:madgan}.
 
 
 \subsection{Stacked GRU GAN}
@@ -220,12 +223,106 @@ The discriminator consisted of only two GRU and a linear output layer. Following
 
 As in the previous experiments, the training process of the GAN became more stable; however, the results of the anomaly detection still weren't as good as the ones obtained by the linear GAN.
 
-\subsection{MAD-GAN}\label{sec:mad-gan}
+
+\subsection{MAD-GAN}\label{sec:madgan}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/madgan_arch.png}
+    \caption[MAD-GAN Architecture]{Architecture of the MAD-GAN model. The Generator consists of three stacked GRU layers and a linear output layer. The discriminator consists of a single GRU layer and a linear output layer followed by the Sigmoid activation function. Both take as input sequences of size $N_P$.}
+    \label{fig:madgan_architecture}
+\end{figure}
+
+The definitive architecture for this class of GANs was based on MAD-GAN \cite{li.etal_MADGANMultivariateAnomaly_2019}. It was chosen as a way of determining if one of the most famous state-of-the-art RNN GANs for time-series data could be used for the detection of anomalies in the MULTI-VP dataset. The architecture of the generator and discriminator is shown in Figure \ref{fig:madgan_architecture}.
+
+Like in \cite{li.etal_MADGANMultivariateAnomaly_2019} the generator, $G$, consists of three stacked GRU layers and a linear output layer (without an activation function). The discriminator, $D$, consists of a single GRU layer and a linear output layer followed by the Sigmoid activation function. $G$ takes as inputs windows with $N_P$ latent vectors with $L_P$ features and synthesizes samples with the same dimensions. $D$ takes as inputs windows with $N_P$ real or fake samples with $L_P$ features and outputs a single value between 0 and 1, which represents the probability of the input window coming from the dataset or $G$.
+
+Several configurations were tested for the number of hidden units for the GRU layers. The best results were obtained with 200 hidden units in both modules. The learning rate was set to 0.0001 for $G$ and 0.0002 for $D$ with the use of the Adam Optimizer. The batch size was set to 32 and the number of epochs to 100. The number of profiles per window, $N_P$, was set to 10. In addition to this, the same training method as in \cite{li.etal_MADGANMultivariateAnomaly_2019} was used. In this method, $D$ is firstly trained for a set number of iterations while $G$ is kept fixed. This is to ensure that $D$ learns the representation of the real data before training $G$. After this, $G$ is trained for a set number of iterations while $D$ is kept frozen. This process is repeated until the end of the training process. The number of iterations was 10 and 5 for $D$ and $G$, respectively.
+
+The training process was carried out with the Adam optimizer with a learning rate of 0.0001. The batch size was set to 32 and the number of epochs to 100. The number of profiles per window, $N_P$, was set to 10. In addition to this, the same training method as in \cite{li.etal_MADGANMultivariateAnomaly_2019} was used. In this method, $D$ is firstly trained for a set number of iterations while $G$ is kept fixed. This is to ensure that $D$ learns the representation of the real data before training $G$. After this, $G$ is trained for a set number of iterations while $D$ is kept frozen. This process is repeated until the end of the training process. The number of iterations was 10 and 5 for $D$ and $G$, respectively.
+
+As in the previous RNN architectures, the training process was very unstable and the modules didn't converge due to the high number of input features. Changing the number of hidden features, the learning rate and the number of iterations didn't seem to affect the stability of the training process.
+
+In an attempt to reduce the number of features of data and in line with the additional experiments in \cite{li.etal_MADGANMultivariateAnomaly_2019}, PCA was applied to the training data. This transformation reduced the number of features, $L_P$, to a fixed 100 features per profile. For the input model, the initial 640 features from the magnetic field variable were reduced to 100 features. For the output model, the 1920 features from all the output variables were reduced to 100 features. With this, the dimension of both training datasets was set to $N_P \times 100$.
+
+The detection step for both models was carried out with the anomaly functions from Section \ref{sec:gan_anomaly_scores}. Every anomaly score function provided overall good results, showcasing the stability of the method. Despite this, the best results were obtained with the $R_{err}$ function. The results of the anomaly detection on the inputs as well as on the outputs are shown in Figure \ref{fig:madgan_clean_data}. These were obtained by first training the models with the PCA-transformed data and then applying the anomaly detection step on the testing data with the model from the previous stage.
+
+\begin{figure}
+    \caption[MAD-GAN filtered datasets]{Resulting datasets after the anomaly detection step with the MAD-GAN architecture on the inputs and outputs of the MULTI-VP dataset.}
+    \label{fig:madgan_clean_data}
+    \begin{subfigure}[h]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/madgan_clean_in.png}
+        \caption{Input Variables}
+        \label{fig:madgan_clean_in}
+        % \label{fig:tsne_mag_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[h]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/madgan_clean_out.png}
+        \caption{Output Variables}
+        \label{fig:madgan_clean_out}
+    \end{subfigure}
+\end{figure}
+
+Figure \ref{fig:madgan_clean_in} shows the results of the anomaly detection on the input variables. At first glance, the results are very similar to the ones obtained with the linear GAN; however, MAD-GAN only required a threshold of 3\% top anomalous profiles. This means that the model is more sensitive to anomalies in the magnetic field variable than the linear GAN model. The same is true for the model trained on the output variables (fig. \ref{fig:madgan_clean_out}). These results indicate that MAD-GAN is more sensitive to anomalies in both the input and output variables than the linear GAN model, which translates to a lower False-Positive rate.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/aae_arch.png}
+    \caption[Adversarial Autoencoder Architecture]{Architecture of the adversarial autoencoder. The generator $G$, consists of an encoder, $E$, and decoder, $Dec$. The job of the first is to generate a latent representation of the input data, which is then used by the decoder to reconstruct the input. The discriminator, $D$, takes as inputs the latent representation generated by $E$ and outputs a single value between 0 and 1, which represents the probability of the input coming from the prior distribution or $E$.}
+    \label{fig:aae_architecture}
+\end{figure}
+
+\subsection{Adversarial AE}\label{sec:aae}
+In the final experiments, an adversarial autoencoder architecture was used. This architecture was chosen as a way of determining if the use of an autoencoder could improve the results obtained with the previous GAN architectures. The architecture of the generator and discriminator is shown in Figure \ref{fig:aae_architecture}. 
+
+The generator, $G$, is divided into an encoder, $E$, and decoder $Dec$. The objective of $E$ is to generate a latent representation of the input data. This latent representation is then used by $Dec$ to reconstruct the input data. In adversarial autoencoders, a discriminator model is also introduced to constrain the latent representation to follow a prior distribution. In this case, the discriminator, $D$, takes as input the latent representation generated by $E$ and outputs a single value between 0 and 1, which represents the probability of the input coming from the prior distribution or $E$.
+
+\subsubsection*{Training}
+
+The loss function combines the reconstruction loss of the autoencoder (Equation \ref{eq:ae_objective_func}) with the adversarial loss of the discriminator. The reconstruction loss is the mean squared error between the input to de encoder and the output of the decoder. The adversarial loss is the binary cross-entropy loss between the output of the discriminator and the prior distribution. The loss function is defined as follows:
+
+\begin{equation}\label{eq:aae_objective_func}
+    \mathcal{L}_{AAE} = \alpha \times \mathcal{L}_{AE} + (1-\alpha) \times \mathcal{L}_{ADV}
+\end{equation}
+
+where $\alpha$ is a hyperparameter that controls the weight of the reconstruction and adversarial losses.
+
+The training process consists of first training the autoencoder and freezing the discriminator parameters. In this step, the encoder, $Enc$ generates a latent space representation of the original data, which is then reconstructed by the decoder, $Dec$. The parameters of the encoder and the decoder are updated with the equation \ref{eq:aae_objective_func}. After this, $D$ is trained while the encoder and decoder are kept frozen. In this step, the discriminator is trained to distinguish between the latent representation generated by the encoder and the prior distribution. With this, $D$ is conditioned to learn the prior distribution and to classify the encoded samples more precisely. This process is repeated until the end of the training process.
+
+In this phase, the AAE was trained over 400 epochs with the help of the Adam Optimizer, with a learning rate of 0.0002 for $D$, and 0.0001 for $G$. The batch size was set to 128 and the hyperparameter $\alpha$ was set to 0.999. The prior distribution was set to two separate 2D Gaussian distributions. 
+
+Like in the previous experiments, a model was trained for the input variables and another for the output variables. For the first, only the magnetic field variable (without extreme values) was used as input, while for the second, all the output variables were used.
+
+\subsubsection*{Anomaly Detection}
+
+The anomaly detection step was carried out with the same anomaly functions as in the previous experiments; however, the generator reconstruction step is done directly with the autoencoder without the need for the construction steps of the previous approaches.
+
+
+The autoencoder proved more than capable of detecting anomalies in the data without the need for a discriminator. However, as previously stated, the goal of this approach is to take advantage of the reconstruction abilities of the autoencoder along with the discriminator to improve the results of the baseline autoencoder. The results of the anomaly detection step are shown in Figure \ref{fig:aae_clean_data}.
+
+\begin{figure}
+    \caption[AAE filtered datasets]{Resulting datasets after the anomaly detection step with the AAE architecture on the inputs and outputs of the MULTI-VP dataset.}
+    \label{fig:aae_clean_data}
+    \begin{subfigure}[h]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/aae_clean_in.png}
+        \caption{Input Variables}
+        \label{fig:aae_clean_in}
+        % \label{fig:tsne_mag_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[h]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/aae_clean_out.png}
+        \caption{Output Variables}
+        \label{fig:aae_clean_out}
+    \end{subfigure}
+\end{figure}
 
 
 
 
-
-\section{Experiment 4: VAE}\label{sec:mad-gan}
-\section{Experiment 3: AAE}\label{sec:gan_experiment_3}
 
