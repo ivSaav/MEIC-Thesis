@@ -18,7 +18,7 @@ The problem is formulated as follows:
 \subsection{Common Challenges in the Training Phase}
 Earlier GAN architectures were very unstable and hard to train. Despite some proposed solutions to these issues (\cite{radford.etal_UnsupervisedRepresentationLearning_2016,arjovsky.etal_WassersteinGenerativeAdversarial_}), GANs are still remarkably difficult to train. Following are some of the main problems experienced during this phase.\\
 
-\noindent\textbf{Mode collapse.} Occurs when the GAN is incapable of reaching Nash equilibrium \footnote{Can be explained by the following analogy: Two players, Alice and Bob, chose strategies A and B; Alice has no other strategy to maximise her goal better, and Bob has no different strategy other than B to maximise his goal in response to Alice's choice (\url{https://en.wikipedia.org/wiki/Nash_equilibrium})} and is a consequence of poor generalisation. It can occur when the generator $G$ only creates samples from a subset of the data distribution or only learns part of the distribution. The leading causes for this issue can be attributed to a poor choice of the objective function (\cite{saxena.cao_GenerativeAdversarialNetworks_2022}). In other words, $G$ focuses on a small subset of samples that consistently fool the discriminator $D$.\\
+\noindent\textbf{Mode collapse.} Occurs when the GAN is incapable of reaching Nash equilibrium \footnote{Can be explained by the following analogy: Two players, Alice and Bob, chose strategies A and B; Alice has no other strategy to maximize her goal better, and Bob has no different strategy other than B to maximize his goal in response to Alice's choice (\url{https://en.wikipedia.org/wiki/Nash_equilibrium})} and is a consequence of poor generalization. It can occur when the generator $G$ only creates samples from a subset of the data distribution or only learns part of the distribution. The leading causes for this issue can be attributed to a poor choice of the objective function (\cite{saxena.cao_GenerativeAdversarialNetworks_2022}). In other words, $G$ focuses on a small subset of samples that consistently fool the discriminator $D$.\\
 
 \noindent\textbf{Vanishing gradients.} The discriminator $D$ does not provide enough information for $G$ to update its gradients \cite{little.etal_GenerativeAdversarialNetworks_2021}. $D$ can distinguish real samples from fake ones with high confidence, which in turn causes the loss function of $G$ to decrease towards 0. As $D$ gets better, the gradient of $G$ progressively decreases until virtually none of the layers are updated, and $G$ can't generate samples with new distributions. Some solutions for this problem include batch normalization and clipping.\\
 
@@ -51,13 +51,13 @@ The first, and simplest score is the classification of the discriminator, $D$. T
     D_{s} = 1 - D(x)
 \end{equation}
 
-The second score is the reconstruction error of the generator, $G$, and is based on the reconstruction technique of MAD-GAN \cite{li.etal_MADGANMultivariateAnomaly_2019}. The reconstruction process occurs iteratively for each ith sample, $x^i$ in the testing dataset. Like in the original method, the optimal latent representation for $x^i$ is obtained by first sampling a latent space variable, $Z^k$. Then, for a predefined set of iterations, $j$, the generator $G$ is used to generate a batch of reconstructions $G(Z^{k,j})$. Contrary to \cite{li.etal_MADGANMultivariateAnomaly_2019}, the distance between the original sample $x^i$ and the reconstructed 
-one, $G(Z^{k,j})$ is calculated using the MSE loss function. In the next step, the residuals of the MSE functions are averaged and used to update the parameters of $Z^{k,j}$. After $j$ iterations the best reconstruction, $Z^{k,j}$, of $x^i$ is returned.
+The second score is the reconstruction error of the generator, $G$, and is based on the reconstruction technique of MAD-GAN \cite{li.etal_MADGANMultivariateAnomaly_2019}. The reconstruction process occurs iteratively for each ith sample, $x^i$ in the testing dataset. Like in the original method, the optimal latent representation for $x^i$ is obtained by first sampling a latent space variable, $z^k$. Then, for a predefined set of iterations, $j$, the generator $G$ is used to generate a batch of reconstructions $G(z^{k,j})$. Contrary to \cite{li.etal_MADGANMultivariateAnomaly_2019}, the distance between the original sample $x^i$ and the reconstructed 
+one, $G(z^{k,j})$ is calculated using the MSE loss function. In the next step, the residuals of the MSE functions are averaged and used to update the parameters of $z^{k,j}$. After $j$ iterations the best reconstruction, $z^{k,j}$, of $x^i$ is returned.
 
-The reconstruction error is calculated directly with the MSE loss between the real batch and the reconstructed batch from the optimal latent representation, $Z^{k,j}$. The reconstruction error is calculated as follows:
+The reconstruction error is calculated directly with the MSE loss between the real batch and the reconstructed batch from the optimal latent representation, $z^{k,j}$. The reconstruction error is calculated as follows:
 
 \begin{equation}
-    R_{err} = MSE(x^i, G(Z^{k,j}))
+    R_{err} = MSE(x^i, G(z^{k,j}))
 \end{equation}
 
 The reconstruction process described above is in Algorithm \ref{alg:mse_reconstruction}.
@@ -73,19 +73,19 @@ The reconstruction process described above is in Algorithm \ref{alg:mse_reconstr
             \Desc{$n$}{Number of iterations}
         \EndInput
         \Output
-            \Desc{$Z^k$}{Optimal latent representation}
+            \Desc{$z^k$}{Optimal latent representation}
             \Desc{$R_{err}$}{MSE Reconstruction error}
         \EndOutput
     \end{algorithmic}
 
     \BlankLine
     \emph{Get a sample from the latent space}\;
-    $Z^k = random\_sample()$\;
+    $z^k = random\_sample()$\;
     \For{$j = 0$ \KwTo $n$}{
-        \emph{Reconstruct batch from $Z^k$ and calculate loss}\;
-        $R_{err} = MSE(x^i, G(Z^k))$\;
+        \emph{Reconstruct batch from $z^k$ and calculate loss}\;
+        $R_{err} = MSE(x^i, G(z^k))$\;
         \emph{Update latent representation based on $R_{err}$}\;
-        $Z^k = update(Z^k, R_{err}$)\;
+        $z^k = update(z^k, R_{err}$)\;
         }
     \end{algorithm}
 \end{minipage}}
@@ -93,7 +93,7 @@ The reconstruction process described above is in Algorithm \ref{alg:mse_reconstr
 The next score is a combination of the previous two scores, as a way of taking advantage of both the discriminator and the generator in the detection process. The reconstruction process is similar to the previous one, but instead of using only the MSE loss, the classification score, $D_{s}$ of the discriminator is also used. The new altered loss function is defined as follows:
 
 \begin{equation}
-    RD_{err} = MSE(x^i, G(Z^{k,j})) \times D_{s}
+    RD_{err} = MSE(x^i, G(z^{k,j})) \times D_{s}
 \end{equation}
 
 The reconstruction process with the discriminator input is shown in Algorithm \ref{alg:mse_reconstruction}. It is very similar to Algo. \ref{alg:mse_reconstruction}, but with the addition of the discriminator classification score to the loss function.
@@ -109,25 +109,38 @@ The reconstruction process with the discriminator input is shown in Algorithm \r
                 \Desc{$n$}{Number of iterations}
             \EndInput
             \Output
-                \Desc{$Z^k$}{Optimal latent representation}
+                \Desc{$z^k$}{Optimal latent representation}
                 \Desc{$RD_{err}$}{MSE-Discr. Reconstruction error}
             \EndOutput
         \end{algorithmic}
         
         \BlankLine
         \emph{Get a sample from the latent space}\;
-        $Z^k = random\_sample()$\;
+        $z^k = random\_sample()$\;
         \For{$j = 0$ \KwTo $n$}{
             \emph{Obtain $D$ classification for reconstructed batch}\;
-            $D_s = 1 - D(G(Z^k))$\;
+            $D_s = 1 - D(G(z^k))$\;
 
             \emph{Reconstruct batch from $Z^k$ and calculate loss}\;
-            $RD_{err} = MSE(x^i, G(Z^k)) \times D_s$\;
+            $RD_{err} = MSE(x^i, G(z^k)) \times D_s$\;
             \emph{Update latent representation based on $RD_{err}$}\;
-            $Z^k = update(Z^k, RD_{err}$)\;
+            $z^k = update(z^k, RD_{err}$)\;
         }
     \end{algorithm}
 \end{minipage}}
+
+
+A simplified representation of the workflow for obtaining the anomaly scores is shown in Figure \ref{fig:anomaly_detection_method}. This process is done by extracting the pre-trained $G$ and $D$ with their layers frozen. Each batch, $x^i$ is passed through the discriminator, $D$, to obtain the classification score, $D_s$. The reconstruction process from algorithms \ref{alg:mse_discr_reconstruction} and \ref{alg:mse_reconstruction} is performed in the invert mapping step to obtain the optimal latent representation, $z^k$, for the given test sample. After this, $R_{err}$ is calculated by comparing the reconstructed sample with the original one. The final $RD_{err}$ can be obtained by combining $R_{err}$ with $D_s$.
+
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/gan_anomaly_detect_flow.png}
+    \caption[Anomaly detection workflow]{Anomaly detection workflow with each of the defined reconstruction methods. The invert mapping is used to obtain the optimal latent representation, $z^k$, from the reconstruction error.}\label{fig:anomaly_detection_method}
+    \small\textsuperscript{(1)} Only applied to the reconstruction method in algorithm \ref{alg:mse_discr_reconstruction}.
+\end{figure}
+
+
 
 \subsection{Linear GAN}\label{sec:linear_gan}
 

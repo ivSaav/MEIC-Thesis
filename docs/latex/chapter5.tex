@@ -32,7 +32,7 @@ The input data includes the magnetic field amplitude, $B$, the flux tube inclina
 A joint plot of the input variables can be seen in Fig. \ref{fig:jointplot_input}. From these plots, it can be concluded that several input files constitute anomalous data. This is clear from the graph of $B$, with files that significantly deviate from the rest. 
 
 
-\begin{figure}[h]
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/joint_input_cols.png}
     \caption{Joint plot of the input variables of each file used in this work. The first row is the plot of the radial coordinate radius, $R$, the second the magnetic field, $B$, and the last the flux tube inclination $\alpha$. All are plotted in function of position in the magnetogram file.}
@@ -45,7 +45,7 @@ As previously explained, MULTI-VP requires initial expert guesses to kickstart t
 
 Fig. \ref{fig:jointplot_output} shows the joint plot of the output variables. Similar to the input plots, several faulty predictions can be seen in all variable plots, which are the result of simulations carried out on anomalous inputs.
 
-\begin{figure}[h]
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/joint_output_cols.png}
     \caption{Joint plot of the output variables of each file used in this work. The first row is the plot of the number of charged particles per unit volume, $n$, the second the velocity, $v$, and the last the temperature, $T$. All are plotted in function of position in the magnetogram file.}
@@ -71,7 +71,7 @@ A preliminary statistical analysis of the data can be seen in tables \ref{tab:da
     \end{table}
 
 
-\begin{figure}[h]
+\begin{figure}[]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/variables_corrplot.png}
     \caption{Correlation plot of all variables used in this work.}
@@ -84,22 +84,14 @@ The output variables ($n$, $v$, and $T$) are somewhat correlated. The temperatur
 
 A high correlation between the radial coordinate $R$ and the velocity $v$ can be observed, as $v$ is expected to increase with distance from the Sun. Additionally, the temperature of the solar wind drops as the distance to the Sun increases, which is reflected in the negative correlation between $R$ and $T$.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{figures/input_vars_distribution.png}
-    \caption{Distribution of the input variables}
-    \label{fig:input_vars_distr}
-\end{figure}
-
-A distribution plot of each of the input variables can be seen in Fig. \ref{fig:input_vars_distr}. As expected, the values of $R$ range from 1 to about 31.5 as was already seen by looking at Table \ref{tab:data_stats}, with most values being concentrated around 1. $B [G]$ displays a skewed distribution while $\alpha [deg]$ is more evenly distributed (almost symmetric in relation to $x=0$).
-
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{figures/output_vars_distribution.png}
-    \caption{Distribution of the output variables}
-    \label{fig:output_vars_distr}
+    \includegraphics[width=\textwidth]{figures/joint_var_distribution.png}
+    \caption{Plot of the value distributions of the input (left) and output (right) variables.}
+    \label{fig:joint_vars_distr}
 \end{figure}
 
-Contrary to the findings in the output variables, the values of the output variables are more evenly distributed throughout the $x$ axis, as can be seen in Fig. \ref{fig:output_vars_distr}. Most density values are concentrated around $10^{7} cm^{-3}$; however, the distribution is quite even, with a large increase for values closer to the origin and a small deep after this peak.
+A distribution plot of each of the input variables can be seen on the left column of Fig. \ref{fig:joint_vars_distr}. As expected, the values of $R$ range from 1 to about 31.5 as was already seen by looking at Table \ref{tab:data_stats}, with most values being concentrated around 1. $B [G]$ displays a skewed distribution while $\alpha [deg]$ is more evenly distributed (almost symmetric in relation to $x=0$).
 
+Contrary to the findings in the input variables, the values of the output variables are much less evenly distributed. The number of charged particles per unit volume, $n$, has a very skewed distribution, with most values being concentrated in the $10^{3}$ to $10^{7}$ range. The velocity, $v$, has a more large distribution of values with most of them indicating slower velocities. The temperature, $T$, has a strange distribution with a lot of values concentrated near 0 and the rest ranging from 0.5 to 5.
