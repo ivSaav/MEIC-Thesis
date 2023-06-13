@@ -1,11 +1,12 @@
-\chapter*{Exploratory Data Analysis}\label{chap:eda}
+\chapter{Exploratory Data Analysis}\label{chap:eda}
 An extensive analysis of the data that will be used during the development process was carried out. This chapter presents the results of this analysis, which are used to guide the development of the system.
 
+% \section{MULTI-VP Dataset}\label{sec:data_prelim_analysis}
+The data used by MULTI-VP and, consequently, the RNN prediction model consists of magnetogram data from the Wilcox Solar Observatory. Each file contains 12 columns representing measurements of the magnetic field in the solar atmosphere at different heights. Every variable comprises 640 points (abscissas) measured at different radial distances from the Sun (up to 30 Solar radii). In addition, the data is distributed evenly throughout five batches, each consisting of solar wind measurements at different surface locations. For this work, only six columns will be used, as the others are derivations of these and, thus, are redundant. 
 
-\section{MULTI-VP Dataset}\label{sec:data_prelim_analysis}
-The data used by MULTI-VP and, consequently, the RNN prediction model consists of magnetogram data from the Wilcox Solar Observatory. Each file contains 12 columns representing measurements of the magnetic field in the solar atmosphere at different heights. Every variable comprises 640 points (abscissas) measured at different radial distances from the Sun (up to 30 Solar radii). In addition, the data is distributed evenly throughout five profiles, each consisting of solar wind measurements at different surface locations. For this work, only six columns will be used, as the others are derivations of these and, thus, are obtained with these columns. 
+The data columns can be seen in Table \ref{tab:multivp_columns}. These are divided into two parts: the input and the output (predictions). The former comprises the set of variables used by the simulation to approximate solar wind conditions, and the latter the initial expert guesses needed to kickstart the multiple flux simulation. Note that like in \cite{barros_InitialConditionEstimation_} the output variables are the predictions of previous MULTI-VP simulations, and not actual expert predictions.
 
-The data columns can be seen in Table \ref{tab:multivp_columns}. These are divided into two parts: the input and the output. The former comprises the set of variables used by the simulation to approximate solar wind conditions, and the latter the initial expert guesses needed to kickstart the multiple flux simulation. The input data includes the magnetic field amplitude, $B$, the flux tube inclination, $\alpha$, and the radial coordinate, $R$. The output data consists of the number of charged particles per unit volume, $n$, the velocity, $v$, and the temperature, $T$.
+The input data includes the magnetic field amplitude, $B$, the flux tube inclination, $\alpha$, and the radial coordinate, $R$. The output data consists of the number of charged particles per unit volume, $n$, the velocity, $v$, and the temperature, $T$.
 
 \begin{table}[ht]
     \caption{Data columns of magnetogram used by MULTI-VP.}
@@ -51,9 +52,7 @@ Fig. \ref{fig:jointplot_output} shows the joint plot of the output variables. Si
     \label{fig:jointplot_output}
 \end{figure}
 
-A preliminary statistical analysis of the data can be seen in tables \ref{tab:data_stats}. In it, the mean, standard deviation, minimum, maximum, and quartiles of each variable are presented.
-
-Out of the three input columns used, the magnetic field ($B$) has the highest standard deviation, which might indicate that this column is more prone to anomalies than the others. The radial coordinate ($R$) has the lowest standard deviation, which is expected, as it is a constant value for each file. The output variables have a similar standard deviation, with the number of charged particles per unit volume ($n$) having the highest and the temperature ($T$) the lowest. The velocity ($v$) has a standard deviation similar to that of the temperature.
+A preliminary statistical analysis of the data can be seen in tables \ref{tab:data_stats}. In it, the mean, standard deviation, minimum, maximum, and quartiles of each variable are presented. Out of the three input columns used, the magnetic field ($B$) has the highest standard deviation, which might indicate that this column is more prone to anomalies than the others. The radial coordinate ($R$) has the lowest standard deviation, which is expected, as it is almost a constant value for each file. The output variables have a similar standard deviation, with the number of charged particles per unit volume ($n$) having the highest and the temperature ($T$) the lowest. The velocity ($v$) has a standard deviation similar to that of the temperature.
 
 \begin{table}[]
     \caption{Statistical Analysis of the dataset.}
@@ -81,10 +80,9 @@ Out of the three input columns used, the magnetic field ($B$) has the highest st
 
 In addition to these statistics, the correlation between the variables can be seen in Fig. \ref{fig:corrplot}. There is virtually no correlation between the input variables ($R$, $B$, and $\alpha$), which is expected, as they are independent of each other. 
 
-% TODO prof check this
 The output variables ($n$, $v$, and $T$) are somewhat correlated. The temperature, $T$, is positively correlated with the velocity of the solar wind, $v$, which is expected as with higher wind speeds the particles there is a tendency for higher temperatures. The opposite is true for the volume density of the solar wind, $n$, which is negatively correlated with the temperature. This is expected as with higher densities, the particles will have less kinetic energy and, therefore, a lower temperature. The velocity of the solar wind is also slightly negatively correlated with the volume density.
 
-A high correlation between the radial coordinate $R$ and the velocity $v$ can be observed, as the velocity is expected to increase with distance from the Sun. Additionally, the temperature of the solar wind drops as the distance to the Sun increases, which is reflected in the negative correlation between $R$ and $T$.
+A high correlation between the radial coordinate $R$ and the velocity $v$ can be observed, as $v$ is expected to increase with distance from the Sun. Additionally, the temperature of the solar wind drops as the distance to the Sun increases, which is reflected in the negative correlation between $R$ and $T$.
 
 \begin{figure}
     \centering
@@ -93,5 +91,15 @@ A high correlation between the radial coordinate $R$ and the velocity $v$ can be
     \label{fig:input_vars_distr}
 \end{figure}
 
-A distribution plot of each of the input variables can be seen in Fig. \ref{fig:input_vars_distr}. The values of the radial coordinate $R$ range from 1 to about 31.5 as was already seen by looking at Table \ref{tab:data_stats}, with most values being concentrated around 1. % TODO
+A distribution plot of each of the input variables can be seen in Fig. \ref{fig:input_vars_distr}. As expected, the values of $R$ range from 1 to about 31.5 as was already seen by looking at Table \ref{tab:data_stats}, with most values being concentrated around 1. $B [G]$ displays a skewed distribution while $\alpha [deg]$ is more evenly distributed (almost symmetric in relation to $x=0$).
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/output_vars_distribution.png}
+    \caption{Distribution of the output variables}
+    \label{fig:output_vars_distr}
+\end{figure}
+
+Contrary to the findings in the output variables, the values of the output variables are more evenly distributed throughout the $x$ axis, as can be seen in Fig. \ref{fig:output_vars_distr}. Most density values are concentrated around $10^{7} cm^{-3}$; however, the distribution is quite even, with a large increase for values closer to the origin and a small deep after this peak.
 
