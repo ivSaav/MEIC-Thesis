@@ -21,3 +21,10 @@
 \algnotext{EndOutput}
 \newcommand{\Desc}[2]{\State \makebox[3em][l]{#1}#2}
 
+
+\renewcommand{\thesubsubsection}{\alph{subsubsection})}
+\makeatletter
+\renewcommand{\p@subsubsection}{\thesubsection.\protect\eatbracket}
+\makeatother
+\def\eatbracket#1#2{#1\ifx)#2\else#2\fi}
+

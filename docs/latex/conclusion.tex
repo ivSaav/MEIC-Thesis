@@ -1,8 +1,85 @@
-\chapter{Conclusions} \label{chap:conclusion}
+\chapter{Final Remarks} \label{chap:remarks}
+This chapter provides an overview of the work carried out throughout this thesis and analyses the obtained results. Section \ref{sec:hypothesis_eval} evaluates the hypothesis and answers the research questions of this thesis. Section \ref{sec:conclusion} provides a broad analysis of the work and results of this thesis, while Section \ref{sec:future_work} details some possible paths for further research.
 
-The necessity to consistently predict the Sun's conditions that lead to the most extreme events has become an increasingly important study. However, technological difficulties make obtaining real-time data from the Sun's surface challenging. Multiple numeric simulators have tried to fill this gap by extrapolating these conditions based on limited observations from Earth. In this dissertation, we have explained the problems (sec. \ref{sec:prob_definition}) associated with these solutions that severely affect the ability to generate solar estimations promptly. These issues included the long execution time of the simulation models as well as the need for initial expert estimations. Additionally, it was posited that the use of machine learning techniques to predict the original conditions suffered greatly from anomalies in the training dataset.
+\section{Hypothesis Evaluation}\label{sec:hypothesis_eval}
+Following the work carried out in this thesis, this section intends to evaluate the proposed hypothesis from Section \ref{sec:hypothesis}, which is the following:
 
-To address these issues, we first studied the current most popular GAN-based techniques for anomaly detection. The state-of-the-art analysis (sec. \ref{sec:stoa_results}) showed that GAN-based anomaly detection techniques performed the task better than other mainstream methods. With this in mind, we proposed a GAN-based anomaly detection technique (sec. \ref{sec:method}) that detects anomalies in the training dataset used by the prediction models. In the same section, the evaluation methods that will be used for the validation of the results were also explained. Finally, the work plan (sec. \ref{sec:work_plan}) was presented, which included the tasks that will be performed to achieve the objectives of the dissertation.
+\begin{quote}
+    By integrating clustering and adversarial anomaly detection techniques, the initial conditions predicted by RNNs for the MULTI-VP simulator will be closer to the final simulation results and contribute to faster executions.
+\end{quote}
+
+An analysis of the results from the clustering shows that we have achieved the first part of the hypothesis, as the estimates produced by the new approach were significantly closer to the simulation outputs. However, both experiments seem to indicate that the computation time of the simulation has no direct correlation to the quality of the initial conditions. This is evidenced by the very similar mean speedup of all tested approaches. 
+
+% In it, we posit that the computation time of MULTI-VP is directly linked to the quality of the estimates used to kickstart the simulation. From this assumption, it follows that using better initial estimates would lead to a faster simulation computation time. After an extensive analysis of the results, it can be concluded that this hypothesis does not hold.
+
+The following answers to the research questions help explain these observations:
+ 
+\begin{description}
+    \item{RQ1} \textit{Are clustering methods capable of detecting characteristics in the dataset that were overlooked by the original RNN and would help with the prediction task?} The clustering experiments' results show that we could generate estimates closer to the simulation outputs using this approach. The models trained on the resulting KMeans clustering of the PCA of the input variables managed to produce better estimates than the single model trained on the whole dataset. This shows that by dividing the dataset into clusters of approximately the same size and training an RNN for each cluster, we could capture previously ignored features of the baseline prediction model.
+
+    \item[RQ2] \textit{Do the estimates obtained with clustering-based training significantly improve the simulation’s performance?} Despite being able to generate better initial estimates than the ones provided by the experts and the baseline model, this approach didn't significantly reduce the computation time of the MULTI-VP simulation. The impact on the computation time was assessed by comparing the mean speedup of simulations obtained by feeding MULTI-VP simulation with predictions from both the baseline and the devised clustering models. The baseline model achieved a mean speedup of 1.06, which constituted a slight improvement over the expert estimates. On the other hand, the new approach with the clustering models resulted in a mean speedup of only 1.05, which means that there was a marginal increase in the computation time of the simulation when compared to the baseline approach.
+
+    \item[RQ3] \textit{Can adversarial learning methods detect anomalies in solar wind profiles?} The results from section \ref{sec:gan_experiments} show that it is possible to use adversarial detection methods in this type of data. Even though the linear GAN and the AAE managed to clean the dataset, the number of detected normal profiles (FN) is still very high compared to MAD-GAN, which might indicate that the previous architectures are not very suited for this task. In addition, we showed that grouping consecutive profiles into windows and then using these on LSMT-based GAN architectures (as MAD-GAN) proved very effective, surpassing the other approaches.
+
+    \item[RQ4] \textit{Does the resulting dataset significantly improve the predictive ability of the RNN?} Despite removing most anomalous data from the training dataset, the estimates' quality decreased compared to the previous clustering models. The results of the adversarial experiments showed that the predictions from the clustering models trained on the clean dataset were significantly worse than the earlier approaches (in some cases, worse than the expert estimates). This might indicate that the removed anomalous profiles provided critical features for the RNN training, and excluding them from this phase hindered the predictions' quality. However, it is still important to note that we are using a small portion of the dataset randomly selected by hand, which might not represent the entire dataset.
+
+    \item[RQ5] \textit{Does the improved predictive ability of the RNN result in a further reduction of execution
+time for MULTI-VP?} Even with worse estimates than the previous clustering models, the new approach obtained a better speedup (from 1.05 to 1.06). This disproves the central hypothesis of this thesis that initial partial flow estimates closer to the final simulation ones would reduce the computation time. During the experiments, it was noticed that the model was still predicting extreme values when given anomalous inputs, even without seeing anomalies in the training phase. Further work is needed in this step to be able to reach a better conclusion. A possible approach would be to exclude the anomalous profiles from the simulation to ensure that these are the cause for the increased computation times.
+\end{description} 
+
+\section{Conclusions}\label{sec:conclusion}
+The need to consistently predict the Sun's conditions that lead to extreme events has become an increasingly important study. However, technological difficulties make obtaining real-time data from the Sun's surface challenging. Multiple numeric simulators have tried to fill this gap by extrapolating these conditions based on limited observations from Earth. In this dissertation, we have explained the problems (Section \ref{sec:prob_definition}) associated with these solutions that severely affect the ability to generate solar estimations promptly. These issues included the long execution time of the simulation models as well as the need for initial expert estimations. Additionally, it was posited that the use of machine learning techniques to predict the original conditions suffered greatly from the data dispersion and anomalies in the training data.
+
+Several experiments were carried out with the existing dataset to address the generalization issues of the baseline RNN models, with widely used clustering algorithms and two data dimensionality reduction methods. These were devised after an extensive analysis of the state-of-the-art approaches for clustering with an emphasis on improving machine learning performance. In the end, a new approach for generating initial flow conditions closer to the final simulation conditions was developed. However, contrary to what was hypothesized, evidence shows that the improved estimates failed to reduce the overall computation time of the simulation. 
+
+In the second part of this thesis, many experiments were carried out to determine if the abnormal profiles in the dataset were hampering the predictions' quality. After an extensive analysis of the state-of-the-art approaches for adversarial anomaly detection, three methods were implemented (one of which was an adaptation) and tested on the training dataset, which proved that these methods could detect faulty profiles in the given dataset. From the experiments, we concluded that the state-of-the-art MAD-GAN was the most efficient method for the task. Due to this, it was used to identify anomalies in the input and output variables of MULTI-VP. In this phase, we also show that training the same clustering methods from the previous experiments without anomalies failed to produce more approximate initial and final estimates, but that despite this, the mean speedup obtained in the simulation was superior. 
+
+In a final experiment, the outputs of previous MULTI-VP execution were used directly as initial conditions of the simulation. The preliminary findings suggest that there were no notable improvements in the computation time of the simulation. These findings support the notion that initial estimates' proximity to the simulation outputs might not contribute to faster executions. One hypothesis to explain this observation is that the simulation itself has inherent limitations or overhead that prevent faster executions, regardless of the quality of the initial estimates. However, it is important to note that further research is required to draw a more definitive conclusion on this matter.
+
+One issue with the methodology that might have contributed to these results was that the data used in the MULTI-VP simulation only constituted 10\% of the entire dataset. We used such a small part of the dataset to evaluate the performance of the approaches with data that was never seen in the training and detection phases. The slow computation time of MULTI-VP was also a key factor for this, as it takes up to two weeks to produce the estimates for this dataset, and we needed to carry out multiple tests during this thesis. The main issue is that the randomly chosen profiles for the validation dataset might not represent the whole dataset, bringing some uncertainty to the results. 
+
+From these experiments, it was concluded that we achieved part of the goals defined in this thesis, as we produced estimates significantly closer to the simulation outputs. Despite these improvements, we were unable to reduce the overall computation time, leading us to believe that initial flow conditions closer to the final solutions might not necessarily be linked to the performance of the simulation.
+
+
+\section{Future Work}\label{sec:future_work}
+Considering all the work in this dissertation, we concluded that despite having closer initial conditions to the final solution, we could not significantly improve the simulation's computation time. More research on this area is needed in order to reach a possible explanation for these results. This would require a more in-depth analysis of the inner workings of the MULTI-VP simulation to determine why significantly closer initial and final conditions do not lead to computational improvements.
+
+Additional research needs to be conducted to assess the physical coherence of the initial conditions generated by the new prediction models. This can involve examining the conservation of mass, momentum, and energy across each individual solar wind profile. By evaluating the physical feasibility of these predictions, it may be possible to develop a surrogate model that could serve as an early-stage solar wind forecasting system.
+
+In some applications where a higher level of scrutiny is not required, this surrogate model could potentially replace the need for the more resource-intensive MULTI-VP simulation. However, it is important to emphasize that further investigation and analysis are necessary to validate the accuracy and reliability of the surrogate model and its ability to provide physically coherent predictions.
+
+Other approaches, such as applying physics-informed machine learning, could be developed to achieve physically sound initial flow conditions that would be able to replace the MULTI-VP simulation. Furthermore, the developed methodologies could be tested on other MHD simulators to determine if the proximity of initial and final conditions leads to significant computation times that MULTI-VP did not achieve.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% In a final experiment, a surrogate model was developed to assess the impact of directly using previous MULTI-VP estimates as initial conditions for the simulation. The initial findings suggest that there were no notable improvements in the computation time of the simulation. This finding supports the notion that the initial estimates' quality may not significantly influence the computation time.
+
+
+
+% % The developed clustering technique produced better-quality predictions than the ones from the experts and the baseline model, making it a viable approach. In addition, the anomaly detection methodology managed to detect most of the faulty profiles in the dataset; however, the subsequent implementations failed to produce better estimates than the clustering method. Regardless of the initial estimate quality, the simulation's computation time didn't improve compared to the baseline predictions.
+
+% Furthermore, as training with anomalies did not prevent the RNN model from producing predictions with extreme variances, the next step would be excluding the detected anomalous profiles from the simulation. This would allow us to determine if the MULTI-VP simulation was more affected by faulty predictions in the input data.
+
+% Due to the prohibitive simulation times, using the entire dataset on the simulation would be unfeasible. A simple experiment could be done by providing only anomalous profiles as initial estimates to MULTI-VP and then comparing it with several simulation runs with only normal data. This will allow us to determine if faulty profiles impact the simulation. 
+
+% Some more testing would need to be conducted on the predictions obtained with the methods developed throughout this thesis to determine if the models' predictions are physically viable with the inputs used to obtain them.
 
 
 
