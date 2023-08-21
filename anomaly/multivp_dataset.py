@@ -12,7 +12,7 @@ from tools.viz import plot_data_values, plot_single_var
 class MULTI_VP_Dataset(Dataset):
     def __init__(self, path : Path, method : str = 'multi', remove_extreme=False, is_train : bool = False, 
                  scaler = None, nseqs : int = 0, window_size : int = 0, drop_radius : bool = True,
-                 use_pca : bool = False, n_components : int = 32, pca = None, pca_scaler = None) -> None:
+                 use_pca : bool = False, n_components : int = 32, pca = None, pca_scaler = None, is_val : bool = False) -> None:
         super().__init__()
         
         self.path = path
@@ -27,19 +27,21 @@ class MULTI_VP_Dataset(Dataset):
         
         # read from inputs compilation
         self.inputs = pd.read_csv(path)
+        if not is_val : self._exclude_val_files(path.parent.parent / "testing_profiles.txt")
         
         if remove_extreme: self._remove_extreme()
-             
+        
+        
         self.filenames = self.inputs['filename'].values
         self.inputs = self.inputs.iloc[:, 1:] # remove filename column
         self.inputs.columns = self.inputs.columns.astype(int) # convert column names to int
         self.length = len(self.inputs)
-        
+            
         self._preprocess(is_train, use_pca, drop_radius)
         self.shape = self.inputs.shape
     
     @classmethod
-    def _from(cls, old, is_train=False, remove_extreme=False):
+    def _from(cls, old, is_train=False, remove_extreme=False, is_val=True):
         return cls(
             path=old.path,
             method=old.method,
@@ -52,14 +54,15 @@ class MULTI_VP_Dataset(Dataset):
             n_components=old.n_components,
             pca=old.pca,
             pca_scaler=old.pca_scaler,
-            drop_radius=old.drop_radius
+            drop_radius=old.drop_radius,
+            is_val=is_val
         )        
 
     def __len__(self):
         return self.length
     
     def __getitem__(self, idx):
-        if self.method == "window_mag":
+        if self.method == "window_mag" or self.method == "window_out":
             window = self.inputs[idx:idx+self.wsize]
             # return window and name of the starting filename
             return torch.tensor(window).float(), self.filenames[idx]
@@ -91,7 +94,7 @@ class MULTI_VP_Dataset(Dataset):
                 self.inputs = self.pca.transform(self.inputs)
                 self.inputs = self.pca_scaler.transform(self.inputs)
                 
-        if self.method == "window_mag":
+        if self.method == "window_mag" or self.method == "window_out":
             self.length = self.length - self.wsize # update length to accomodate window size
             first, _ = self.__getitem__(0) # sanity check
             print(f"Window size: {self.wsize}")
@@ -164,6 +167,16 @@ class MULTI_VP_Dataset(Dataset):
             if f in files:
                indexes.append(idx)    
         return indexes
+    
+    def _exclude_val_files(self, val_files_path):
+        # load validation filenames
+        val_files = [] 
+        with open(val_files_path, 'r') as f:
+            val_files = f.readlines()
+            val_files = [f.split(".")[0] for f in val_files]
+        
+        print(f"Excluding {len(val_files)} val files")
+        self.inputs = self.inputs[~self.inputs["filename"].isin(val_files)]
 
     def remove_files(self, files : List[str]) -> None:
         """Remove files from the dataset
@@ -172,6 +185,7 @@ class MULTI_VP_Dataset(Dataset):
             files (list): list of files to remove
         """ 
         indexes = self._get_filename_indexes(files)  
+        print(max(indexes), self.inputs.shape)
         original_size = self.inputs.shape[0]
         # indexes = np.in1d(self.filenames, np.array(files)).nonzero()[0]
         print("Number of files to remove: ", len(files))

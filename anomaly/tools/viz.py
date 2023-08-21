@@ -23,7 +23,7 @@ def plot_data_values(data : np.ndarray, title : str,
     v0 = data[:, 0:640]
     v1 = data[:, 640:1280]
     v2 = []
-    if "R [Rsun]" in labels:
+    if "R [Rsun]" or "n [cm^-3]" in labels:
         v2 = data[:, 1280:1920]    
     
     fig, axs = plt.subplots(len(labels), 1, **figkwargs)
@@ -46,6 +46,48 @@ def plot_data_values(data : np.ndarray, title : str,
         
     plt.tight_layout()
     return fig
+
+
+def plot_input_output_values(data : np.ndarray, data2 : np.ndarray, title : str, 
+                            labels : List[str] = ["R [Rsun]", "B [G]", "alpha [deg]", "n [cm^-3]", "v [km/s]","T [MK]"], 
+                            scales : Dict[str, str] = {}, scale : str ="log", **figkwargs):
+    """Plot 2 groups of 3 data columns at once"""
+    
+    fig, axs = plt.subplots(3, 2, sharex="all", figsize=(15, 10), **figkwargs)
+    fig.subplots_adjust(hspace=0.8)
+    fig.suptitle(title, size=16)
+    
+    # plot first two
+    for l0, l1, l2, l20, l21, l22 in zip(data[:, :640], data[:, 640:1280], data[:, 1280:],
+                                data2[:, :640], data2[:, 640:1280], data2[:, 1280:]):
+        axs[0,0].plot(l0, linewidth=0.1) # R
+        axs[1,0].plot(l1, linewidth=0.1) # B
+        axs[2,0].plot(l2, linewidth=0.1) # G
+        
+        axs[0,1].plot(l20, linewidth=0.1) # N
+        axs[1,1].plot(l21, linewidth=0.1) # V
+        axs[2,1].plot(l22, linewidth=0.1) # T
+        
+    for i, label in enumerate(labels[:len(labels)//2]):
+        axs[i, 0].set_ylabel(label)
+        axs[i,0].set_yscale(scales[label] if label in scales else scale)
+        
+    for i, label in enumerate(labels[len(labels)//2:]):
+        axs[i,1].set_ylabel(label)
+        axs[i,1].set_yscale(scales[label] if label in scales else scale)
+
+    axs[0,0].set_title("Input Vairables")
+    axs[0,1].set_title("Output Variables")
+    
+    plt.tight_layout()
+    return fig
+        
+    
+    
+    
+    
+    
+    
 
 
 def plot_single_var(values : np.ndarray, title : str,
@@ -75,7 +117,22 @@ def plot_epoch(train_vals : np.ndarray, scaler, path : Path, title : str,
 
     
 
-def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies", inverse=False, **figkwargs):
+def plot_anomalies_in_out(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies", inverse=False, **figkwargs):
+    # get all compiled inputs
+    df = pd. read_csv(data_path / "inputs.csv")
+    df_out = pd.read_csv(data_path / "outputs.csv")
+    
+    if inverse:
+        df = df[~df["filename"].isin(anomalies)].iloc[:, 1:]
+        df_out = df_out[~df_out["filename"].isin(anomalies)].iloc[:, 1:]
+    else:
+        # select the rows with the filenames in anomalies
+        df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
+        df_out = df_out[df_out["filename"].isin(anomalies)].iloc[:, 1:]
+    return plot_input_output_values(df.values, df_out.values, title, scales={"alpha [deg]":"linear"}, **figkwargs)
+
+def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str = "Anomalies",
+                   inverse=False, labels=["R [Rsun", "B [G]", "alpha [deg]"], **figkwargs):
     # get all compiled inputs
     df = pd. read_csv(data_path)
     
@@ -84,7 +141,7 @@ def plot_anomalies(anomalies : Tuple[str, float], data_path : Path, title : str 
     else:
         # select the rows with the filenames in anomalies
         df = df[df["filename"].isin(anomalies)].iloc[:, 1:]
-    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'symlog'}, **figkwargs)
+    return plot_data_values(df.values, title, scales={'B [G]':'log', 'alpha [deg]': 'linear'}, labels=labels, **figkwargs)
     
 def plot_from_files(filenames : List[Path], columns : List[str] = ['R [Rsun]', 'B [G]', 'alpha [deg]'], 
                     scales : Dict[str, str] = {'B [G]':'log', 'alpha [deg]': 'linear'}, **figkwargs):
@@ -126,8 +183,38 @@ def plot_to_tensorboard(writer, fig, step, tag="train_plots"):
     
     
 def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_path : Path, save_path : Path = None, 
-                logger = None, logger_var : str ="test/", scale="linear", method : str = "", 
-                normal_plot : bool =False, exclude : List[str] = []):
+                scale="linear", method : str = "", 
+                normal_plot : bool =False, exclude : List[str] = [], labels : List[str] = ["R [Rsun]", "B [G]", "alpha [deg]"]):
+    # calculate anomaly threshold based on percentage of anomalies
+    sorted_scores = sorted([s[1] for s in scores], reverse=True)
+    t = sorted_scores[int(len(sorted_scores)*percent)]
+    print("Anomaly Threshold: ", t)
+    
+    # plot anomaly scores with calculated threshold
+    scores_fig, ax = plt.subplots(figsize=(18, 6))
+    ax.plot([score[1] for score in scores], label='Anomaly Score', linewidth=0.3)
+    ax.plot(t*np.ones(len(scores)), label=f'Threshold ({int(t)})')
+    ax.set_yscale(scale)
+    plt.legend()
+    
+    anomalies = [score[0] for score in scores if score[1] > t]
+    print(f"Found {len(anomalies)} anomalies")
+    anomal_fig = plot_anomalies(anomalies, data_path, f"{method} - Anomalies ({len(anomalies)})",
+                                labels=labels, figsize=(8, 5), dpi=200)
+    if normal_plot:
+        anomalies.extend(exclude) # exclude files (for profile filtering)
+        data_fig = plot_anomalies(anomalies, data_path, f"{method} - Clean Dataset ({len(scores)-len(anomalies)})", inverse=True, 
+                                  labels=labels, figsize=(8, 5), dpi=200)
+    
+    if save_path != None: 
+        scores_fig.savefig(str(save_path) + "_scores", dpi=200)
+        anomal_fig.savefig(str(save_path) + "_anomalies", dpi=200)
+        if normal_plot: data_fig.savefig(str(save_path) + "_normal", dpi=200)
+    return anomalies
+
+
+def plot_anomaly_scores_in_out(scores : List[Tuple[str, float]], percent : float, data_path : Path, save_path : Path = None, 
+                scale="linear", method : str = "", normal_plot : bool = True, exclude : List[str] = []):
     # calculate anomaly threshold based on percentage of anomalies
     sorted_scores = sorted([s[1] for s in scores], reverse=True)
     t = sorted_scores[int(len(sorted_scores)*percent)]
@@ -142,21 +229,19 @@ def plot_anomaly_scores(scores : List[Tuple[str, float]], percent : float, data_
     
     anomalies = [score[0] for score in scores if score[1] > t]
     print(f"Found {len(anomalies)} anomalies")
-    anomal_fig = plot_anomalies(anomalies, data_path, f"{method + ' '}Anomalies - {len(anomalies)}", figsize=(8, 5), dpi=200)
+    anomal_fig = plot_anomalies_in_out(anomalies, data_path, f"{method + ' '}Anomalies ({len(anomalies)})", dpi=200)
     if normal_plot:
         anomalies.extend(exclude) # exclude files (for profile filtering)
-        data_fig = plot_anomalies(anomalies, data_path, "Dataset", inverse=True, figsize=(8, 5), dpi=200)
+        data_fig = plot_anomalies_in_out(anomalies, data_path, "Clean Dataset", inverse=True, dpi=200)
     
     if save_path != None: 
         scores_fig.savefig(str(save_path) + "_scores", dpi=200)
         anomal_fig.savefig(str(save_path) + "_anomalies", dpi=200)
         if normal_plot: data_fig.savefig(str(save_path) + "_normal", dpi=200)
-        
-    if logger != None: 
-        plot_to_tensorboard(logger, scores_fig, 0, logger_var)
-        plot_to_tensorboard(logger, anomal_fig, 0, logger_var + "_anomalies")
     
-    return t, scores_fig
+    return anomalies
+    # return t, scores_fig
+
 
     
 

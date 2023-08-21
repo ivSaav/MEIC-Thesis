@@ -7,6 +7,9 @@ class Logger():
         
         self.f = open(path, "w")
         
+        self.dir = path.parent
+        print(self.dir)
+        
         # header
         self.log("---")
         for tag, values in attribs.items():
@@ -30,3 +33,9 @@ class Logger():
     def close(self) -> None:
         self.f.flush()
         self.f.close()
+        
+    def save_anomalies(self, anomalies : List[str], filename : str = "anomalies"):
+        with open(self.dir / f"{filename}.txt", "w") as f:
+            f.truncate()
+            f.writelines(a + '\n' for a in anomalies)
+        
