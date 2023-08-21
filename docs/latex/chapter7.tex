@@ -8,24 +8,32 @@ In this chapter, the clustering methods that were used will be briefly explained
 \section{Clustering Methods}\label{sec:clustering_methods}
 Clustering is defined as the task of finding and then grouping the data values that are close to each other in some way. Because of this, clustering is not only a useful technique for data analysis but also for the task of anomaly detection, as abnormal samples tend to be far from the rest of the data. In this section, the clustering methods that were used in this work will be presented.
 
-\subsection{K-Means}\label{sec:kmeans} 
+There are several approaches to the clustering task, however, these can be divided into two main categories: Hierarchical and Partitional. In the hierarchical approach, the data is iteratively divided in accordance with its patterns, in a bottom or top-down approach. This category is further subdivided into agglomerative and divisive techniques. For the first, clusters start at a single point and are iteratively merged with other points forming increasingly larger clusters. On the other hand, the divisive approach starts with all the data points in a single cluster and then divides them into smaller clusters. These methods tend to originate dendrograms that represent the nested grouping of patterns and similarity levels. \cite{Jain.Murty.ea_Dataclusteringreview_1999a, Saxena.Prasad.ea_reviewclusteringtechniques_2017}
 
+In the Partitional approach, the data is divided into a set of non-overlapping clusters. These methods are usually based on the optimization of a criterion function, such as the minimization of the sum of squared errors. The most common methods in this category are K-Means and K-Medoids. This category can also be subdivided into distance, density and model-based approaches. In the distance approach, the data is divided into clusters based on the distance between the data points, such as in the KMeans method. Density-based approaches are based on the idea that clusters are dense regions of data points that are separated by regions of lower density. Model-based approaches often apply decision trees or neural networks to learn the patterns in the data and then use these models to cluster the data. \cite{Saxena.Prasad.ea_reviewclusteringtechniques_2017}
+
+
+\subsection{K-Means}\label{sec:kmeans} 
 The objective of K-means is to find a partition of the data into K clusters, where each data point belongs to the cluster with the nearest mean. The K-means algorithm is an iterative algorithm that starts by randomly assigning each data point to a cluster. Then, the mean of each cluster is calculated and the data points are reassigned to the cluster with the nearest mean. This process is repeated until the data points stop changing clusters. 
 
 The number of divisions is defined by the $k$ parameter, which can be determined with the help of the following methods:
 
-\begin{itemize}
-    \item \textbf{Elbow Method:} The elbow method is a heuristic method that is used to find the optimal number of clusters. This method plots the sum of squared errors (SSE) for each value of $k$ and then finds the value of $k$ that has the "elbow" in the plot. This value of $k$ is considered to be the optimal number of clusters. This method presents some disadvantages, as it is not always clear where the "elbow" is, making it a subjective method. Also, the SSE is not a good measure of the quality of the clustering, as it is biased towards clusters with similar sizes.
-    % TODO disadvantages
-    \item \textbf{Silhouette Method:} The silhouette method is a method that is used to find the optimal number of clusters. This method calculates the silhouette coefficient for each data point, by evaluating the intra-cluster and inter-cluster distances. Scores for each point can range from -1 to 1, with lower values indicating that the data point is in the wrong cluster and higher values that it is in the correct cluster. The silhouette coefficient for each cluster is then calculated by averaging the silhouette coefficients of the data points in the cluster. Finally, the score for the entire dataset is calculated by averaging the coefficients from every cluster. The optimal number of clusters is the value of $k$ that has the highest silhouette coefficient.
-\end{itemize}
+
+% TODO
+% \begin{itemize}
+%     \item \textbf{Elbow Method:} The elbow method is a heuristic method that is used to find the optimal number of clusters. This method plots the sum of squared errors (SSE) for each value of $k$ and then finds the value of $k$ that has the "elbow" in the plot. This value of $k$ is considered to be the optimal number of clusters. This method presents some disadvantages, as it is not always clear where the "elbow" is, making it a subjective method. Also, the SSE is not a good measure of the quality of the clustering, as it is biased towards clusters with similar sizes.
+%     % TODO disadvantages
+
 
 K-means is advantageous when compared to other clustering methods because of its simplicity and the fact that it doesn't require any prior knowledge of the data. However, the disadvantages are that it is biased towards spherical clusters with similar sizes, is sensitive to the initial position of cluster centroids and requires the determination of the number of clusters beforehand.
 
 \subsection{SOM}\label{sec:som}
 This method is based on the idea of self-organizing maps, which are artificial neural networks used to find a low-dimensional representation of a high-dimensional space. It is usually employed to reduce the dimensions of the data to a map, but can also be used as a clustering method, as it groups similar data. 
 
-The algorithm starts by randomly assigning each data point to a neuron in the map. Then, the weights of each neuron are updated to be closer to the data point that it represents. This process is repeated until the data points stop changing neurons. 
+Unlike other neural network algorithms, SOM is trained with competitive learning. In this method, neurons compete to be the one that is most similar to the data point. This point can only cause the activation of a single neuron in the network, which is called the \textit{Best Matching Unit} (BMU). At the end of the training process, each neuron is specialized in a specific region of the input space, presenting a cluster.
+
+The algorithm starts by randomly assigning each data point to a neuron in the map. Next, a random input vector is chosen from the dataset and the BMU is determined. This is done by measuring the distance between the input vector and the weight vectors of each neuron and then choosing the neuron with the minimum distance to the input. The BMU and its neighbors are then updated to be more similar to the input vector. This process is repeated until the map converges. 
+
 
 The advantage of this algorithm is that it can map high-dimensional input vectors to a low-dimensional space while preserving the original topology of the data. Unlike other clustering methods, which aren't able to provide good results for data with high dimensionality.\footnote{Self-Organizing Maps \url{https://sites.pitt.edu/~is2470pb/Spring05/FinalProjects/Group1a/tutorial/som.html}}
 
@@ -49,10 +57,13 @@ As previously stated, one of the main difficulties in clustering is deciding the
 Cluster validity indices can be divided into three categories: external, internal and relative. External validity indices are used to compare the results of the clustering with the ground truth (labels). On the other hand, internal validity indices serve to evaluate the quality of the clustering without the use of external information. Relative validity evaluates the clustering structure by varying different parameters of the algorithm, such as the number of clusters.
 
 External validity criteria will not be considered for this study as there is no ground truth information available. Instead, internal and relative validity approaches will be used to evaluate the quality of the clustering. The internal validity indices that were used are the following:
+\\
 
 \noindent\textbf{Silhouette Score (S).} This score is one of the most widely used to evaluate clustering goodness. It is also referred to as the mean Silhouette Coefficient for all clusters and is calculated with the mean intra-cluster distance and the mean nearest-cluster distance. Observations with a score close to 1 are well clustered, while observations with a score close to -1 are likely to be assigned to the wrong cluster. Scores around 0 indicate overlapping clusters.
+\\
 
 \noindent\textbf{Calinski-Harabasz Index (CH).} This index is also known as the Variance Ratio Criterion. It is calculated by dividing the between-cluster or inter-cluster dispersion by the within-cluster or intra-cluster dispersion. The higher the value of the index, the better the clustering. Like the silhouette score, it evaluates the goodness of the clustering structure, with higher values indicating better clustering; but, contrary to the previous score, it has no reasonable bound and can take any value. Because of this, it is difficult to use this metric to compare clusterings generated with different methods.
+\\
 
 \noindent\textbf{Davies-Bouldin Index (DB).} This index is calculated by taking the average similarity measure of each cluster with its most similar cluster. This is done by calculating intra-cluster dispersion for each cluster, $i$, followed by the separation measure of each cluster with every other cluster, $j$. Then the similarity of a cluster is obtained by dividing the sum of the intra-cluster dispersions of $i$ and $j$ by the distance between the centroids of the two. Next for each cluster, the maximum similarity measure is selected and the average of these values is calculated. Unlike the previous measures, the lower the value of the index, the better the clustering, as this indicates less similarity between clusters.
 
@@ -79,7 +90,7 @@ After the identification of the most common clustering and dimensionality reduct
 In every experiment, the data was scaled with the QuantileTransformer module from the \textit{sklearn} \cite{scikit-learn} library. This module transforms the data to follow a uniform or a normal distribution. This is done to avoid the influence of outliers in the results of the clustering algorithms. This scaling method was also chosen out of consistency, as it will be later used to scale the data for the machine learning algorithms. Additionally, every algorithm and method that depends on random initialization was set to the same seed to ensure reproducibility.
 
 \subsection{Time Series KMeans}\label{sec:time_series_methods}
-The first method to be tested was the \textit{TimeSeriesKmeans}\footnote{TimeSeriesKMeans \url{https://tslearn.readthedocs.io/en/stable/gen_modules/clustering/tslearn.clustering.TimeSeriesKMeans.html}} clustering algorithm from \textit{tslearn} \cite{tslearn}. As the name indicates, this algorithm is a variation of the K-means algorithm that is used for time series data. It is advantageous as it can cluster time series data without the need to transform it into a vector, which can be problematic because it can lead to the loss of information. Despite this, the method is still based on the K-Means algorithm presented in Section \ref{sec:kmeans} and presents the same disadvantages as the original algorithm. 
+The first method to be tested was the \textit{TimeSeriesKmeans}\footnote{TimeSeriesKMeans \url{https://tslearn.readthedocs.io/en/stable/gen_modules/clustering/tslearn.clustering.TimeSeriesKMeans.html}} clustering algorithm from \textit{tslearn} \cite{tslearn}. As the name indicates, this algorithm is a variation of the K-means algorithm that is used for time series data. It is advantageous as it can cluster time series data without the need to transform it into a lower dimension, which can be problematic because it can lead to the loss of information. Despite this, the method is still based on the K-Means algorithm presented in Section \ref{sec:kmeans} and presents the same disadvantages as the original algorithm. 
 
 Clustering was conducted first on the magnetic field ($B$) and then on the flux tube inclination ($\alpha$) variable. For each one an elbow test was conducted to try and determine the most appropriate number of clusters. 
 
